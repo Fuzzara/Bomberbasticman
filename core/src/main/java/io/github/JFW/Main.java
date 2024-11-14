@@ -41,6 +41,9 @@ public class Main extends ApplicationAdapter {
         uiBackground = new Texture(Gdx.files.internal("uibg.png"));
 
         Gdx.input.setInputProcessor(stage);
+        collSystem = new CollisionSystem();
+        player = new Player(batch,collSystem);
+        sr = new ShapeRenderer();
     }
 
     @Override
