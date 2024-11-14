@@ -12,7 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import java.awt.*;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -25,17 +25,25 @@ public class Main extends ApplicationAdapter {
     private CollisionSystem collSystem;
     //TESTEO
     private Player player;
+    private Actors actors;
     public Array<Rectangle> obstacles;
     private ShapeRenderer sr;
 
     //CUADRITO DEBUG
     private Rectangle rect = new Rectangle(90,45,2,2);
 
+    public enum State { //states del juego
+        running,
+        paused
+    }
+    private State state;
+
     @Override
     public void create() {
-        stage = new Stage(new ExtendViewport(768, 672)); //
+        stage = new Stage(new ExtendViewport(864, 768)); //
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         batch = new SpriteBatch();
+
 
         background = new Texture(Gdx.files.internal("bg.png"));
         uiBackground = new Texture(Gdx.files.internal("uibg.png"));
@@ -43,22 +51,39 @@ public class Main extends ApplicationAdapter {
         Gdx.input.setInputProcessor(stage);
         collSystem = new CollisionSystem();
         player = new Player(batch,collSystem);
+        actors = new Actors(player);
         sr = new ShapeRenderer();
+        //ESTADOS COSAS FELIPE QUE PUTAS
+        state = State.running;
+        stage.addActor(player);
     }
+
 
     @Override
     public void render() {
+
+        switch (state) {
+            case running:
+                draw();
+                actors.update();
+                break;
+            case paused:
+                //no se actualiza!
+                //mostar pantalla de pausa
+                break;
+
+        }
+        input();//Input del cuadrito
         draw();
-        input();
-        player.update();
+        player.draw();
     }
     private void draw() {
         ScreenUtils.clear(0f, 0f, 0f, 1f);
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
         batch.begin();
-        batch.draw(background, 0, 0, 768, 576);
-        batch.draw(uiBackground, 0, 576, 768, 96);
+        batch.draw(background, 0, 0, 864, 672);
+        batch.draw(uiBackground, 0, 657, 864, 111);
         batch.end();
 
         //DEBUG
@@ -69,7 +94,7 @@ public class Main extends ApplicationAdapter {
 
     }
 
-    private void input(){
+    private void input(){ //debug!
         if (Gdx.input.isKeyPressed(Input.Keys.J)) {
             rect.x -= .5;
             Gdx.app.log("COORDS CUADRITO", "X: " + rect.x + " Y: " + rect.y);
@@ -86,6 +111,16 @@ public class Main extends ApplicationAdapter {
             rect.y += .5;
             Gdx.app.log("COORDS CUADRITO", "X: " + rect.x + " Y: " + rect.y);
         }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+            if (state == State.running) {
+                state = State.paused;
+                Gdx.app.log("State", "Pausado");
+            } else {
+                state = State.running;
+                Gdx.app.log("State", "Running");
+            }
+        }
+
     }
 
     @Override
