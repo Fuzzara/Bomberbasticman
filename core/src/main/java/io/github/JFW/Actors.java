@@ -9,17 +9,32 @@ public class Actors extends Actor {
     private ArrayList<Actor> Monster; // sin uso por ahora
     private Player player;
 
+    private Main.State state;
+
     public Actors(){
         this.Bombs = new ArrayList<Bomb>();
         this.Monster = new ArrayList<Actor>();
     }
-    public void update(){
-        this.player.update();
-        for (Bomb bomb:Bombs){
-            bomb.update();
-            if(Bombs.isEmpty()){break;}
+
+    public void update(Main.State state){
+        if (state == Main.State.running) {
+            this.player.update();
+            for (Bomb bomb : Bombs) {
+                bomb.update();
+                if (Bombs.isEmpty()) {
+                    break;
+                }
+
+            }
+        }
+        else{
+            this.player.draw();
+            for (Bomb bomb : Bombs) {
+                bomb.draw();
+            }
         }
     }
+
     public void setPlayer(Player player){
         this.player = player;
     }
@@ -27,7 +42,7 @@ public class Actors extends Actor {
         Bombs.add(bomb);
     }
     public void removeBombs(Bomb bomb){
-       Bombs.remove(bomb);
+        Bombs.remove(bomb);
     }
     public void updateMonsters(){
 
