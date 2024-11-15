@@ -23,7 +23,9 @@ public class Actors extends Actor {
     public void updateBombs(Bomb bomb){
         Bombs.add(bomb);
     }
-    
+    public void removeBombs(Bomb bomb){
+       Bombs.remove(bomb);
+    }
     public void updateMonsters(){
 
     }

@@ -53,7 +53,7 @@ public class Main extends ApplicationAdapter {
         player = new Player(batch,collSystem);
         actors = new Actors(player);
         sr = new ShapeRenderer();
-        //ESTADOS COSAS FELIPE QUE PUTAS
+
         state = State.running;
         stage.addActor(player);
     }
@@ -61,7 +61,6 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void render() {
-
         switch (state) {
             case running:
                 draw();

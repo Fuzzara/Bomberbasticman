@@ -8,9 +8,9 @@ public class CollisionSystem {
 
     public CollisionSystem() {
         Rectangle paredIzquierda = new Rectangle( 89, 0, 1, 672);
-        Rectangle paredDerecha = new Rectangle( 679, 0, 1, 672);
-        Rectangle paredArriba = new Rectangle( 0, 533, 768, 1);
-        Rectangle paredAbajo = new Rectangle( 0, 43, 768, 1);
+        Rectangle paredDerecha = new Rectangle( 774, 0, 1, 672);
+        Rectangle paredArriba = new Rectangle( 0, 627, 864, 1);
+        Rectangle paredAbajo = new Rectangle( 0, 43, 864, 1);
 
         obstacles.add(paredAbajo);
         obstacles.add(paredArriba);
