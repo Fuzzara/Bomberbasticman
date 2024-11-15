@@ -16,6 +16,8 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import java.awt.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.utils.viewport.FillViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
@@ -48,7 +50,7 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void create() {
-        stage = new Stage(new ExtendViewport(864, 768)); //
+        stage = new Stage(new FitViewport(864, 768)); //
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         batch = new SpriteBatch();
 
@@ -63,7 +65,7 @@ public class Main extends ApplicationAdapter {
 
         mapSystem = new MapSystem();
         currentMap = mapSystem.getMap(0);
-        mapRenderer = new OrthogonalTiledMapRenderer(currentMap.getTiledMap(),2);
+        mapRenderer = new OrthogonalTiledMapRenderer(currentMap.getTiledMap(),2.74f);
 
 
 
@@ -155,5 +157,5 @@ public class Main extends ApplicationAdapter {
         stage.dispose();
         skin.dispose();
     }
-    
+
 }
