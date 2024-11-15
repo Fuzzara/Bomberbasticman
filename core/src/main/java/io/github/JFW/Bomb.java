@@ -8,12 +8,12 @@ import com.badlogic.gdx.graphics.Texture;
 public class Bomb extends Actor{
     private Actors actors; //anti POO, debe de haber una mejor manera
 
-    private Vector2 posicion;
+    private Vector2 position;
     private float width;
     private float height;
 
-    private Texture bombTexture = new Texture("bomba.png");
-    private Sprite bombSprite = new Sprite(bombTexture);
+    private Texture bombTexture;
+    private Sprite bombSprite;
     private SpriteBatch batch;
 
     private long currentTime;
@@ -21,25 +21,30 @@ public class Bomb extends Actor{
 
     private CollisionSystem collSystem;
 
-    public Bomb(SpriteBatch batch, CollisionSystem collSystem, Vector2 posicion){
+    public Bomb(SpriteBatch batch, float positionx ,float positiony, Actors actors){
         this.batch = batch;
-        this.posicion = posicion;
-        bombSprite.setSize(48, 48);
-        bombSprite.setPosition(posicion.x, posicion.y);
-        width = 48;
-        height = 48;
-        this.collSystem = collSystem;
+        this.position = new Vector2(positionx,positiony);
+
+        this.width = 48;
+        this.height = 48;
         this.currentTime = System.nanoTime();
         this.detonationTime = currentTime + 2000000000; //2 segundos
+        this.actors = actors;
+
+        this.bombTexture = new Texture("bomba.png");
+        this.bombSprite = new Sprite(bombTexture);
+        this.bombSprite.setSize(this.width, this.height);
+        this.bombSprite.setPosition(this.position.x, this.position.y);
+        actors.updateBombs(this);
     }
 
     public void draw(){
-        currentTime = System.nanoTime();
+        this.currentTime = System.nanoTime();
         batch.begin();
-        bombSprite.setPosition(posicion.x, posicion.y);
+        bombSprite.setPosition(position.x, position.y);
         bombSprite.draw(batch);
         if (currentTime >= detonationTime){
-            batch.end();
+            actors.removeBombs(this);
         }
         batch.end();
     }

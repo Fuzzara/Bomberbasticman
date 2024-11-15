@@ -14,6 +14,9 @@ import com.badlogic.gdx.math.Rectangle;
 import org.w3c.dom.css.Rect;
 
 public class Player extends Actor {
+    //anti Poo probablemente
+    private Actors actors;
+
     // Constants
     private static final int INITIAL_HP = 3;
     private static final float INITIAL_SPEED = 120f;
@@ -51,12 +54,16 @@ public class Player extends Actor {
     private Sound walkSound;
     private float walkSoundTime;
 
-    public Player(SpriteBatch batch, CollisionSystem collisionSystem) {
+    public Player(SpriteBatch batch, CollisionSystem collisionSystem, Actors actors) {
         this.batch = batch;
         this.collisionSystem = collisionSystem;
         this.hp = INITIAL_HP;
         this.speed = INITIAL_SPEED;
         this.position = new Vector2(INITIAL_POSITION);
+
+        this.actors = actors;
+
+        this.walkSound = Gdx.audio.newSound(Gdx.files.internal("sfx/Walking-1.mp3"));
 
         // Sprite and rendering
         Texture bomberTexture = new Texture("bomberTexture.png");
@@ -115,7 +122,10 @@ public class Player extends Actor {
             moving = true;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)){
+            Bomb bomb = new Bomb(batch,position.x,position.y,actors);
+            //no lo coloca en el grid si no en la posicion en la que esta -^
             //le pone la bomba mhmm~~~~
+
         }
         if (moving) {
             currentAnimator.getFrame(); //Se actualiza solamente si se esta moviendo

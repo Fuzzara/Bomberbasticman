@@ -9,8 +9,7 @@ public class Actors extends Actor {
     private ArrayList<Actor> Monster; // sin uso por ahora
     private Player player;
 
-    public Actors(Player player){
-        this.player = player;
+    public Actors(){
         this.Bombs = new ArrayList<Bomb>();
         this.Monster = new ArrayList<Actor>();
     }
@@ -18,7 +17,11 @@ public class Actors extends Actor {
         this.player.update();
         for (Bomb bomb:Bombs){
             bomb.update();
+            if(Bombs.isEmpty()){break;}
         }
+    }
+    public void setPlayer(Player player){
+        this.player = player;
     }
     public void updateBombs(Bomb bomb){
         Bombs.add(bomb);

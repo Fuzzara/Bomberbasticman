@@ -30,7 +30,7 @@ public class Main extends ApplicationAdapter {
     private ShapeRenderer sr;
 
     //CUADRITO DEBUG
-    private Rectangle rect = new Rectangle(90,45,2,2);
+    private Rectangle rect = new Rectangle(186,45,2,2);
 
     public enum State { //states del juego
         running,
@@ -50,8 +50,10 @@ public class Main extends ApplicationAdapter {
 
         Gdx.input.setInputProcessor(stage);
         collSystem = new CollisionSystem();
-        player = new Player(batch,collSystem);
-        actors = new Actors(player);
+
+        actors = new Actors();
+        player = new Player(batch,collSystem,actors);
+        actors.setPlayer(player);
         sr = new ShapeRenderer();
 
         state = State.running;
