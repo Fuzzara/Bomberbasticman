@@ -14,6 +14,8 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import java.awt.*;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
@@ -22,8 +24,7 @@ public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
     private Texture background;
     private Texture uiBackground;
-    private CollisionSystem collSystem;
-    //TESTEO
+    // Remove collSystem reference
     private Player player;
     private Actors actors;
     public Array<Rectangle> obstacles;
@@ -33,6 +34,11 @@ public class Main extends ApplicationAdapter {
 
     //CUADRITO DEBUG
     private Rectangle rect = new Rectangle(186,45,2,2);
+
+    private MapSystem mapSystem;
+    private Map currentMap;
+    private OrthogonalTiledMapRenderer mapRenderer;
+    private OrthographicCamera camera;
 
     public enum State { //states del juego
         running,
@@ -50,12 +56,19 @@ public class Main extends ApplicationAdapter {
         uiBackground = new Texture(Gdx.files.internal("uibg.png"));
 
         Gdx.input.setInputProcessor(stage);
-        collSystem = new CollisionSystem();
+        // Remove collSystem initialization
+
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, 864, 768);
+
+        mapSystem = new MapSystem();
+        currentMap = mapSystem.getMap(0);
+        mapRenderer = new OrthogonalTiledMapRenderer(currentMap.getTiledMap(),2);
 
 
 
         actors = new Actors();
-        player = new Player(batch,collSystem,actors);
+        player = new Player(batch, actors, currentMap);
         actors.setPlayer(player);
         sr = new ShapeRenderer();
 
@@ -86,19 +99,21 @@ public class Main extends ApplicationAdapter {
     }
     private void draw() {
         ScreenUtils.clear(0f, 0f, 0f, 1f);
-        stage.act(Gdx.graphics.getDeltaTime());
-        stage.draw();
+
+        camera.update();
+        mapRenderer.setView(camera);
+        mapRenderer.render();
+
+        batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(background, 0, 0, 864, 672);
         batch.draw(uiBackground, 0, 657, 864, 111);
         batch.end();
 
-        //DEBUG
+        // Debug rectangle
         sr.begin(ShapeRenderer.ShapeType.Filled);
-        sr.setColor(0,1,0,1);
+        sr.setColor(0, 1, 0, 1);
         sr.rect(rect.x, rect.y, rect.width, rect.height);
         sr.end();
-
     }
 
     private void input(){ //debug!
@@ -140,4 +155,5 @@ public class Main extends ApplicationAdapter {
         stage.dispose();
         skin.dispose();
     }
+    
 }

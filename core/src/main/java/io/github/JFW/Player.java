@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.math.Rectangle;
 import org.w3c.dom.css.Rect;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 
 public class Player extends Actor {
     //anti Poo probablemente
@@ -48,16 +49,17 @@ public class Player extends Actor {
 
     // Collision and bounding box
     private Rectangle boundingBox;
-    private CollisionSystem collisionSystem;
     private ShapeRenderer shapeRenderer;
+    private Map currentMap;
 
     //Sound
     private Sound walkSound;
     private float walkSoundTime;
 
-    public Player(SpriteBatch batch, CollisionSystem collisionSystem, Actors actors) {
+    public Player(SpriteBatch batch, Actors actors, Map currentMap) {
         this.batch = batch;
-        this.collisionSystem = collisionSystem;
+        this.actors = actors;
+        this.currentMap = currentMap;
         this.hp = INITIAL_HP;
         this.speed = INITIAL_SPEED;
         this.position = new Vector2(INITIAL_POSITION);
@@ -122,13 +124,12 @@ public class Player extends Actor {
             currentAnimator = upAnimator;
             moving = true;
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_RIGHT)){
+        if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)){
             if (Timeuntilnextbomb < System.nanoTime()){
                 Bomb bomb = new Bomb(batch,position.x,position.y,actors);
                 System.out.println("Nueva bomba");
                 Timeuntilnextbomb = System.nanoTime()+50000000;
             }
-            //le pone la bomba mhmm~~~~
         }
         if (moving) {
             currentAnimator.getFrame(); //Se actualiza solamente si se esta moviendo
@@ -142,10 +143,39 @@ public class Player extends Actor {
     }
 
     private void move(float dx, float dy) {
-        if (!collisionSystem.willCollide(position.x + dx, position.y + dy, boundingBox.width, boundingBox.height)) {
-            position.add(dx, dy);
+        float newX = position.x + dx;
+        float newY = position.y + dy;
+        if (!isCollision(newX, newY)) {
+            position.set(newX, newY);
         }
     }
+
+    private boolean isCollision(float x, float y) {
+        /*TiledMapTileLayer collisionLayer = currentMap.getCollisionLayer();
+        if (collisionLayer == null) {
+            return false;
+        }
+
+        // Check corners of the bounding box
+        int tileSize = (int) collisionLayer.getTileWidth();
+        int x1 = (int) (x / tileSize);
+        int y1 = (int) (y / tileSize);
+        int x2 = (int) ((x + boundingBox.width) / tileSize);
+        int y2 = (int) ((y + boundingBox.height) / tileSize);
+
+        // Check all four corners
+        return isTileBlocked(collisionLayer, x1, y1) ||
+               isTileBlocked(collisionLayer, x1, y2) ||
+               isTileBlocked(collisionLayer, x2, y1) ||
+               isTileBlocked(collisionLayer, x2, y2);*/
+        return false;
+    }
+
+    private boolean isTileBlocked(TiledMapTileLayer layer, int x, int y) {
+        TiledMapTileLayer.Cell cell = layer.getCell(x, y);
+        return cell != null && cell.getTile() != null;
+    }
+
     private void playSound(){
         walkSoundTime += Gdx.graphics.getDeltaTime();
         if (walkSoundTime >= 0.5f){
@@ -170,6 +200,10 @@ public class Player extends Actor {
         handleInput();
         updateBoundingBox();
         draw();
+    }
+
+    public void setCurrentMap(Map map) {
+        this.currentMap = map;
     }
 
 }
