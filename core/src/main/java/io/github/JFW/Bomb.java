@@ -39,17 +39,21 @@ public class Bomb extends Actor{
     }
 
     public void draw(){
-        this.currentTime = System.nanoTime();
         batch.begin();
         bombSprite.setPosition(position.x, position.y);
         bombSprite.draw(batch);
+        batch.end();
+
+    }
+    public void logic(){
+        this.currentTime = System.nanoTime();
         if (currentTime >= detonationTime){
             actors.removeBombs(this);
         }
-        batch.end();
     }
 
     public void update(){
         draw();
+        logic();
     }
 }

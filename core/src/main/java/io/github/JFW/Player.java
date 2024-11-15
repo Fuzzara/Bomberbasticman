@@ -19,7 +19,7 @@ public class Player extends Actor {
 
     // Constants
     private static final int INITIAL_HP = 3;
-    private static final float INITIAL_SPEED = 120f;
+    private static final float INITIAL_SPEED = 70f;
     private static final Vector2 INITIAL_POSITION = new Vector2(93, 480);
     private static final float SPRITE_WIDTH = 48;
     private static final float SPRITE_HEIGHT = 96;
@@ -28,6 +28,7 @@ public class Player extends Actor {
     // Stats
     private int hp;
     private boolean detonator;
+    private long Timeuntilnextbomb;
 
     // Position and movement
     private Vector2 position;
@@ -63,7 +64,7 @@ public class Player extends Actor {
 
         this.actors = actors;
 
-        this.walkSound = Gdx.audio.newSound(Gdx.files.internal("sfx/Walking-1.mp3"));
+        this.walkSound = Gdx.audio.newSound(Gdx.files.internal("sound/Walking-1.mp3"));
 
         // Sprite and rendering
         Texture bomberTexture = new Texture("bomberTexture.png");
@@ -121,11 +122,13 @@ public class Player extends Actor {
             currentAnimator = upAnimator;
             moving = true;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)){
-            Bomb bomb = new Bomb(batch,position.x,position.y,actors);
-            //no lo coloca en el grid si no en la posicion en la que esta -^
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_RIGHT)){
+            if (Timeuntilnextbomb < System.nanoTime()){
+                Bomb bomb = new Bomb(batch,position.x,position.y,actors);
+                System.out.println("Nueva bomba");
+                Timeuntilnextbomb = System.nanoTime()+50000000;
+            }
             //le pone la bomba mhmm~~~~
-
         }
         if (moving) {
             currentAnimator.getFrame(); //Se actualiza solamente si se esta moviendo
@@ -145,7 +148,7 @@ public class Player extends Actor {
     }
     private void playSound(){
         walkSoundTime += Gdx.graphics.getDeltaTime();
-        if (walkSoundTime >= 0.3f){
+        if (walkSoundTime >= 0.5f){
             walkSound.play();
             walkSoundTime = 0f;
         }

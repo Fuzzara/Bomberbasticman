@@ -29,6 +29,8 @@ public class Main extends ApplicationAdapter {
     public Array<Rectangle> obstacles;
     private ShapeRenderer sr;
 
+    private MusicPlayer music = new MusicPlayer();
+
     //CUADRITO DEBUG
     private Rectangle rect = new Rectangle(186,45,2,2);
 
@@ -44,12 +46,13 @@ public class Main extends ApplicationAdapter {
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         batch = new SpriteBatch();
 
-
         background = new Texture(Gdx.files.internal("bg.png"));
         uiBackground = new Texture(Gdx.files.internal("uibg.png"));
 
         Gdx.input.setInputProcessor(stage);
         collSystem = new CollisionSystem();
+
+
 
         actors = new Actors();
         player = new Player(batch,collSystem,actors);
@@ -58,6 +61,9 @@ public class Main extends ApplicationAdapter {
 
         state = State.running;
         stage.addActor(player);
+
+        music.playMusic("sound/w1.mp3");
+
     }
 
 
@@ -66,7 +72,7 @@ public class Main extends ApplicationAdapter {
         switch (state) {
             case running:
                 draw();
-                actors.update();
+                actors.update(state);
                 break;
             case paused:
                 //no se actualiza!
@@ -76,7 +82,7 @@ public class Main extends ApplicationAdapter {
         }
         input();//Input del cuadrito
         draw();
-        player.draw();
+        actors.update(state);
     }
     private void draw() {
         ScreenUtils.clear(0f, 0f, 0f, 1f);

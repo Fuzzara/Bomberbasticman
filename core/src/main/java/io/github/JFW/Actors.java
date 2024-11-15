@@ -6,29 +6,63 @@ import java.util.ArrayList;
 
 public class Actors extends Actor {
     private ArrayList<Bomb> Bombs;
+    private ArrayList<Bomb> BombsTBR; // BombstobeRemoved
     private ArrayList<Actor> Monster; // sin uso por ahora
     private Player player;
+
+    private Main.State state;
 
     public Actors(){
         this.Bombs = new ArrayList<Bomb>();
         this.Monster = new ArrayList<Actor>();
+        this.BombsTBR = new ArrayList<Bomb>();
     }
-    public void update(){
-        this.player.update();
-        for (Bomb bomb:Bombs){
-            bomb.update();
-            if(Bombs.isEmpty()){break;}
+
+    public void update(Main.State state){
+        if (state == Main.State.running) {
+            this.player.update();
+            for (Bomb bomb : Bombs) {
+                bomb.update();
+                if (Bombs.isEmpty()) {
+                    return;
+                }
+
+            }
+            actuallyremovingBombs();
+        }
+        else{
+            this.player.draw();
+            for (Bomb bomb : Bombs) {
+                bomb.draw();
+            }
         }
     }
+
     public void setPlayer(Player player){
         this.player = player;
     }
+
     public void updateBombs(Bomb bomb){
         Bombs.add(bomb);
     }
-    public void removeBombs(Bomb bomb){
-       Bombs.remove(bomb);
+
+    public void actuallyremovingBombs(){
+        int counter = 0;
+        for (Bomb bomb: BombsTBR){
+            Bombs.removeFirst();
+            System.out.println("Removing bomb");
+            counter += 1;
+        }
+        for (int i = 0; i<counter;i++){
+            BombsTBR.removeFirst();
+            System.out.println("Removing bomb from counter");
+        }
     }
+
+    public void removeBombs(Bomb bomb){
+       BombsTBR.add(bomb);
+    }
+
     public void updateMonsters(){
 
     }
