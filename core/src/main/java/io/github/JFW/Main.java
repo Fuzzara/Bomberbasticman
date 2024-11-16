@@ -72,10 +72,10 @@ public class Main extends ApplicationAdapter {
         //currentMap.placerandomwalls(6);
         //currentMap.addSingleCollision(2,1);// esquina abajo izquierda
         //currentMap.addSingleCollision(16,13); // esquina arriba derecha
-        //currentMap.addSingleCollision(3,12);
 
         levelconfig = new Config(batch);
         currentMap = levelconfig.setuplevel(1);
+        //currentMap.addSingleCollision(3,3);
         mapRenderer = new OrthogonalTiledMapRenderer(currentMap.getTiledMap(),3f);
 
         //actors = new Actors();
