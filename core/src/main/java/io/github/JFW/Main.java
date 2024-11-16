@@ -24,20 +24,23 @@ public class Main extends ApplicationAdapter {
     private Stage stage;
     private Skin skin;
     private SpriteBatch batch;
-    private Texture background;
     private Texture uiBackground;
     // Remove collSystem reference
-    private Player player;
-    private Actors actors;
+    //private Player player;
+    //private Actors actors;
+    private Config levelconfig;
     public Array<Rectangle> obstacles;
     private ShapeRenderer sr;
 
+    //Sound
     private MusicPlayer music = new MusicPlayer();
+    private SFXPlayer sfx = new SFXPlayer();
 
     //CUADRITO DEBUG
-    private Rectangle rect = new Rectangle(186,45,2,2);
+    //private Rectangle rect = new Rectangle(186,45,2,2);
 
-    private MapSystem mapSystem;
+    //Map stuff
+   // private MapSystem mapSystem;
     private Map currentMap;
     private OrthogonalTiledMapRenderer mapRenderer;
     private OrthographicCamera camera;
@@ -50,44 +53,50 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void create() {
-        stage = new Stage(new FitViewport(864, 768)); //
+        Gdx.app.setLogLevel(Gdx.app.LOG_DEBUG);
+
+        stage = new Stage(new ExtendViewport(864, 783)); //usar img de ref
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         batch = new SpriteBatch();
 
-        background = new Texture(Gdx.files.internal("bg.png"));
         uiBackground = new Texture(Gdx.files.internal("uibg.png"));
 
         Gdx.input.setInputProcessor(stage);
         // Remove collSystem initialization
 
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 864, 768);
+        camera.setToOrtho(false, 864, 783);
+        camera.position.set((864/2)+24, (783/2)+24, 0);
+        //mapSystem = new MapSystem();
+        //currentMap = mapSystem.getMap(3); // AQUI CAMBIA EL NIVEL :3
+        //currentMap.placerandomwalls(6);
+        //currentMap.addSingleCollision(2,1);// esquina abajo izquierda
+        //currentMap.addSingleCollision(16,13); // esquina arriba derecha
+        //currentMap.addSingleCollision(3,12);
 
-        mapSystem = new MapSystem();
-        currentMap = mapSystem.getMap(0);
-        mapRenderer = new OrthogonalTiledMapRenderer(currentMap.getTiledMap(),2.74f);
+        levelconfig = new Config(batch);
+        currentMap = levelconfig.setuplevel(1);
+        mapRenderer = new OrthogonalTiledMapRenderer(currentMap.getTiledMap(),3f);
 
-
-
-        actors = new Actors();
-        player = new Player(batch, actors, currentMap);
-        actors.setPlayer(player);
-        sr = new ShapeRenderer();
+        //actors = new Actors();
+        //player = new Player(batch, actors, currentMap);
+        //actors.setPlayer(player);
+        //sr = new ShapeRenderer(); //debug ig
 
         state = State.running;
-        stage.addActor(player);
+        //stage.addActor(player);
 
         music.playMusic("sound/w1.mp3");
 
     }
-
 
     @Override
     public void render() {
         switch (state) {
             case running:
                 draw();
-                actors.update(state);
+                levelconfig.runlevel(state);
+                //actors.update(state);
                 break;
             case paused:
                 //no se actualiza!
@@ -95,9 +104,11 @@ public class Main extends ApplicationAdapter {
                 break;
 
         }
-        input();//Input del cuadrito
+        //input();//Input del cuadrito
+        inputExtra();
         draw();
-        actors.update(state);
+        levelconfig.runlevel(state);
+        //actors.update(state);
     }
     private void draw() {
         ScreenUtils.clear(0f, 0f, 0f, 1f);
@@ -108,17 +119,19 @@ public class Main extends ApplicationAdapter {
 
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(uiBackground, 0, 657, 864, 111);
+        batch.draw(uiBackground, 24, 696, 864, 111);
         batch.end();
 
         // Debug rectangle
+        /*
         sr.begin(ShapeRenderer.ShapeType.Filled);
         sr.setColor(0, 1, 0, 1);
         sr.rect(rect.x, rect.y, rect.width, rect.height);
         sr.end();
+        */
     }
 
-    private void input(){ //debug!
+    /*private void input(){ //debug!
         if (Gdx.input.isKeyPressed(Input.Keys.J)) {
             rect.x -= .5;
             Gdx.app.log("COORDS CUADRITO", "X: " + rect.x + " Y: " + rect.y);
@@ -137,14 +150,33 @@ public class Main extends ApplicationAdapter {
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             if (state == State.running) {
+                music.pauseMusic();
+                sfx.playSFX("sound/pause.mp3");
                 state = State.paused;
+                music.pauseMusic();
                 Gdx.app.log("State", "Pausado");
             } else {
                 state = State.running;
+                music.resumeMusic();
                 Gdx.app.log("State", "Running");
             }
         }
 
+    }*/
+    private void inputExtra(){
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+            if (state == State.running) {
+                music.pauseMusic();
+                sfx.playSFX("sound/pause.mp3");
+                state = State.paused;
+                music.pauseMusic();
+                Gdx.app.log("State", "Pausado");
+            } else {
+                state = State.running;
+                music.resumeMusic();
+                Gdx.app.log("State", "Running");
+            }
+        }
     }
 
     @Override

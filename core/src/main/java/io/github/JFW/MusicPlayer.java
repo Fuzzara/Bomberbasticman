@@ -17,5 +17,16 @@ public class MusicPlayer {
         music.stop();
         isPlaying = false;
     }
+    void pauseMusic(){
+        music.pause();
+        isPlaying = false;
+    }
+    void resumeMusic(){
+        music.play();
+        isPlaying = true;
+    }
+    boolean isPlaying(){
+        return isPlaying;
+    }
 }
 

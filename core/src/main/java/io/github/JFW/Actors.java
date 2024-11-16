@@ -37,6 +37,11 @@ public class Actors extends Actor {
             }
         }
     }
+    public void clearActors(){
+        Bombs.clear();
+        BombsTBR.clear();
+        Monster.clear();
+    }
 
     public void setPlayer(Player player){
         this.player = player;

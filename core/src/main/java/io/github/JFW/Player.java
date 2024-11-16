@@ -8,23 +8,25 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.math.Rectangle;
 import org.w3c.dom.css.Rect;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.MapObject;
 
 public class Player extends Actor {
-    //anti Poo probablemente
     private Actors actors;
 
     // Constants
     private static final int INITIAL_HP = 3;
     private static final float INITIAL_SPEED = 70f;
-    private static final Vector2 INITIAL_POSITION = new Vector2(93, 480);
+    private static final Vector2 INITIAL_POSITION = new Vector2(96, 630);
     private static final float SPRITE_WIDTH = 48;
     private static final float SPRITE_HEIGHT = 96;
-    private static final float BOUNDING_BOX_SIZE = 38;
+    private static final float BOUNDING_BOX_SIZE = 34;
 
     // Stats
     private int hp;
@@ -34,9 +36,13 @@ public class Player extends Actor {
     // Position and movement
     private Vector2 position;
     private float speed;
+    private InputHandler inputHandler;
 
     private Sprite bomberSprite;
     private SpriteBatch batch;
+
+    //Bomb stuff
+    private BombManager bombManager;
 
     //Animations
     private final Animator upAnimator;
@@ -56,6 +62,9 @@ public class Player extends Actor {
     private Sound walkSound;
     private float walkSoundTime;
 
+    //States
+    statePlayer state;
+
     public Player(SpriteBatch batch, Actors actors, Map currentMap) {
         this.batch = batch;
         this.actors = actors;
@@ -63,6 +72,9 @@ public class Player extends Actor {
         this.hp = INITIAL_HP;
         this.speed = INITIAL_SPEED;
         this.position = new Vector2(INITIAL_POSITION);
+        this.state = new statePlayer();
+        this.inputHandler = new InputHandler(state);
+
 
         this.actors = actors;
 
@@ -73,6 +85,8 @@ public class Player extends Actor {
         this.bomberSprite = new Sprite(bomberTexture);
         this.bomberSprite.setSize(SPRITE_WIDTH, SPRITE_HEIGHT);
         this.bomberSprite.setPosition(position.x, position.y);
+
+        this.bombManager = new BombManager(batch, actors, currentMap);
 
         this.boundingBox = new Rectangle(position.x, position.y, BOUNDING_BOX_SIZE, BOUNDING_BOX_SIZE);
         this.shapeRenderer = new ShapeRenderer();
@@ -87,7 +101,7 @@ public class Player extends Actor {
         this.currentAnimator = downAnimator; //default
     }
 
-    public void draw(){
+    public void draw() {
         batch.begin();
         batch.draw(currentAnimator.getFrame(), position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
 
@@ -103,43 +117,40 @@ public class Player extends Actor {
 
     private void handleInput() {
         float deltaTime = Gdx.graphics.getDeltaTime();
-        boolean moving = false; //Booleano que indica si el jugador se esta moviendo
-        if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            move(-speed * deltaTime, 0);
-            currentAnimator = leftAnimator;
-            moving = true;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            move(speed * deltaTime, 0);
-            currentAnimator = rightAnimator;
-            moving = true;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            move(0, -speed * deltaTime);
-            currentAnimator = downAnimator;
-            moving = true;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            move(0, speed * deltaTime);
-            currentAnimator = upAnimator;
-            moving = true;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)){
-            if (Timeuntilnextbomb < System.nanoTime()){
-                Bomb bomb = new Bomb(batch,position.x,position.y,actors);
-                System.out.println("Nueva bomba");
-                Timeuntilnextbomb = System.nanoTime()+50000000;
+        // -- Estados movimiento --
+        statePlayer.State currentState = inputHandler.handlePlayerMovement();
+        inputHandler.canPlaceBomb();
+        if (currentState != null) {
+            state.setCurrentState(currentState);
+            switch (currentState) {
+                case LEFT:
+                    move(-speed * deltaTime, 0);
+                    currentAnimator = leftAnimator;
+                    break;
+                case RIGHT:
+                    move(speed * deltaTime, 0);
+                    currentAnimator = rightAnimator;
+                    break;
+                case UP:
+                    move(0, speed * deltaTime);
+                    currentAnimator = upAnimator;
+                    break;
+                case DOWN:
+                    move(0, -speed * deltaTime);
+                    currentAnimator = downAnimator;
+                    break;
             }
         }
-        if (moving) {
-            currentAnimator.getFrame(); //Se actualiza solamente si se esta moviendo
-            playSound(); //Se reproduce el sonido de caminar
-        }
-        else {
-           currentAnimator.reset(0.5f); //Se resetea la animacion si no se esta moviendo ("idle")
-            walkSoundTime = 0f; //Se resetea el tiempo del sonido
+
+        if (currentState != null) {
+            currentAnimator.getFrame();
+            playSound();
+        } else {
+            currentAnimator.reset(0.5f);
+            walkSoundTime = 0f;
         }
 
+        bombManager.handleBombPlacement(position);
     }
 
     private void move(float dx, float dy) {
@@ -147,33 +158,22 @@ public class Player extends Actor {
         float newY = position.y + dy;
         if (!isCollision(newX, newY)) {
             position.set(newX, newY);
+            updateBoundingBox();
         }
     }
 
     private boolean isCollision(float x, float y) {
-        /*TiledMapTileLayer collisionLayer = currentMap.getCollisionLayer();
-        if (collisionLayer == null) {
-            return false;
+        Rectangle playerRect = new Rectangle(x, y, boundingBox.width, boundingBox.height);
+        for (MapObject object : currentMap.getCollisionLayer().getObjects()) {
+            if (object instanceof RectangleMapObject) {
+                Rectangle rect = ((RectangleMapObject) object).getRectangle();
+                if (rect.overlaps(playerRect)) {
+                    //Gdx.app.debug("Player", "Collision detected at (" + x + ", " + y + ")");
+                    return true;
+                }
+            }
         }
-
-        // Check corners of the bounding box
-        int tileSize = (int) collisionLayer.getTileWidth();
-        int x1 = (int) (x / tileSize);
-        int y1 = (int) (y / tileSize);
-        int x2 = (int) ((x + boundingBox.width) / tileSize);
-        int y2 = (int) ((y + boundingBox.height) / tileSize);
-
-        // Check all four corners
-        return isTileBlocked(collisionLayer, x1, y1) ||
-               isTileBlocked(collisionLayer, x1, y2) ||
-               isTileBlocked(collisionLayer, x2, y1) ||
-               isTileBlocked(collisionLayer, x2, y2);*/
         return false;
-    }
-
-    private boolean isTileBlocked(TiledMapTileLayer layer, int x, int y) {
-        TiledMapTileLayer.Cell cell = layer.getCell(x, y);
-        return cell != null && cell.getTile() != null;
     }
 
     private void playSound(){
