@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import io.github.JFW.System.InputHandler;
+import io.github.JFW.System.MusicPlayer;
 
 public class MainMenu extends ApplicationAdapter {
     private SpriteBatch batch;

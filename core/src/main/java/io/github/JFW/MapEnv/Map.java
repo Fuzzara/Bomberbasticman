@@ -1,4 +1,4 @@
-package io.github.JFW;
+package io.github.JFW.MapEnv;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
@@ -140,9 +140,11 @@ public class Map {
         TiledMapTileLayer layerTile = (TiledMapTileLayer) tiledMap.getLayers().get("obstacles");
         int scaledTileWidth = layerTile.getTileWidth() * 3;
         int scaledTileHeight = layerTile.getTileHeight() * 3;
-        if (x >= 0 && x < layerTile.getWidth() && y >= 0 && y < layerTile.getHeight()) {
 
+        if (x >= 0 && x < layerTile.getWidth() && y >= 0 && y < layerTile.getHeight()) {
             RectangleMapObject rectToRemove = null;
+
+            // Find the matching rectangle to remove
             for (MapObject object : collisionLayer.getObjects()) {
                 if (object instanceof RectangleMapObject) {
                     Rectangle rect = ((RectangleMapObject) object).getRectangle();
@@ -152,16 +154,29 @@ public class Map {
                     }
                 }
             }
+
+            // If found, remove it
             if (rectToRemove != null) {
-                if (rectToRemove.getProperties().get("Indestructible") != null && rectToRemove.getProperties().get("Indestructible").equals(true)) {
-                    Gdx.app.error("MAP", "INDESTRUCTIBLE NO SE PUEDE");
+                if (Boolean.TRUE.equals(rectToRemove.getProperties().get("Indestructible"))) {
+                    Gdx.app.error("MAP", "Cannot remove an indestructible object at " + x + ", " + y);
                     return;
                 }
                 collisionLayer.getObjects().remove(rectToRemove);
+                Gdx.app.debug("MAP", "Removed collision object at: " + x + ", " + y);
+            } else {
+                Gdx.app.debug("MAP", "No collision object found at: " + x + ", " + y);
             }
 
-            // Remove the tile from the obstacles layer
-            layerTile.setCell(x, y, null);
+            // Remove the corresponding tile
+            TiledMapTileLayer.Cell cell = layerTile.getCell(x, y);
+            if (cell != null) {
+                layerTile.setCell(x, y, null);
+                Gdx.app.debug("MAP", "Removed tile at: " + x + ", " + y);
+            } else {
+                Gdx.app.debug("MAP", "No tile to remove at: " + x + ", " + y);
+            }
+        } else {
+            Gdx.app.error("MAP", "Coordinates out of bounds: " + x + ", " + y);
         }
     }
 

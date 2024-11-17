@@ -1,4 +1,5 @@
-package io.github.JFW;
+package io.github.JFW.Entitys;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -8,6 +9,8 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import io.github.JFW.MapEnv.Map;
+
 import java.util.Random;
 
 public class Enemy extends Actor{
@@ -122,6 +125,7 @@ public class Enemy extends Actor{
             lastState = LS;
         }
     }
+
     private boolean isCollision(float x, float y) {
         Rectangle enemyRect = new Rectangle(x, y, boundingBox.width, boundingBox.height);
         if(enemyRect.overlaps(player.getBoundingBox())){
