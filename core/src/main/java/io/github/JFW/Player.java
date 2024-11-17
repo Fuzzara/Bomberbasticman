@@ -18,6 +18,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.MapObject;
 
 public class Player extends Actor {
+    private static Player instance; // Singleton instance
     private Actors actors;
 
     // Constants
@@ -27,6 +28,7 @@ public class Player extends Actor {
     private static final float SPRITE_WIDTH = 48;
     private static final float SPRITE_HEIGHT = 96;
     private static final float BOUNDING_BOX_SIZE = 34;
+    private static final float BOUNDING_BOX_OFFSET = 23;
 
     // Stats
     private int hp;
@@ -65,7 +67,7 @@ public class Player extends Actor {
     //States
     statePlayer state;
 
-    public Player(SpriteBatch batch, Actors actors, Map currentMap) {
+    private Player(SpriteBatch batch, Actors actors, Map currentMap) { // Make constructor private
         this.batch = batch;
         this.actors = actors;
         this.currentMap = currentMap;
@@ -74,7 +76,6 @@ public class Player extends Actor {
         this.position = new Vector2(INITIAL_POSITION);
         this.state = new statePlayer();
         this.inputHandler = new InputHandler();
-
 
         this.actors = actors;
 
@@ -88,7 +89,7 @@ public class Player extends Actor {
 
         this.bombManager = new BombManager(batch, actors, currentMap);
 
-        this.boundingBox = new Rectangle(position.x, position.y, BOUNDING_BOX_SIZE, BOUNDING_BOX_SIZE);
+        this.boundingBox = new Rectangle(position.x - BOUNDING_BOX_OFFSET, position.y - BOUNDING_BOX_OFFSET, BOUNDING_BOX_SIZE, BOUNDING_BOX_SIZE);
         this.shapeRenderer = new ShapeRenderer();
 
         this.downAnimator = new Animator("bomberSpriteSheet.png", 28, 1, 0, 2, 0.5f, Animation.PlayMode.LOOP_PINGPONG);
@@ -101,15 +102,26 @@ public class Player extends Actor {
         this.currentAnimator = downAnimator; //default
     }
 
+    public static Player getInstance(SpriteBatch batch, Actors actors, Map currentMap) {
+        if (instance == null) {
+            instance = new Player(batch, actors, currentMap);
+        }
+        return instance;
+    }
+
+    public static Player getInstance() {
+        return instance;
+    }
+
     public void draw() {
         batch.begin();
-        batch.draw(currentAnimator.getFrame(), position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
+        //batch.draw(currentAnimator.getFrame(), position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
 
         //DEBUG BOUNDING BOX
-        /*shapeRe.begin(ShapeRenderer.ShapeType.Line);
-        shapeRe.setColor(1,0,0,1);
-        shapeRe.rect(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height);
-        shapeRe.end();*/
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(1,0,0,1);
+        shapeRenderer.rect(boundingBox.x , boundingBox.y, boundingBox.width, boundingBox.height);
+        shapeRenderer.end();
 
 
         batch.end();
@@ -184,8 +196,12 @@ public class Player extends Actor {
         }
     }
 
+    public Vector2 getPosition() {
+        return position;
+    }
+
     private void updateBoundingBox(){
-        boundingBox.setPosition(position.x, position.y);
+        boundingBox.setPosition(position.x - BOUNDING_BOX_OFFSET, position.y -34);
     }
 
     public boolean collidesWith(Rectangle r){

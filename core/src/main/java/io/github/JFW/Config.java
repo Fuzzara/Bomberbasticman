@@ -23,7 +23,7 @@ public class Config {
         currentMap = mapSystem.getMap(n);
         if (actors == null){
             actors = new Actors();
-            player = new Player(batch, actors, currentMap);
+            player = Player.getInstance(batch, actors, currentMap);
             actors.setPlayer(player);
             setupenemies();
         }

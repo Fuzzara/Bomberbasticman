@@ -146,7 +146,7 @@ public class Map {
 
         if (x >= 0 && x < layerTile.getWidth() && y >= 0 && y < layerTile.getHeight()) {
             // Add the collision rectangle to the collision layer
-            RectangleMapObject rectObject = new RectangleMapObject(x * scaledTileWidth, y * scaledTileHeight, scaledTileWidth, scaledTileHeight);
+            RectangleMapObject rectObject = new RectangleMapObject((x * scaledTileWidth), (y * scaledTileHeight), scaledTileWidth, scaledTileHeight);
             collisionLayer.getObjects().add(rectObject);
 
             // Set the tile in the base tile layer
