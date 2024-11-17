@@ -1,7 +1,8 @@
-package io.github.JFW;
+package io.github.JFW.System;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import io.github.JFW.statePlayer;
 
 public class InputHandler{
     private long nextBombTime = 0;

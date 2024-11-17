@@ -1,4 +1,4 @@
-package io.github.JFW;
+package io.github.JFW.System;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;

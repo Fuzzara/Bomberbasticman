@@ -1,7 +1,6 @@
-package io.github.JFW;
+package io.github.JFW.Entitys;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -9,13 +8,14 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
-import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.math.Rectangle;
-import org.w3c.dom.css.Rect;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import io.github.JFW.MapEnv.Map;
+import io.github.JFW.System.Animator;
+import io.github.JFW.System.InputHandler;
 import com.badlogic.gdx.maps.MapObject;
+import io.github.JFW.statePlayer;
 
 public class Player extends Actor {
     private static Player instance; // Singleton instance
@@ -28,7 +28,7 @@ public class Player extends Actor {
     private static final float SPRITE_WIDTH = 48;
     private static final float SPRITE_HEIGHT = 96;
     private static final float BOUNDING_BOX_SIZE = 34;
-    private static final float BOUNDING_BOX_OFFSET = 23;
+    private static final float BOUNDING_BOX_OFFSET = 24;
 
     // Stats
     private int hp;
@@ -119,10 +119,10 @@ public class Player extends Actor {
         batch.draw(currentAnimator.getFrame(), position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
 
         //DEBUG BOUNDING BOX
-        /*shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(1,0,0,1);
-        shapeRenderer.rect(boundingBox.x , boundingBox.y, boundingBox.width, boundingBox.height);
-        shapeRenderer.end();*/
+        //shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        //shapeRenderer.setColor(1,0,0,1);
+        //shapeRenderer.rect(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height);
+        //shapeRenderer.end();
 
 
         batch.end();
@@ -201,7 +201,7 @@ public class Player extends Actor {
     }
 
     private void updateBoundingBox(){
-        boundingBox.setPosition(position.x - BOUNDING_BOX_OFFSET, position.y -34);
+        boundingBox.setPosition(position.x-24, position.y-24);
     }
 
     public boolean collidesWith(Rectangle r){

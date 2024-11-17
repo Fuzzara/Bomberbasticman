@@ -16,6 +16,9 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
+import io.github.JFW.System.*;
+import io.github.JFW.MapEnv.*;
+
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class GameScreen extends ApplicationAdapter {
 
@@ -188,7 +191,7 @@ public class GameScreen extends ApplicationAdapter {
         for (MapObject object : currentMap.getCollisionLayer().getObjects()) {
             if (object instanceof RectangleMapObject) {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
-                sr.rect(rect.x, rect.y, rect.width, rect.height);
+                sr.rect(rect.x*3, rect.y*3, rect.width*3, rect.height*3);
             }
         }
 

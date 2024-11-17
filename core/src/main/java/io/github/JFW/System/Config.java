@@ -1,12 +1,16 @@
-package io.github.JFW;
+package io.github.JFW.System;
 
-import com.badlogic.gdx.Gdx;
+
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import java.util.Random;
 
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
+
+import io.github.JFW.*;
+import io.github.JFW.Entitys.*;
+import io.github.JFW.MapEnv.*;
 
 public class Config {
 

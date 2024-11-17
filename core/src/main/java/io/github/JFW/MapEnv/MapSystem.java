@@ -1,4 +1,4 @@
-package io.github.JFW;
+package io.github.JFW.MapEnv;
 
 import com.badlogic.gdx.utils.Array;
 

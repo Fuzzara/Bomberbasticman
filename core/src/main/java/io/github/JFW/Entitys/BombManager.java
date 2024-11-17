@@ -1,12 +1,11 @@
-package io.github.JFW;
+package io.github.JFW.Entitys;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
-
-import java.util.List;
+import io.github.JFW.MapEnv.Map;
+import io.github.JFW.System.InputHandler;
+import io.github.JFW.System.SFXPlayer;
 
 public class BombManager {
     private float nextBombTime = 0f;

@@ -1,6 +1,8 @@
-package io.github.JFW;
+package io.github.JFW.Entitys;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import io.github.JFW.GameScreen;
+
 
 import java.util.ArrayList;
 
@@ -59,16 +61,17 @@ public class Actors extends Actor {
     }
 
     public void actuallyremovingBombs(){
-        int counter = 0;
+        //int counter = 0;
         for (Bomb bomb: BombsTBR){
             Bombs.removeFirst();
             //System.out.println("Removing bomb");
-            counter += 1;
+            //counter += 1;
         }
-        for (int i = 0; i<counter;i++){
+        BombsTBR.clear();
+        /*for (int i = 0; i<counter;i++){
             BombsTBR.removeFirst();
             //System.out.println("Removing bomb from counter");
-        }
+        }*/
     }
 
     public void removeBombs(Bomb bomb){
