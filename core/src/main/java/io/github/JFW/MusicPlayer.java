@@ -28,5 +28,9 @@ public class MusicPlayer {
     boolean isPlaying(){
         return isPlaying;
     }
+
+    public void dispose() {
+        music.dispose();
+    }
 }
 

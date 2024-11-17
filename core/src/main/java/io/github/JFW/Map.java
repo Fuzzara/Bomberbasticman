@@ -84,7 +84,7 @@ public class Map {
 
         for (int x = 2;x<17;x++){
             for(int y = 1;y<14;y++){
-                if( (x%2 != 0) && (y%2 == 0)){
+                if( (x%2 == 0) && (y%2 != 0) && !( (x==2||x==4||x==6) && y==13) && !(x==2 && (y==11||y==9) ) ){
                     addSingleCollision(x,y);
                 }
             }

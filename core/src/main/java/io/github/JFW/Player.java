@@ -73,7 +73,7 @@ public class Player extends Actor {
         this.speed = INITIAL_SPEED;
         this.position = new Vector2(INITIAL_POSITION);
         this.state = new statePlayer();
-        this.inputHandler = new InputHandler(state);
+        this.inputHandler = new InputHandler();
 
 
         this.actors = actors;

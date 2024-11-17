@@ -7,19 +7,20 @@ import java.util.ArrayList;
 public class Actors extends Actor {
     private ArrayList<Bomb> Bombs;
     private ArrayList<Bomb> BombsTBR; // BombstobeRemoved
-    private ArrayList<Actor> Monster; // sin uso por ahora
+    private ArrayList<Enemy> enemies; // sin uso por ahora
     private Player player;
 
-    private Main.State state;
+
+    private GameScreen.State state;
 
     public Actors(){
         this.Bombs = new ArrayList<Bomb>();
-        this.Monster = new ArrayList<Actor>();
+        this.enemies = new ArrayList<Enemy>();
         this.BombsTBR = new ArrayList<Bomb>();
     }
 
-    public void update(Main.State state){
-        if (state == Main.State.running) {
+    public void update(GameScreen.State state){
+        if (state == GameScreen.State.running) {
             this.player.update();
             for (Bomb bomb : Bombs) {
                 bomb.update();
@@ -29,6 +30,9 @@ public class Actors extends Actor {
 
             }
             actuallyremovingBombs();
+            for (Enemy enemy: enemies){
+                enemy.update();
+            }
         }
         else{
             this.player.draw();
@@ -40,7 +44,7 @@ public class Actors extends Actor {
     public void clearActors(){
         Bombs.clear();
         BombsTBR.clear();
-        Monster.clear();
+        enemies.clear();
     }
 
     public void setPlayer(Player player){
@@ -68,8 +72,8 @@ public class Actors extends Actor {
        BombsTBR.add(bomb);
     }
 
-    public void updateMonsters(){
-
+    public void updateEnemies(Enemy enemy){
+        enemies.add(enemy);
     }
 }
 

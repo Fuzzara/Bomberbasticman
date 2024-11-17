@@ -3,14 +3,8 @@ package io.github.JFW;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
-
 public class InputHandler{
-    private statePlayer state;
     private long nextBombTime = 0;
-
-    public InputHandler(statePlayer playerState) {
-        this.state = playerState;
-    }
 
     public statePlayer.State handlePlayerMovement() {
         if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
@@ -34,6 +28,22 @@ public class InputHandler{
                 nextBombTime = System.nanoTime() + 50000000; // Cooldown de 50ms
                 return true;
             }
+        }
+        return false;
+    }
+   public String handleMainMenuInput() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+            return "start";
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            return "exit";
+        }
+        return null;
+    }
+
+    public boolean handlePauseInput() { //implementar!
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            return true;
         }
         return false;
     }
