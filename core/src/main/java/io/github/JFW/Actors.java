@@ -21,7 +21,6 @@ public class Actors extends Actor {
 
     public void update(GameScreen.State state){
         if (state == GameScreen.State.running) {
-            this.player.update();
             for (Bomb bomb : Bombs) {
                 bomb.update();
                 if (Bombs.isEmpty()) {
@@ -33,11 +32,15 @@ public class Actors extends Actor {
             for (Enemy enemy: enemies){
                 enemy.update();
             }
+            this.player.update();
         }
         else{
             this.player.draw();
             for (Bomb bomb : Bombs) {
                 bomb.draw();
+            }
+            for (Enemy enemy: enemies){
+                enemy.draw();
             }
         }
     }
@@ -59,12 +62,12 @@ public class Actors extends Actor {
         int counter = 0;
         for (Bomb bomb: BombsTBR){
             Bombs.removeFirst();
-            System.out.println("Removing bomb");
+            //System.out.println("Removing bomb");
             counter += 1;
         }
         for (int i = 0; i<counter;i++){
             BombsTBR.removeFirst();
-            System.out.println("Removing bomb from counter");
+            //System.out.println("Removing bomb from counter");
         }
     }
 

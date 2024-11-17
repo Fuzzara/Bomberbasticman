@@ -32,8 +32,9 @@ public class Player extends Actor {
 
     // Stats
     private int hp;
-    private boolean detonator;
-    private long Timeuntilnextbomb;
+    private boolean canUseDetonator;
+    private long timeUntilNextBomb;
+
 
     // Position and movement
     private Vector2 position;
@@ -115,13 +116,13 @@ public class Player extends Actor {
 
     public void draw() {
         batch.begin();
-        //batch.draw(currentAnimator.getFrame(), position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
+        batch.draw(currentAnimator.getFrame(), position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
 
         //DEBUG BOUNDING BOX
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        /*shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(1,0,0,1);
         shapeRenderer.rect(boundingBox.x , boundingBox.y, boundingBox.width, boundingBox.height);
-        shapeRenderer.end();
+        shapeRenderer.end();*/
 
 
         batch.end();
@@ -131,7 +132,6 @@ public class Player extends Actor {
         float deltaTime = Gdx.graphics.getDeltaTime();
         // -- Estados movimiento --
         statePlayer.State currentState = inputHandler.handlePlayerMovement();
-        inputHandler.canPlaceBomb();
         if (currentState != null) {
             state.setCurrentState(currentState);
             switch (currentState) {
@@ -162,7 +162,7 @@ public class Player extends Actor {
             walkSoundTime = 0f;
         }
 
-        bombManager.handleBombPlacement(position);
+        bombManager.handleBombPlacement(position, Gdx.graphics.getDeltaTime());
     }
 
     private void move(float dx, float dy) {
@@ -218,7 +218,7 @@ public class Player extends Actor {
         draw();
     }
 
-    public void setCurrentMap(Map map) {
+    public void setCurrentMap(Map map) { //porque esto esta aca?
         this.currentMap = map;
     }
 

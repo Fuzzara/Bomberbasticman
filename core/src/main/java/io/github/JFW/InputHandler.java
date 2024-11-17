@@ -24,10 +24,7 @@ public class InputHandler{
     }
     public boolean canPlaceBomb(){
         if (Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_RIGHT)) {
-            if (System.nanoTime() > nextBombTime) {
-                nextBombTime = System.nanoTime() + 50000000; // Cooldown de 50ms
                 return true;
-            }
         }
         return false;
     }
@@ -41,8 +38,14 @@ public class InputHandler{
         return null;
     }
 
-    public boolean handlePauseInput() { //implementar!
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+    public boolean handlePauseInput() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_ENTER)) {
+            return true;
+        }
+        return false;
+    }
+    public boolean debugReload() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             return true;
         }
         return false;

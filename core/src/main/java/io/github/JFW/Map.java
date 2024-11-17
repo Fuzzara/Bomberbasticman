@@ -1,6 +1,6 @@
 package io.github.JFW;
 
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
@@ -8,7 +8,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 
 import java.util.Random;
@@ -24,7 +23,7 @@ public class Map {
         obstacleLayer.setName("obstacles");
         collisionLayer = obstacleLayer;
         tiledMap.getLayers().add(obstacleLayer);
-        createCollisionLayer();
+        PrepareMapCollisions();
     }
 
     public TiledMap getTiledMap() {
@@ -39,6 +38,19 @@ public class Map {
                 //Gdx.app.debug("Map", "FOUND OBSTACLE");
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
                 obstacles.add(rect);
+            }
+        }
+        return obstacles;
+    }
+
+    public Array<RectangleMapObject> getObstaclesMO() {
+        Array<RectangleMapObject> obstacles = new Array<>();
+        //TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get("obstacles");
+        for (MapObject object : collisionLayer.getObjects()) {
+            if (object instanceof RectangleMapObject) {
+                //Gdx.app.debug("Map", "FOUND OBSTACLE");
+                RectangleMapObject tmp =  (RectangleMapObject) object;
+                obstacles.add(tmp);
             }
         }
         return obstacles;
@@ -60,36 +72,42 @@ public class Map {
     }*/
 
     /*Esta vara crea la minga de colisiones y de una le poner bordes al mapa brother*/
-    public void createCollisionLayer() {
+    public void PrepareMapCollisions() {
         TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get(0); // Assuming the first layer is the base layer
         int scaledTileWidth = layer.getTileWidth() * 3;
         int scaledTileHeight = layer.getTileHeight() * 3;
         collisionLayer = new TiledMapTileLayer(layer.getWidth(), layer.getHeight(), scaledTileWidth, scaledTileHeight);
-
+        //Se encarga de poner los bordes
         for (int x = 0; x < layer.getWidth(); x++) {
             for (int y = 0; y < layer.getHeight(); y++) {
                 if (x == 0 || y == 0 || x == layer.getWidth() - 1 || y == layer.getHeight() - 1 || x == 1 || x == layer.getWidth() - 2) {
-                    // Add collision rectangle for border tiles and extra columns on the left and right
                     RectangleMapObject rectObject = new RectangleMapObject(x * scaledTileWidth, y * scaledTileHeight, scaledTileWidth, scaledTileHeight);
+                    rectObject.getProperties().put("Indestructible", true);
                     collisionLayer.getObjects().add(rectObject);
                 } else {
                     TiledMapTileLayer.Cell cell = layer.getCell(x, y);
                     if (cell != null && isCollisionTile(cell.getTile())) {
                         RectangleMapObject rectObject = new RectangleMapObject(x * scaledTileWidth, y * scaledTileHeight, scaledTileWidth, scaledTileHeight);
+                        rectObject.getProperties().put("Indestructible", true);
                         collisionLayer.getObjects().add(rectObject);
                     }
                 }
             }
         }
-
+        //esquina izquierda arriba (2,13)
+        //esquina derecha abajo (16,1)
+        //Se encarga de poner las paredes indestructibles del medio
         for (int x = 2;x<17;x++){
             for(int y = 1;y<14;y++){
-                if( (x%2 == 0) && (y%2 != 0) && !( (x==2||x==4||x==6) && y==13) && !(x==2 && (y==11||y==9) ) ){
-                    addSingleCollision(x,y);
+                if( (x%2 != 0) && (y%2 == 0)){
+                    addSingleCollision(x,y, "Indestructible");
                 }
             }
         }
         placerandomwalls(6);
+        //Se encarga de poner paredes destruibles
+
+
 
         collisionLayer.setName("collision");
         tiledMap.getLayers().add(collisionLayer);
@@ -100,9 +118,20 @@ public class Map {
         while (n != 0){
             int x = rand.nextInt((16-2)+1)+2;
             int y = rand.nextInt((13-1)+1)+1;
-            if ((x%2 == 0) && (y%2 != 0) && (x!=2)){
-                addSingleCollision(x,y);
+            if ((x%2 == 0) && (y%2 != 0) && !((x==2||x==4||x==6) && y==13) && !( x==2 && (y==11||y==9) )){
+                addSingleCollision(x,y, "Indestructible");
                 n -=1;
+            }
+        }
+        int i = 1; //modificar por nivel!!!!!!!!!!!!!!!!!
+        while (i>=0){
+            int x = rand.nextInt((16-2)+1)+2;
+            int y = rand.nextInt((13-1)+1)+1;
+
+            TiledMapTileLayer obstacleLayer = (TiledMapTileLayer) tiledMap.getLayers().get("obstacles");
+            if (obstacleLayer.getCell(x, y) == null && !(y==13 && x==2) && !(y==12 && x==2) && !(y==13 && x==3)) {
+                addSingleCollision(x, y, "Destructible");
+                i -= 1;
             }
         }
     }
@@ -111,9 +140,8 @@ public class Map {
         TiledMapTileLayer layerTile = (TiledMapTileLayer) tiledMap.getLayers().get("obstacles");
         int scaledTileWidth = layerTile.getTileWidth() * 3;
         int scaledTileHeight = layerTile.getTileHeight() * 3;
-
         if (x >= 0 && x < layerTile.getWidth() && y >= 0 && y < layerTile.getHeight()) {
-            // Remove the collision rectangle from the collision layer
+
             RectangleMapObject rectToRemove = null;
             for (MapObject object : collisionLayer.getObjects()) {
                 if (object instanceof RectangleMapObject) {
@@ -125,6 +153,10 @@ public class Map {
                 }
             }
             if (rectToRemove != null) {
+                if (rectToRemove.getProperties().get("Indestructible") != null && rectToRemove.getProperties().get("Indestructible").equals(true)) {
+                    Gdx.app.error("MAP", "INDESTRUCTIBLE NO SE PUEDE");
+                    return;
+                }
                 collisionLayer.getObjects().remove(rectToRemove);
             }
 
@@ -139,19 +171,26 @@ public class Map {
         return tile.getProperties().containsKey("collidable");
     }
 
-    public void addSingleCollision(int x, int y) {
+    public void addSingleCollision(int x, int y, String type) {
         TiledMapTileLayer layerTile = (TiledMapTileLayer) tiledMap.getLayers().get("obstacles"); // Assuming the first layer is the base layer
         int scaledTileWidth = layerTile.getTileWidth() * 3;
-        int scaledTileHeight = layerTile.getTileHeight()* 3;
+        int scaledTileHeight = layerTile.getTileHeight() * 3;
 
         if (x >= 0 && x < layerTile.getWidth() && y >= 0 && y < layerTile.getHeight()) {
             // Add the collision rectangle to the collision layer
             RectangleMapObject rectObject = new RectangleMapObject((x * scaledTileWidth), (y * scaledTileHeight), scaledTileWidth, scaledTileHeight);
+            TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
+            if(type.equals("Indestructible")) {
+                cell.setTile(tiledMap.getTileSets().getTile(13));
+                rectObject.getProperties().put("Indestructible", true);
+            } else if (type.equals("Bomb")) {
+                cell.setTile(tiledMap.getTileSets().getTile(100));
+            } else {
+                rectObject.getProperties().put("Indestructible", false);
+                cell.setTile(tiledMap.getTileSets().getTile(5));
+            }
             collisionLayer.getObjects().add(rectObject);
 
-            // Set the tile in the base tile layer
-            TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
-            cell.setTile(tiledMap.getTileSets().getTile(13));
             layerTile.setCell(x, y, cell);
         }
     }

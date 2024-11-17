@@ -15,6 +15,7 @@ public class Enemy extends Actor{
     private static final float SPRITE_WIDTH = 48;
     private static final float SPRITE_HEIGHT = 96;
     private static final float BOUNDING_BOX_SIZE = 34;
+    private static final float BOUNDING_BOX_OFFSET = 23;
 
     //Enemy atributes
     private boolean noclip; // Atraviesa muros ig
@@ -33,6 +34,7 @@ public class Enemy extends Actor{
     //Colission stuff
     private Map currentMap;
     private Rectangle boundingBox;
+    private Player player;
 
     //Tal vez hacer esta clase abstracta y tener una clase por enemigo ?
     public Enemy(float speed, float x, float y, int score, int ai, Map currentMap, SpriteBatch batch){
@@ -49,7 +51,8 @@ public class Enemy extends Actor{
         this.enemySprite = new Sprite(enemyTexture);
         this.enemySprite.setSize(SPRITE_WIDTH,SPRITE_HEIGHT);
         this.enemySprite.setPosition(position.x,position.y);
-        this.boundingBox = new Rectangle(position.x,position.y,BOUNDING_BOX_SIZE,BOUNDING_BOX_SIZE);
+        this.boundingBox = new Rectangle(position.x - BOUNDING_BOX_OFFSET,position.y - BOUNDING_BOX_OFFSET,BOUNDING_BOX_SIZE,BOUNDING_BOX_SIZE);
+        player = Player.getInstance();
 
     }
 
@@ -121,6 +124,9 @@ public class Enemy extends Actor{
     }
     private boolean isCollision(float x, float y) {
         Rectangle enemyRect = new Rectangle(x, y, boundingBox.width, boundingBox.height);
+        if(enemyRect.overlaps(player.getBoundingBox())){
+            Gdx.app.debug("Enemy hit ","player");
+        }
         for (MapObject object : currentMap.getCollisionLayer().getObjects()) {
             if (object instanceof RectangleMapObject) {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
@@ -135,6 +141,7 @@ public class Enemy extends Actor{
 
     public void draw(){
         batch.begin();
+        enemySprite.setPosition(position.x,position.y);
         enemySprite.draw(batch);
         batch.end();
     }
@@ -145,7 +152,7 @@ public class Enemy extends Actor{
         draw();
     }
     private void updateBoundingBox(){
-        boundingBox.setPosition(position.x, position.y);
+        boundingBox.setPosition(position.x-BOUNDING_BOX_OFFSET, position.y-34);
     }
 
     public void setCurrentMap(Map map) {

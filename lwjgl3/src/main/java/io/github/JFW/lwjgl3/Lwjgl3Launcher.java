@@ -31,7 +31,7 @@ public class Lwjgl3Launcher {
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
         configuration.setWindowIcon("bomb128.png", "bomb64.png", "bomb32.png", "bomb16.png");
 
-        configuration.setResizable(true);
+        configuration.setResizable(false);
         return configuration;
     }
 }

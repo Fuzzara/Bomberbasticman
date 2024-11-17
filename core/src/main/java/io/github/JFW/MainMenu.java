@@ -12,7 +12,6 @@ public class MainMenu extends ApplicationAdapter {
     private Texture logo;
     private Stage stage;
     private MusicPlayer music = new MusicPlayer();
-    private SFXPlayer sfx = new SFXPlayer();
     private InputHandler inputHandler = new InputHandler();
 
     public MainMenu(SpriteBatch batch){
@@ -24,8 +23,8 @@ public class MainMenu extends ApplicationAdapter {
     }
     public void render() {
         batch.begin();
-        batch.draw(background, 0, 0);
-        batch.draw(logo, 300, 300);
+        batch.draw(background, 0, 0, 864, 783);
+        batch.draw(logo, 0, 0, 864, 783);
         batch.end();
     }
     public String handleInput() {

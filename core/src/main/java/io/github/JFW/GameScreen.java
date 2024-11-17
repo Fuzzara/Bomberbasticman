@@ -2,10 +2,11 @@ package io.github.JFW;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -32,6 +33,8 @@ public class GameScreen extends ApplicationAdapter {
     private OrthogonalTiledMapRenderer mapRenderer;
     private OrthographicCamera camera;
 
+    private InputHandler inputHandler = new InputHandler();
+
     //Sound
     private MusicPlayer music = new MusicPlayer();
     private SFXPlayer sfx = new SFXPlayer();
@@ -52,6 +55,8 @@ public class GameScreen extends ApplicationAdapter {
         //estado inicial!
         state = State.running;
 
+        sr = new ShapeRenderer();
+
 
         stage = new Stage(new ExtendViewport(864, 783)); //usar img de ref
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
@@ -67,11 +72,13 @@ public class GameScreen extends ApplicationAdapter {
         camera.position.set((864/2)+24, (783/2)+24, 0);
 
         levelconfig = new Config(batch);
-        currentMap = levelconfig.setuplevel(1);
+        currentMap = levelconfig.setuplevel(level);
         mapRenderer = new OrthogonalTiledMapRenderer(currentMap.getTiledMap(),3f);
 
         //Musica! (WIP, CAMBIAR)
         music.playMusic("sound/w1.mp3");
+
+
 
 
     }
@@ -79,8 +86,6 @@ public class GameScreen extends ApplicationAdapter {
     /*@Override
     public void create() {
         Gdx.app.setLogLevel(Gdx.app.LOG_DEBUG);
-
-
     }*/
 
     @Override
@@ -98,8 +103,8 @@ public class GameScreen extends ApplicationAdapter {
         //input();//Input del cuadrito
         inputExtra();
         draw();
-        // levelconfig.runlevel(state); test
-        //actors.update(state);
+        //renderCollisionLayer();
+        levelconfig.runlevel(state); //test
     }
     private void draw() {
         ScreenUtils.clear(0f, 0f, 0f, 1f);
@@ -107,7 +112,6 @@ public class GameScreen extends ApplicationAdapter {
         camera.update();
         mapRenderer.setView(camera);
         mapRenderer.render();
-
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         batch.draw(uiBackground, 24, 696, 864, 111);
@@ -155,7 +159,13 @@ public class GameScreen extends ApplicationAdapter {
 
     }*/
     private void inputExtra(){
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+        if (inputHandler.debugReload()) { //debug, not working as intended btw yeahhh
+            currentMap.dispose();
+            currentMap = levelconfig.setuplevel(0);
+            mapRenderer.setMap(currentMap.getTiledMap());
+            Gdx.app.log("Debug", "Reloaded");
+        }
+        if (inputHandler.handlePauseInput()) {
             if (state == State.running) {
                 music.pauseMusic();
                 sfx.playSFX("sound/pause.mp3");
@@ -165,9 +175,24 @@ public class GameScreen extends ApplicationAdapter {
             } else {
                 state = State.running;
                 music.resumeMusic();
-                Gdx.app.log("State", "Running");
+                Gdx.app.log("State", "Resumido");
             }
         }
+    }
+
+    private void renderCollisionLayer() {
+        //sr.setProjectionMatrix(camera.combined);
+        sr.begin(ShapeRenderer.ShapeType.Filled);
+        sr.setColor(0, 0, 1, 0.2f); // Blue color with 0.5 opacity
+
+        for (MapObject object : currentMap.getCollisionLayer().getObjects()) {
+            if (object instanceof RectangleMapObject) {
+                Rectangle rect = ((RectangleMapObject) object).getRectangle();
+                sr.rect(rect.x, rect.y, rect.width, rect.height);
+            }
+        }
+
+        sr.end();
     }
 
     @Override
@@ -179,6 +204,13 @@ public class GameScreen extends ApplicationAdapter {
     public void dispose() {
         stage.dispose();
         skin.dispose();
+        batch.dispose();
+        uiBackground.dispose();
+        sr.dispose();
+        currentMap.dispose();
+        mapRenderer.dispose();
+        music.dispose();
+
     }
 
 }
