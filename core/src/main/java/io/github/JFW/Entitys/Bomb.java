@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.graphics.Color;
 
-
+import io.github.JFW.Entitys.Player.PowerUpType;
 import io.github.JFW.MapEnv.Map;
 import io.github.JFW.System.Animator;
 import io.github.JFW.System.SFXPlayer;
@@ -18,7 +18,7 @@ import io.github.JFW.System.SFXPlayer;
 
 public class Bomb extends Actor{
 
-    private int EXPLOSION_RANGE;
+    private int EXPLOSION_RANGE = 1;
 
     private final Actors actors; //anti POO, debe de haber una mejor manera
 
@@ -60,7 +60,7 @@ public class Bomb extends Actor{
         this.exploded = false;
         this.explosionTimer = 0f;
 
-        this.EXPLOSION_RANGE = 1;
+
 
         this.tiledMap = map;
         this.currentTime = System.nanoTime();
@@ -84,6 +84,13 @@ public class Bomb extends Actor{
         actors.updateBombs(this);
 
         player = Player.getInstance();
+        if (player.hasPowerUp(PowerUpType.SUN)){
+            EXPLOSION_RANGE = 3;
+        }
+    }
+
+    public void detonatorExplode(){
+        exploded = true;
     }
 
     public void draw(){
@@ -123,6 +130,10 @@ public class Bomb extends Actor{
         }
     }
 
+    public boolean isExploded(){
+        return exploded;
+    }
+
     public void processExplosion() {
             explosionTimer += Gdx.graphics.getDeltaTime();
             if (explosionTimer >= 1f) {
@@ -145,7 +156,7 @@ public class Bomb extends Actor{
                 );
 
                 //Detecta si el jugador esta en la explosion
-                if (horizHB.overlaps(player.getBoundingBox()) || vertHB.overlaps(player.getBoundingBox())) {
+                if ((horizHB.overlaps(player.getBoundingBox()) || vertHB.overlaps(player.getBoundingBox()) && (!player.hasPowerUp(PowerUpType.FIRE_MAN)) && !player.hasPowerUp(PowerUpType.QUESTION_MARK))) {
                     Gdx.app.error("Bomb", "Player hit by bomb at: " + position.toString());
                 }
 

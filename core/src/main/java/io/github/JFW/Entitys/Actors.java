@@ -5,11 +5,13 @@ import io.github.JFW.GameScreen;
 
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Actors extends Actor {
     private ArrayList<Bomb> Bombs;
     private ArrayList<Bomb> BombsTBR; // BombstobeRemoved
     private ArrayList<Enemy> enemies; // sin uso por ahora
+    private ArrayList<PowerUp> powerUps;
     private Player player;
 
 
@@ -19,6 +21,7 @@ public class Actors extends Actor {
         this.Bombs = new ArrayList<Bomb>();
         this.enemies = new ArrayList<Enemy>();
         this.BombsTBR = new ArrayList<Bomb>();
+        this.powerUps = new ArrayList<PowerUp>();
     }
 
     public void update(GameScreen.State state){
@@ -34,7 +37,17 @@ public class Actors extends Actor {
             for (Enemy enemy: enemies){
                 enemy.update();
             }
+
             this.player.update();
+
+            Iterator<PowerUp> powerUpIterator = powerUps.iterator();
+            while (powerUpIterator.hasNext()) {
+                PowerUp powerUp = powerUpIterator.next();
+                powerUp.update();
+                if(powerUp.pickUP()){
+                    powerUpIterator.remove();
+                }
+            }
         }
         else{
             this.player.draw();
@@ -81,6 +94,23 @@ public class Actors extends Actor {
     public void updateEnemies(Enemy enemy){
         enemies.add(enemy);
     }
+
+    public void addPowerUp(PowerUp powerUp){
+        powerUps.add(powerUp);
+    }
+
+    public int getBombCount(){
+        return Bombs.size();
+    }
+
+    public void useDetonator(){
+        if (player.hasPowerUp(Player.PowerUpType.DETONATOR)){
+            for (Bomb bomb: Bombs){
+                bomb.detonatorExplode();
+            }
+        }
+    }
+
 }
 
 

@@ -1,5 +1,6 @@
 package io.github.JFW;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -60,7 +61,6 @@ public class GameScreen extends ApplicationAdapter {
 
         sr = new ShapeRenderer();
 
-
         stage = new Stage(new ExtendViewport(864, 783)); //usar img de ref
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         //batch = new SpriteBatch();
@@ -81,7 +81,7 @@ public class GameScreen extends ApplicationAdapter {
         //Musica! (WIP, CAMBIAR)
         music.playMusic("sound/w1.mp3");
 
-
+        Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
 
     }

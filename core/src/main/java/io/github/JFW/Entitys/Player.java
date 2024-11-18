@@ -17,6 +17,9 @@ import io.github.JFW.System.InputHandler;
 import com.badlogic.gdx.maps.MapObject;
 import io.github.JFW.statePlayer;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 public class Player extends Actor {
     private static Player instance; // Singleton instance
     private Actors actors;
@@ -29,12 +32,26 @@ public class Player extends Actor {
     private static final float SPRITE_HEIGHT = 96;
     private static final float BOUNDING_BOX_SIZE = 34;
     private static final float BOUNDING_BOX_OFFSET = 24;
+    private static final int BOMB_LIMIT = 1;
 
     // Stats
     private int hp;
-    private boolean canUseDetonator;
     private long timeUntilNextBomb;
+    private int bombLimit = BOMB_LIMIT;
 
+    //PowerUPS
+    public enum PowerUpType {
+        SUN,
+        GOLDEN_BOMB,
+        DETONATOR,
+        SKATES,
+        STRIPPED_BOMB,
+        STRIPPED_WALL,
+        QUESTION_MARK,
+        FIRE_MAN
+    }
+
+    private Set<PowerUpType> activePowerUps = EnumSet.noneOf(PowerUpType.class);
 
     // Position and movement
     private Vector2 position;
@@ -65,8 +82,10 @@ public class Player extends Actor {
     private Sound walkSound;
     private float walkSoundTime;
 
+
     //States
     statePlayer state;
+
 
     private Player(SpriteBatch batch, Actors actors, Map currentMap) { // Make constructor private
         this.batch = batch;
@@ -101,6 +120,82 @@ public class Player extends Actor {
         this.winAnimator = new Animator("bomberSpriteSheet.png", 28, 1, 19, 27, 0.2f, Animation.PlayMode.NORMAL);
 
         this.currentAnimator = downAnimator; //default
+    }
+
+    public void applyPowerUp(PowerUpType type) {
+        activePowerUps.add(type);
+        switch (type) {
+            case SUN: //AF
+                //+2 Alcance de bomba
+                    //Bomba se encarga de esto
+                break;
+            case GOLDEN_BOMB: //AF
+                //+1 Bomba
+                    //TODO:Nose donde dice cuantas bombas puede poner xxddddd
+                    //TODO: casi implementado pero el sistema de bombas funciona raro entonces a veces funciona y aveces no xdddxdxdxdddxdxdxdxdxdxdx
+                bombLimit = BOMB_LIMIT + 1;
+                break;
+            case DETONATOR:
+                //Spacebar para detonar
+                    //guindese (funciona pero con un poco de delay?)
+                break;
+            case SKATES: //AF
+                //1.5x velocidad
+                    //ya esta chavales nadamas hay que poner la velocidad que es
+                speed = INITIAL_SPEED + 20;
+                break;
+            case STRIPPED_BOMB:
+                //Atravesar bombas
+                    //💀💀💀
+                break;
+            case STRIPPED_WALL:
+                //Atravesar paredes
+                    //mae mae sea serio mae mae mae mae mae mae
+                break;
+            case QUESTION_MARK:
+                //Invulnerabilidad al fuego 60 segundos?
+                    //TODO:nose como manejar tiempo pero hay que ver como quitarselo. AYUDA JUSTIN PORFAVOR
+                break;
+            case FIRE_MAN:
+                //Invulnerabilidad al fuego
+                    //implementado :D
+                break;
+        }
+    }
+
+    public void removePowerUp(PowerUpType type) {
+        activePowerUps.remove(type);
+        switch (type) {
+            case SUN:
+                // Remove Sun effect
+                break;
+            case GOLDEN_BOMB:
+                // Remove Golden Bomb effect
+                break;
+            case DETONATOR:
+                // Remove Detonator effect
+                break;
+            case SKATES:
+                speed -= 20; // Example effect: decrease speed
+                break;
+            case STRIPPED_BOMB:
+                // Remove Stripped Bomb effect
+                break;
+            case STRIPPED_WALL:
+                // Remove Stripped Wall effect
+                break;
+            case QUESTION_MARK:
+                // Remove Question Mark effect
+                break;
+            case FIRE_MAN:
+                // Remove Fire Man effect
+                break;
+        }
+    }
+
+
+    public boolean hasPowerUp(PowerUpType type) {
+        return activePowerUps.contains(type);
     }
 
     public static Player getInstance(SpriteBatch batch, Actors actors, Map currentMap) {
@@ -163,6 +258,10 @@ public class Player extends Actor {
         }
 
         bombManager.handleBombPlacement(position, Gdx.graphics.getDeltaTime());
+
+        if(inputHandler.usedDetonator()){
+            actors.useDetonator();
+        }
     }
 
     private void move(float dx, float dy) {
@@ -180,12 +279,29 @@ public class Player extends Actor {
             if (object instanceof RectangleMapObject) {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
                 if (rect.overlaps(playerRect)) {
-                    //Gdx.app.debug("Player", "Collision detected at (" + x + ", " + y + ")");
-                    return true;
+                    if (object.getProperties().containsKey("Pass-Through")) {
+                        if (this.hasPowerUp(PowerUpType.STRIPPED_WALL)) {
+                            return false; // Allow passing through the wall
+                        } else {
+                            return true; // Block the player
+                        }
+                    }
+                    if (object.getProperties().containsKey("Bomb")) {
+                        if (this.hasPowerUp(PowerUpType.STRIPPED_BOMB)) {
+                            return false; // Allow passing through the bomb
+                        } else {
+                            return true; // Block the player
+                        }
+                    }
+                    if (object.getProperties().containsKey("Door")) {
+                        Gdx.app.log("Player", "Player reached the door");
+                        return false;
+                    }
+                    return true; // Block the player for non-pass-through walls
                 }
             }
         }
-        return false;
+        return false; // No collision detected
     }
 
     private void playSound(){
@@ -220,6 +336,10 @@ public class Player extends Actor {
 
     public void setCurrentMap(Map map) { //porque esto esta aca?
         this.currentMap = map;
+    }
+
+    public int getBombLimit(){
+        return bombLimit;
     }
 
 }

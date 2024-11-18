@@ -29,6 +29,14 @@ public class InputHandler{
         }
         return false;
     }
+
+    public boolean usedDetonator(){
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            return true;
+        }
+        return false;
+    }
+
    public String handleMainMenuInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             return "start";

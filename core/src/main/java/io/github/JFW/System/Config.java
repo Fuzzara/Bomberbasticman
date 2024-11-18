@@ -41,6 +41,7 @@ public class Config {
         else{
             actors.clearActors();
         }
+        currentMap.setActors(actors);
         return currentMap;
     }
 

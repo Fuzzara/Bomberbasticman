@@ -11,11 +11,11 @@ public class MapSystem {
     }
 
     private void loadMaps() {
-        maps.add(new Map("maps/lvl1.tmx"));
-        maps.add(new Map("maps/lvl2.tmx"));
-        maps.add(new Map("maps/lvl3.tmx"));
-        maps.add(new Map("maps/lvl4.tmx"));
-        maps.add(new Map("maps/lvl5.tmx"));
+        maps.add(new Map("maps/lvl1.tmx", 0));
+        maps.add(new Map("maps/lvl2.tmx", 0));
+        maps.add(new Map("maps/lvl3.tmx", 0));
+        maps.add(new Map("maps/lvl4.tmx", 0));
+        maps.add(new Map("maps/lvl5.tmx", 0));
     }
 
     public Map getMap(int index) {

@@ -1,5 +1,6 @@
 package io.github.JFW.Entitys;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
@@ -25,6 +26,10 @@ public class BombManager {
     }
 
     public void handleBombPlacement(Vector2 playerPosition, float deltaTime) {
+        if(actors.getBombCount() > Player.getInstance().getBombLimit()){
+            Gdx.app.debug("BombManager", "Player has reached bomb limit");
+            return;
+        }
         nextBombTime += deltaTime;
             if (inputHandler.canPlaceBomb()) {
                 if (nextBombTime >= 1f) {
