@@ -15,6 +15,7 @@ import io.github.JFW.MapEnv.Map;
 import io.github.JFW.System.Animator;
 import io.github.JFW.System.InputHandler;
 import com.badlogic.gdx.maps.MapObject;
+import io.github.JFW.System.SFXPlayer;
 import io.github.JFW.System.SpriteBatchHandler;
 import io.github.JFW.statePlayer;
 
@@ -71,7 +72,11 @@ public class Player extends Actor {
     //Sound
     private Sound walkSound;
     private float walkSoundTime;
+    private SFXPlayer sfx;
 
+    private boolean isDead = false;
+    private boolean isInvincible = false;
+    private float invincibleTime = 0f;
 
     //States
     statePlayer state;
@@ -89,7 +94,7 @@ public class Player extends Actor {
 
         this.actors = actors;
 
-        this.walkSound = Gdx.audio.newSound(Gdx.files.internal("sound/Walking-1.mp3"));
+        this.sfx = new SFXPlayer();
 
         // Sprite and rendering
         Texture bomberTexture = new Texture("bomberTexture.png");
@@ -201,6 +206,11 @@ public class Player extends Actor {
 
     public void draw() {
         batch.begin();
+        if (isInvincible) {
+            if ((int) (invincibleTime * 10) %2 == 0) {
+                return; //Solo dibuja la mitad del tiempo
+            }
+        }
         batch.draw(currentAnimator.getFrame(), position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
 
         //DEBUG BOUNDING BOX
@@ -296,7 +306,7 @@ public class Player extends Actor {
     private void playSound(){
         walkSoundTime += Gdx.graphics.getDeltaTime();
         if (walkSoundTime >= 0.5f){
-            walkSound.play();
+            sfx.playSFX("sound/Walking-1.mp3");
             walkSoundTime = 0f;
         }
     }
@@ -326,11 +336,43 @@ public class Player extends Actor {
     public void setHP(int hp){
         this.hp = hp;
     }
+    public void die(float delta){
+        if (isDead) {
+            invincibleTime += delta;
+        if (invincibleTime >= 3f && hp <= 0) {
+            respawn();
+        }
+        return;
+        }
+        isDead = true;
+        currentAnimator = deathAnimator;
+        sfx.playSFX("sound/dead.mp3");
+        invincibleTime = 0f;
+
+    }
+    private void respawn(){
+        isDead = false;
+        position.set(INITIAL_POSITION);
+        currentAnimator = downAnimator;
+        boundingBox.setPosition(INITIAL_POSITION.x-24, INITIAL_POSITION.y-24);
+        isInvincible = true;
+        invincibleTime = 0f;
+    }
 
     public void update(){
+        if (isInvincible) {
+            invincibleTime += Gdx.graphics.getDeltaTime();
+            if (invincibleTime >= 3f) {
+                isInvincible = false;
+                invincibleTime = 0f;
+            }
+        }
         handleInput();
         updateBoundingBox();
         draw();
+    }
+    public boolean getInvincible(){
+        return isInvincible;
     }
 
     public void setCurrentMap(Map map) { //porque esto esta aca?

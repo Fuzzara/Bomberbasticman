@@ -10,6 +10,8 @@ import io.github.JFW.System.SpriteBatchHandler;
 import java.util.BitSet;
 
 public class Scoreboard {
+    private static Scoreboard instance; //Singleton YEAHHHHHHHHHHHHHHHHHHHHHH
+
     private int score;
     private int lives;
     private int timeLeft;
@@ -18,14 +20,19 @@ public class Scoreboard {
     private BitmapFont font;
     private SpriteBatch batch;
 
-    public Scoreboard(){
+    private Scoreboard(){
         this.score = 0; //999999999 max
         this.timeLeft = 200;
-        //player = Player.getInstance();
         this.lives = 3;
         batch = SpriteBatchHandler.getBatch();
         font = new BitmapFont(Gdx.files.internal("fontBomber.fnt"),Gdx.files.internal("fontBomber.png"),false);
         font.getData().setScale(1.1f);
+    }
+    public static Scoreboard getInstance(){
+        if (instance == null){
+            instance = new Scoreboard();
+        }
+        return instance;
     }
 
     public void render(){
@@ -43,12 +50,11 @@ public class Scoreboard {
         }
     }
     public void countDown(){
-        if (timeLeft <= 0) {
-            //player.die();
-            this.timeLeft = 0;
-            //MonG Spawn!
-        }else {
-            this.timeLeft--;
+        if (timeLeft > 0) {
+            timeLeft--;
+        } else {
+            timeLeft = 0;
+            // spawn moneda Giratoria!!!!
         }
     }
 
@@ -57,7 +63,23 @@ public class Scoreboard {
     }
 
     public void removeLife(){
-        this.lives--;
+        player = Player.getInstance();
+        if (player.getHP() > 0) {
+            if (!player.getInvincible()) {
+                this.lives--;
+                player.setHP(player.getHP() - 1);
+                player.die(Gdx.graphics.getDeltaTime());
+            }
+        } else {
+            //GAMEOVER!!!!!!!!!!!!!
+            //RESET!
+            player.setHP(3);
+            this.lives = 3;
+            this.score = 0;
+            this.timeLeft = 200;
+            //temporal tho
+        }
+
     }
 
     public int getScore(){
