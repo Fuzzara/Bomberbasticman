@@ -196,13 +196,6 @@ public class Bomb extends Actor{
             tileWidth * (rangeLeft + rangeRight),
             tileHeight - 20
         );
-                //Detecta si el jugador esta en la explosion
-                if ((horizHB.overlaps(player.getBoundingBox()) || vertHB.overlaps(player.getBoundingBox())
-                    && (!player.hasPowerUp(PowerUpType.FIRE_MAN)) && !player.hasPowerUp(PowerUpType.QUESTION_MARK))) {
-                    Gdx.app.error("Bomb", "Player hit by bomb at: " + position.toString());
-                    scoreboard.removeLife(); //linea que mata todo
-
-                }
 
         vertHB = new Rectangle(
             (position.x + width / 2 - tileWidth / 2) + 10,
@@ -215,6 +208,14 @@ public class Bomb extends Actor{
         if ((horizHB.overlaps(player.getBoundingBox()) || vertHB.overlaps(player.getBoundingBox()))
             && !player.hasPowerUp(PowerUpType.FIRE_MAN) && !player.hasPowerUp(PowerUpType.QUESTION_MARK)) {
             Gdx.app.error("Bomb", "Player hit by bomb at: " + position.toString());
+        }
+
+        //Detecta si el jugador esta en la explosion
+        if ((horizHB.overlaps(player.getBoundingBox()) || vertHB.overlaps(player.getBoundingBox())
+            && (!player.hasPowerUp(PowerUpType.FIRE_MAN)) && !player.hasPowerUp(PowerUpType.QUESTION_MARK))) {
+            Gdx.app.error("Bomb", "Player hit by bomb at: " + position.toString());
+            scoreboard.removeLife(); //linea que mata todo
+
         }
 
         // Chain reaction with other bombs
