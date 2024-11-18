@@ -27,6 +27,10 @@ public class Actors extends Actor {
         this.powerUps = new ArrayList<PowerUp>();
     }
 
+    public ArrayList<Enemy> getEnemies(){
+        return enemies;
+    }
+
     public void update(GameScreen.State state){
         if (state == GameScreen.State.running) {
             for (Bomb bomb : Bombs) {

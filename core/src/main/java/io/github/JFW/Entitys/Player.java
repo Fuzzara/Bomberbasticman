@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.math.Rectangle;
@@ -28,7 +29,7 @@ public class Player extends Actor {
 
     // Constants
     private static final int INITIAL_HP = 3;
-    private static final float INITIAL_SPEED = 70f;
+    private static final float INITIAL_SPEED = 120f;//70f;
     private static final Vector2 INITIAL_POSITION = new Vector2(96, 630);
     private static final float SPRITE_WIDTH = 48;
     private static final float SPRITE_HEIGHT = 96;
@@ -115,6 +116,10 @@ public class Player extends Actor {
         this.winAnimator = new Animator("bomberSpriteSheet.png", 28, 1, 19, 27, 0.2f, Animation.PlayMode.NORMAL);
 
         this.currentAnimator = downAnimator; //default
+    }
+
+    public void setMap(Map map){
+        this.currentMap = map;
     }
 
     public void applyPowerUp(statePlayer.PowerUpType type) {
@@ -214,10 +219,10 @@ public class Player extends Actor {
         batch.draw(currentAnimator.getFrame(), position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
 
         //DEBUG BOUNDING BOX
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        /*shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(1,0,0,1);
         shapeRenderer.rect(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height);
-        shapeRenderer.end();
+        shapeRenderer.end();*/
 
         batch.end();
     }

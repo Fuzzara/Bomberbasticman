@@ -42,7 +42,6 @@ public class Config {
         if (actors == null) {
             actors = new Actors();
             player = Player.getInstance(actors, currentMap);
-            player.setMap(currentMap);
             actors.setPlayer(player);
             setupenemies(1);
         } else {

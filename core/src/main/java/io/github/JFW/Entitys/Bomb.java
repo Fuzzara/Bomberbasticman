@@ -69,7 +69,7 @@ public class Bomb extends Actor{
     private Scoreboard scoreboard;
 
     public Bomb(float x ,float y, Actors actors, Map map){
-        this.batch = SpriteBatchHandler.getBatch();;
+        this.batch = SpriteBatchHandler.getBatch();
         this.position = new Vector2(x-24,y-24); //YA TIENE OFFSET
         this.exploded = false;
         this.explosionTimer = 0f;

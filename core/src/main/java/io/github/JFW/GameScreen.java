@@ -20,7 +20,6 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import io.github.JFW.System.*;
 import io.github.JFW.MapEnv.*;
 
-/** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class GameScreen extends ApplicationAdapter {
 
     //UI
@@ -46,27 +45,26 @@ public class GameScreen extends ApplicationAdapter {
     //Scoreboard
     private Scoreboard scoreboard;
 
-    //CUADRITO DEBUG
-    //private Rectangle rect = new Rectangle(186,45,2,2);
-
     //states del juego
     public enum State {
         running,
-        paused
+        paused,
+        levelTransition
     }
     private State state;
+    private float transitionTimer;
+    private static final float TRANSITION_DURATION = 1.0f; // 1 second transition
 
     //Constructor bonito
-    public GameScreen(int level, int score){
+    public GameScreen(int level, int score) {
         this.batch = SpriteBatchHandler.getBatch();
-        //estado inicial!
         state = State.running;
 
         sr = new ShapeRenderer();
 
         scoreboard = Scoreboard.getInstance();
 
-        stage = new Stage(new ExtendViewport(864, 783)); //usar img de ref
+        stage = new Stage(new ExtendViewport(864, 783));
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
         uiBackground = new Texture(Gdx.files.internal("uibg.png"));
@@ -82,37 +80,70 @@ public class GameScreen extends ApplicationAdapter {
         currentMap = levelconfig.setuplevel(level);
         mapRenderer = new OrthogonalTiledMapRenderer(currentMap.getTiledMap(),3f);
 
-        //Musica! (WIP, CAMBIAR)
-        music.playMusic("sound/lvlmusic/AAAA.mp3");
+        //Musica!
+        updateMusic(level);
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
-
     }
 
-    /*@Override
-    public void create() {
-        Gdx.app.setLogLevel(Gdx.app.LOG_DEBUG);
-    }*/
+    private void updateMusic(int level) {
+        music.stopMusic(); // Stop current music if playing
+        String musicFile = "sound/lvlmusic/lvl" + (level + 1) + ".mp3";
+        music.playMusic(musicFile);
+    }
 
     @Override
     public void render() {
-
         switch (state) {
             case running:
+                checkLevelCompletion();
                 draw();
-                levelconfig.runlevel(state); //actualizar el nivel
+                levelconfig.runlevel(state);
                 break;
             case paused:
-                //no se actualiza! (por alguna razon el jugador tiene la animacion de caminar, pero se ve tierno asi que se queda)
+                draw();
                 break;
-
+            case levelTransition:
+                handleLevelTransition();
+                draw();
+                break;
         }
-        //input();//Input del cuadrito
         inputExtra();
-        draw();
-        levelconfig.runlevel(state); //test
         scoreboard.update(Gdx.graphics.getDeltaTime());
         scoreboard.render();
     }
+
+    private void checkLevelCompletion() {
+        if (levelconfig.isLevelCompleted()) {
+            music.stopMusic();
+            sfx.playSFX("sound/win.mp3");
+            state = State.levelTransition;
+            transitionTimer = TRANSITION_DURATION;
+            Gdx.app.log("GameScreen", "Level " + levelconfig.getCurrentLevel() + " completed!");
+        }
+    }
+
+    private void handleLevelTransition() {
+        transitionTimer -= Gdx.graphics.getDeltaTime();
+        if (transitionTimer <= 0) {
+            if (levelconfig.switchToNextLevel()) {
+                // Successfully switched to next level
+                currentMap = levelconfig.getCurrentMap();
+                mapRenderer.setMap(currentMap.getTiledMap());
+                sfx.playSFX("sound/lvlstart.mp3");
+                updateMusic(levelconfig.getCurrentLevel());
+                state = State.running;
+                Gdx.app.log("GameScreen", "Starting level " + levelconfig.getCurrentLevel());
+            } else {
+                // No more levels, game complete!
+                Gdx.app.log("GameScreen", "Game Complete! Restarting from level 0");
+                currentMap = levelconfig.setuplevel(0);
+                mapRenderer.setMap(currentMap.getTiledMap());
+                updateMusic(0);
+                state = State.running;
+            }
+        }
+    }
+
     private void draw() {
         ScreenUtils.clear(0f, 0f, 0f, 1f);
 
@@ -123,50 +154,10 @@ public class GameScreen extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.combined);
         batch.draw(uiBackground, 24, 696, 864, 111);
         batch.end();
-
-        // Debug rectangle
-        /*
-        sr.begin(ShapeRenderer.ShapeType.Filled);
-        sr.setColor(0, 1, 0, 1);
-        sr.rect(rect.x, rect.y, rect.width, rect.height);
-        sr.end();
-        */
     }
 
-    /*private void input(){ //debug!
-        if (Gdx.input.isKeyPressed(Input.Keys.J)) {
-            rect.x -= .5;
-            Gdx.app.log("COORDS CUADRITO", "X: " + rect.x + " Y: " + rect.y);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.K)) {
-            rect.y -= .5;
-            Gdx.app.log("COORDS CUADRITO", "X: " + rect.x + " Y: " + rect.y);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.L)) {
-            rect.x += .5;
-            Gdx.app.log("COORDS CUADRITO", "X: " + rect.x + " Y: " + rect.y);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.I)) {
-            rect.y += .5;
-            Gdx.app.log("COORDS CUADRITO", "X: " + rect.x + " Y: " + rect.y);
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            if (state == State.running) {
-                music.pauseMusic();
-                sfx.playSFX("sound/pause.mp3");
-                state = State.paused;
-                music.pauseMusic();
-                Gdx.app.log("State", "Pausado");
-            } else {
-                state = State.running;
-                music.resumeMusic();
-                Gdx.app.log("State", "Running");
-            }
-        }
-
-    }*/
-    private void inputExtra(){
-        if (inputHandler.debugReload()) { //debug, not working as intended btw yeahhh
+    private void inputExtra() {
+        if (inputHandler.debugReload()) {
             currentMap.dispose();
             currentMap = levelconfig.setuplevel(0);
             mapRenderer.setMap(currentMap.getTiledMap());
@@ -179,27 +170,12 @@ public class GameScreen extends ApplicationAdapter {
                 state = State.paused;
                 music.pauseMusic();
                 Gdx.app.log("State", "Pausado");
-            } else {
+            } else if (state == State.paused) {
                 state = State.running;
                 music.resumeMusic();
                 Gdx.app.log("State", "Resumido");
             }
         }
-    }
-
-    private void renderCollisionLayer() {
-        //sr.setProjectionMatrix(camera.combined);
-        sr.begin(ShapeRenderer.ShapeType.Filled);
-        sr.setColor(0, 0, 1, 0.2f); // Blue color with 0.5 opacity
-
-        for (MapObject object : currentMap.getCollisionLayer().getObjects()) {
-            if (object instanceof RectangleMapObject) {
-                Rectangle rect = ((RectangleMapObject) object).getRectangle();
-                sr.rect(rect.x*3, rect.y*3, rect.width*3, rect.height*3);
-            }
-        }
-
-        sr.end();
     }
 
     @Override
@@ -217,7 +193,6 @@ public class GameScreen extends ApplicationAdapter {
         currentMap.dispose();
         mapRenderer.dispose();
         music.dispose();
-
+        sfx.dispose();
     }
-
 }

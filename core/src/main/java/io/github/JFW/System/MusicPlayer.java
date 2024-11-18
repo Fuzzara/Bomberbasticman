@@ -6,31 +6,46 @@ import com.badlogic.gdx.audio.Music;
 public class MusicPlayer {
     private Music music;
     private boolean isPlaying;
+    
     public void playMusic(String path){
+        if (music != null) {
+            music.dispose(); // Clean up previous music
+        }
         music = Gdx.audio.newMusic(Gdx.files.internal(path));
         music.setLooping(true);
         music.setVolume(0.3f);
         music.play();
         isPlaying = true;
     }
-    void stopMusic(){
-        music.stop();
-        isPlaying = false;
+    
+    public void stopMusic(){
+        if (music != null) {
+            music.stop();
+            isPlaying = false;
+        }
     }
+    
     public void pauseMusic(){
-        music.pause();
-        isPlaying = false;
+        if (music != null) {
+            music.pause();
+            isPlaying = false;
+        }
     }
+    
     public void resumeMusic(){
-        music.play();
-        isPlaying = true;
+        if (music != null) {
+            music.play();
+            isPlaying = true;
+        }
     }
-    boolean isPlaying(){
+    
+    public boolean isPlaying(){
         return isPlaying;
     }
 
     public void dispose() {
-        music.dispose();
+        if (music != null) {
+            music.dispose();
+        }
     }
 }
-

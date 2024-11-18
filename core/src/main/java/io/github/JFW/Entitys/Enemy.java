@@ -281,12 +281,12 @@ public class Enemy extends Actor {
         batch.begin();
         //enemySprite.draw(batch);
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        /*shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(0,0,1,1);
         shapeRenderer.rect(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height);
         shapeRenderer.end();
-
-        //batch.draw(animation.getFrame(), position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
+*/
+        batch.draw(animation.getFrame(), position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
         batch.end();
     }
 
