@@ -2,15 +2,19 @@ package io.github.JFW.System;
 
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import java.util.Random;
-
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
+import io.github.JFW.EnemyFactory;
+import io.github.JFW.Entitys.Actors;
+import io.github.JFW.Entitys.Enemy;
+import io.github.JFW.Entitys.Player;
+import io.github.JFW.GameScreen;
+import io.github.JFW.Main;
+import io.github.JFW.MapEnv.Map;
+import io.github.JFW.MapEnv.MapSystem;
 
-import io.github.JFW.*;
-import io.github.JFW.Entitys.*;
-import io.github.JFW.MapEnv.*;
+import java.util.Random;
 
 public class Config {
 
@@ -18,27 +22,23 @@ public class Config {
     private MapSystem mapSystem;
     private Player player;
     private Actors actors;
-    private SpriteBatch batch;
-    private Enemy enemy;
-    private Main.State state;
+    private final SpriteBatch batch;
 
-    public Config(SpriteBatch batch){
+    public Config(SpriteBatch batch) {
         this.batch = batch;
         //this.mapSystem = mapSystem;
-
     }
 
-    public Map setuplevel(int n){
+    public Map setuplevel(int n) {
         mapSystem = new MapSystem();
         currentMap = mapSystem.getMap(n);
-        if (actors == null){
+        if (actors == null) {
             actors = new Actors();
-            player = Player.getInstance(batch, actors, currentMap);
+            player = Player.getInstance(actors, currentMap);
             actors.setPlayer(player);
             //setupenemies();
-            setupenemies(4);
-        }
-        else{
+            setupenemies(1);
+        } else {
             actors.clearActors();
         }
         currentMap.setActors(actors);
@@ -48,30 +48,27 @@ public class Config {
     //top left (x: 96, y:630) approximately
     //bottom right (x: 775, y:50) approximately
 
-    public void setupenemies(){ // OHHH THE MISERY
-        enemy = new Enemy(46.6666666667f,96,630,1000,1,currentMap,batch);
-        actors.updateEnemies(enemy);
+    public void setupenemies() { // OHHH THE MISERY
     }
 
-    public void setupenemies(int n){
-        for(int i=0;i<n;i++){
+    public void setupenemies(int n) {
+        for (int i = 0; i < n; i++) {
             boolean StuckinEnvironment = true;
             Random rand = new Random();
-            while(StuckinEnvironment){
-                int x = rand.nextInt((775-335)+1)+355;
-                int y = rand.nextInt((385-50)+1)+50;
-                Rectangle rect = new Rectangle(x ,y ,34,34);
+            while (StuckinEnvironment) {
+                int x = rand.nextInt((775 - 335) + 1) + 355;
+                int y = rand.nextInt((385 - 50) + 1) + 50;
+                Rectangle rect = new Rectangle(x, y, 34, 34);
                 StuckinEnvironment = stuck(rect);
-                if (StuckinEnvironment == false){
-                    enemy = new Enemy(46.6666666667f,x,y,1000,1,currentMap,batch);
-                    actors.updateEnemies(enemy);
+                if (!StuckinEnvironment) {
+                    Enemy test = EnemyFactory.createEnemy(1, x, y, currentMap, player.getSpeed());
+                    actors.updateEnemies(test);
                 }
             }
-
         }
     }
 
-    public boolean stuck(Rectangle enemyRect){
+    public boolean stuck(Rectangle enemyRect) {
         for (MapObject object : currentMap.getCollisionLayer().getObjects()) {
             if (object instanceof RectangleMapObject) {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
@@ -83,10 +80,8 @@ public class Config {
         return false;
     }
 
-    public void runlevel(GameScreen.State state){
+    public void runlevel(GameScreen.State state) {
         actors.update(state);
     }
-
-
 
 }

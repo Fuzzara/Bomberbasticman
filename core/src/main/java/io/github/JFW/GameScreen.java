@@ -54,16 +54,16 @@ public class GameScreen extends ApplicationAdapter {
     private State state;
 
     //Constructor bonito
-    public GameScreen(SpriteBatch batch, int level, int score){
-        this.batch = batch;
+    public GameScreen(int level, int score){
+        this.batch = SpriteBatchHandler.getBatch();
         //estado inicial!
         state = State.running;
 
         sr = new ShapeRenderer();
 
+
         stage = new Stage(new ExtendViewport(864, 783)); //usar img de ref
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
-        //batch = new SpriteBatch();
 
         uiBackground = new Texture(Gdx.files.internal("uibg.png"));
 
@@ -79,10 +79,8 @@ public class GameScreen extends ApplicationAdapter {
         mapRenderer = new OrthogonalTiledMapRenderer(currentMap.getTiledMap(),3f);
 
         //Musica! (WIP, CAMBIAR)
-        music.playMusic("sound/w1.mp3");
-
+        music.playMusic("sound/lvlmusic/lvl2.mp3");
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
-
 
     }
 
@@ -106,7 +104,6 @@ public class GameScreen extends ApplicationAdapter {
         //input();//Input del cuadrito
         inputExtra();
         draw();
-        //renderCollisionLayer();
         levelconfig.runlevel(state); //test
     }
     private void draw() {

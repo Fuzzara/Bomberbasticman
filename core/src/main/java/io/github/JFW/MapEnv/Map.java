@@ -20,6 +20,7 @@ public class Map {
 
     private final int LEVEL_POWERUP;
 
+
     Actors actors;
 
     private int DESTROYABLE_WALL = 50;
@@ -149,8 +150,8 @@ public class Map {
                 } else if (i == DESTROYABLE_WALL - 1) {
                     addSingleCollision(x, y, "Door");
                 } else {
-                    addSingleCollision(x, y, "Door");
-                    //addSingleCollision(x, y, "Destroyable");
+                    //addSingleCollision(x, y, "Door");
+                    addSingleCollision(x, y, "Destroyable");
                 }
                 i--;
             }
@@ -223,7 +224,7 @@ public class Map {
                      */
                     actors.addPowerUp(new PowerUp(worldX, worldY, actors, LEVEL_POWERUP));
                 }
-                if (Boolean.TRUE.equals(rectToRemove.getProperties().get("Door"))) { //CUANDO QUITA PUERTA OCULTA
+                if (rectToRemove.getProperties().containsKey("Door")) { //CUANDO QUITA PUERTA OCULTA
                     addSingleCollision(x,y,"ActualDoor");
                     Gdx.app.debug("MAP", "Spawned Door at: " + x + ", " + y);
                 }
@@ -292,9 +293,11 @@ public class Map {
                 cell.setTile(tiledMap.getTileSets().getTile(90));
                 rectObject.getProperties().put("Door", true); //PUERTA OCULTA
                 rectObject.getProperties().put("Indestructible", false);
+
             } else if (type.equals("ActualDoor")) {
                 cell.setTile(tiledMap.getTileSets().getTile(9));
                 rectObject.getProperties().put("Door", true);
+                rectObject.getProperties().put("KYS",true);
             } else {
                 rectObject.getProperties().put("Indestructible", false);
                 rectObject.getProperties().put("Pass-Through", true);

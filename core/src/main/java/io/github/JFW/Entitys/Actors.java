@@ -2,8 +2,10 @@ package io.github.JFW.Entitys;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import io.github.JFW.GameScreen;
+import io.github.JFW.statePlayer;
 
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -13,6 +15,7 @@ public class Actors extends Actor {
     private ArrayList<Enemy> enemies; // sin uso por ahora
     private ArrayList<PowerUp> powerUps;
     private Player player;
+    private statePlayer.PowerUpType powerUpType;
 
 
     private GameScreen.State state;
@@ -104,11 +107,15 @@ public class Actors extends Actor {
     }
 
     public void useDetonator(){
-        if (player.hasPowerUp(Player.PowerUpType.DETONATOR)){
+        if (player.hasPowerUp(statePlayer.PowerUpType.DETONATOR)){
             for (Bomb bomb: Bombs){
                 bomb.detonatorExplode();
             }
         }
+    }
+
+    public ArrayList<Bomb> getBombs(){
+        return Bombs;
     }
 
 }

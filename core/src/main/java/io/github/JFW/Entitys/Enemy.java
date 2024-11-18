@@ -10,10 +10,12 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import io.github.JFW.MapEnv.Map;
+import io.github.JFW.System.SpriteBatchHandler;
+import io.github.JFW.stateEnemy;
 
 import java.util.Random;
 
-public class Enemy extends Actor{
+public class Enemy extends Actor {
 
     private static final float SPRITE_WIDTH = 48;
     private static final float SPRITE_HEIGHT = 96;
@@ -21,147 +23,174 @@ public class Enemy extends Actor{
     private static final float BOUNDING_BOX_OFFSET = 23;
 
     //Enemy atributes
-    private boolean noclip; // Atraviesa muros ig
-    private int ai;
-    private int score;
-    private Vector2 position;
-    private float speed;
-    private State currentState;
-    private State lastState;
+    private final boolean noclip; // Atraviesa muros ig
+    private final int ai;
+    private final int score;
+    private final Vector2 position;
+    private final float speed;
 
     //Sprites
-    private Sprite enemySprite;
-    private Texture enemyTexture;
-    private SpriteBatch batch;
+    private final Sprite enemySprite;
+    private final Texture enemyTexture;
+    private final SpriteBatch batch;
 
     //Colission stuff
     private Map currentMap;
-    private Rectangle boundingBox;
-    private Player player;
+    private final Rectangle boundingBox;
+    private final Player player;
+
+    private final stateEnemy state;
 
     //Tal vez hacer esta clase abstracta y tener una clase por enemigo ?
-    public Enemy(float speed, float x, float y, int score, int ai, Map currentMap, SpriteBatch batch){
+    public Enemy(float speed, float x, float y, int score, int ai, boolean noclip, String texturepath, Map currentMap) {
         this.speed = speed;
-        this.position = new Vector2(x,y);
+        this.position = new Vector2(x, y);
         this.score = score;
         this.ai = ai;
-        this.currentState = State.STUCK;
-        this.lastState = State.STUCK;
+        this.noclip = noclip;
         this.currentMap = currentMap;
-        this.batch = batch;
+        this.batch = SpriteBatchHandler.getBatch();;
         //por mientras, cambiar!
-        this.enemyTexture = new Texture("bombwip.png");
+        this.enemyTexture = new Texture(texturepath);
         this.enemySprite = new Sprite(enemyTexture);
-        this.enemySprite.setSize(SPRITE_WIDTH,SPRITE_HEIGHT);
-        this.enemySprite.setPosition(position.x,position.y);
-        this.boundingBox = new Rectangle(position.x - BOUNDING_BOX_OFFSET,position.y - BOUNDING_BOX_OFFSET,BOUNDING_BOX_SIZE,BOUNDING_BOX_SIZE);
+        this.enemySprite.setSize(SPRITE_WIDTH, SPRITE_HEIGHT);
+        this.enemySprite.setPosition(position.x, position.y);
+        this.boundingBox = new Rectangle(position.x - BOUNDING_BOX_OFFSET, position.y - BOUNDING_BOX_OFFSET, BOUNDING_BOX_SIZE, BOUNDING_BOX_SIZE);
         player = Player.getInstance();
 
+        this.state = new stateEnemy();
     }
 
-    private enum State {
-        UP, DOWN, LEFT, RIGHT, STUCK, CHASING, DEAD
+    private boolean isCollision(float x, float y) {
+        Rectangle enemyRect = new Rectangle(x, y, boundingBox.width, boundingBox.height);
+
+        //solamente se necesita checkear esto si el enemigo puede atravesar muros
+        if (noclip) {
+            for (MapObject object : currentMap.getCollisionLayer().getObjects()) {
+                if (object instanceof RectangleMapObject rectObject) {
+                    if (Boolean.TRUE.equals(rectObject.getProperties().get("Bomb"))) {
+                        Rectangle rect = rectObject.getRectangle();
+                        if (rect.overlaps(enemyRect)) {
+                            //Choca con bomba, no puede atavesarlo!
+                            return true;
+                        }
+                    }
+                    if (Boolean.TRUE.equals(rectObject.getProperties().get("Indestructible"))) {
+                        Rectangle rect = rectObject.getRectangle();
+                        if (rect.overlaps(enemyRect)) {
+                            //Choca con un muro indestructible
+                            return true;
+                        }
+                    }
+                }
+            }
+        } else {
+            //Checkeo normal
+            for (MapObject object : currentMap.getCollisionLayer().getObjects()) {
+                if (object instanceof RectangleMapObject) {
+                    Rectangle rect = ((RectangleMapObject) object).getRectangle();
+                    if (rect.overlaps(enemyRect)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+
+        if (enemyRect.overlaps(player.getBoundingBox())) {
+            System.out.println("Player hit by enemy!");
+        }
+        return false;
     }
-    private void  choosingDirection(){
+
+
+    private void choosingDirection() {
         Random rand = new Random();
-        int x = rand.nextInt((4-1)+1)+1;
-        switch(x){
+        int randomDirection = rand.nextInt(4);
+        switch (randomDirection) {
+            case 0:
+                if (state.getCurrentState() != stateEnemy.State.DOWN) {
+                    state.setCurrentState(stateEnemy.State.DOWN);
+                }
+                break;
             case 1:
-                if (lastState != State.DOWN) {
-                    currentState = State.DOWN;
-                    break;
+                if (state.getCurrentState() != stateEnemy.State.UP) {
+                    state.setCurrentState(stateEnemy.State.UP);
                 }
+                break;
+
             case 2:
-                if (lastState != State.UP){
-                    currentState = State.UP;
-                    break;
+                if (state.getCurrentState() != stateEnemy.State.RIGHT) {
+                    state.setCurrentState(stateEnemy.State.RIGHT);
                 }
+                break;
 
             case 3:
-                if (lastState != State.RIGHT){
-                    currentState = State.RIGHT;
-                    break;
+                if (state.getCurrentState() != stateEnemy.State.LEFT) {
+                    state.setCurrentState(stateEnemy.State.LEFT);
                 }
-
-            case 4:
-                if (lastState != State.LEFT){
-                    currentState = State.LEFT;
-                    break;
-                }
-
+                break;
         }
     }
 
-    private void moveRandomly(){
+    private void moveRandomly() {
         float deltaTime = Gdx.graphics.getDeltaTime();
-        if (currentState == State.STUCK){
+        if (state.getCurrentState() == stateEnemy.State.STUCK) {
             choosingDirection();
         }
-        switch (currentState) {
+        switch (state.getCurrentState()) {
             case LEFT:
-                move(-speed * deltaTime, 0,State.LEFT);
+                move(-speed * deltaTime, 0);
                 break;
             case RIGHT:
-                move(speed * deltaTime, 0,State.RIGHT);
+                move(speed * deltaTime, 0);
                 break;
             case UP:
-                move(0, speed * deltaTime,State.UP);
+                move(0, speed * deltaTime);
                 break;
             case DOWN:
-                move(0, -speed * deltaTime,State.DOWN);
+                move(0, -speed * deltaTime);
                 break;
         }
 
     }
-    private void move(float dx, float dy,State LS) {
+
+    private void move(float dx, float dy) {
         float newX = position.x + dx;
         float newY = position.y + dy;
         if (!isCollision(newX, newY)) {
             position.set(newX, newY);
             updateBoundingBox();
-        }
-        else{
-            currentState = State.STUCK;
-            lastState = LS;
+        } else {
+            state.setCurrentState(stateEnemy.State.STUCK);
+            choosingDirection();
         }
     }
 
-    private boolean isCollision(float x, float y) {
-        Rectangle enemyRect = new Rectangle(x, y, boundingBox.width, boundingBox.height);
-        if(enemyRect.overlaps(player.getBoundingBox())){
-            Gdx.app.debug("Enemy hit ","player");
-        }
-        for (MapObject object : currentMap.getCollisionLayer().getObjects()) {
-            if (object instanceof RectangleMapObject) {
-                Rectangle rect = ((RectangleMapObject) object).getRectangle();
-                if (rect.overlaps(enemyRect)) {
-                    //Gdx.app.debug("Enemy", "Collision detected at (" + x + ", " + y + ")");
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 
-    public void draw(){
+    public void draw() {
         batch.begin();
-        enemySprite.setPosition(position.x,position.y);
+        enemySprite.setPosition(position.x, position.y);
         enemySprite.draw(batch);
         batch.end();
     }
 
-    public void update(){
+    public void update() {
         moveRandomly();
         updateBoundingBox();
         draw();
     }
-    private void updateBoundingBox(){
-        boundingBox.setPosition(position.x-BOUNDING_BOX_OFFSET, position.y-34);
+
+    private void updateBoundingBox() {
+        boundingBox.setPosition(position.x - BOUNDING_BOX_OFFSET, position.y - 34);
     }
 
     public void setCurrentMap(Map map) {
         this.currentMap = map;
     }
 
+    public void changeState(stateEnemy.State newState) {
+        this.state.setCurrentState(newState);
+    }
 }
 

@@ -3,11 +3,12 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import io.github.JFW.System.SFXPlayer;
+import io.github.JFW.System.SpriteBatchHandler;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
-    private SpriteBatch batch;
     private MainMenu mainMenu;
+    private SpriteBatch batch;
     private GameScreen gameScreen;
     private SFXPlayer sfx = new SFXPlayer();
     public enum State { //states del juego
@@ -18,8 +19,8 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void create() {
-       batch = new SpriteBatch();
-       mainMenu = new MainMenu(batch);
+       this.batch = SpriteBatchHandler.getBatch();
+       mainMenu = new MainMenu();
        state = State.mainMenu;
     }
 
@@ -48,7 +49,7 @@ public class Main extends ApplicationAdapter {
         }
     }
     private void startGame() {
-        gameScreen = new GameScreen(batch, 0, 0); // level 0, score 0
+        gameScreen = new GameScreen(0, 0); // level 0, score 0
         state = State.game;
     }
 

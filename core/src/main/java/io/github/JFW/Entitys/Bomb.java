@@ -10,15 +10,20 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.graphics.Color;
 
-import io.github.JFW.Entitys.Player.PowerUpType;
+import io.github.JFW.statePlayer.PowerUpType;
 import io.github.JFW.MapEnv.Map;
 import io.github.JFW.System.Animator;
 import io.github.JFW.System.SFXPlayer;
+import io.github.JFW.System.SpriteBatchHandler;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 
 public class Bomb extends Actor{
 
-    private int EXPLOSION_RANGE = 1;
+    private final SpriteBatch batch;
+    private int EXPLOSION_RANGE = 5;
 
     private final Actors actors; //anti POO, debe de haber una mejor manera
 
@@ -26,7 +31,6 @@ public class Bomb extends Actor{
     private float width = 48;
     private float height = 48;
 
-    private final SpriteBatch batch;
     private Animator idleAnimator;
     private Animator explosionAnimator;
     private Animator currentAnimator;
@@ -54,8 +58,8 @@ public class Bomb extends Actor{
 
     private Player player;
 
-    public Bomb(SpriteBatch batch, float x ,float y, Actors actors, Map map){
-        this.batch = batch;
+    public Bomb(float x ,float y, Actors actors, Map map){
+        this.batch = SpriteBatchHandler.getBatch();;
         this.position = new Vector2(x-24,y-24); //YA TIENE OFFSET
         this.exploded = false;
         this.explosionTimer = 0f;
@@ -84,6 +88,7 @@ public class Bomb extends Actor{
         actors.updateBombs(this);
 
         player = Player.getInstance();
+
         if (player.hasPowerUp(PowerUpType.SUN)){
             EXPLOSION_RANGE = 3;
         }
@@ -104,20 +109,14 @@ public class Bomb extends Actor{
 
     public void logic() {
         this.currentTime = System.nanoTime();
-        if (bombTileHitbox.overlaps(player.getBoundingBox())) {
-            //System.out.println("ADENTRO");
-            //playerInBomb = true;
-        } else {
-            //System.out.println("AFUERA");
+        if (!bombTileHitbox.overlaps(player.getBoundingBox())) {
             playerInBomb = false;
         }
-
         if (!playerInBomb && !placedCollision) {
             int tileXX = (int) ((position.x + 48) / tiledMap.getCollisionLayer().getTileWidth());
             int tileYY = (int) ((position.y + 48) / tiledMap.getCollisionLayer().getTileHeight());
             placedCollision = true;
             tiledMap.addSingleCollision(tileXX, tileYY, "Bomb");
-
         }
         if (currentTime >= detonationTime && !exploded) {
             exploded = true;
@@ -130,13 +129,32 @@ public class Bomb extends Actor{
         }
     }
 
-    public boolean isExploded(){
-        return exploded;
+    private void processExplosionDirection(int centerTileX, int centerTileY, int deltaX, int deltaY) {
+        for (int i = 0; i <= EXPLOSION_RANGE; i++) {
+            int tileX = centerTileX + i * deltaX;
+            int tileY = centerTileY + i * deltaY;
+
+            Rectangle tileRect = new Rectangle(
+                tileX * tiledMap.getCollisionLayer().getTileWidth(),
+                tileY * tiledMap.getCollisionLayer().getTileHeight(),
+                tiledMap.getCollisionLayer().getTileWidth(),
+                tiledMap.getCollisionLayer().getTileHeight()
+            );
+
+            // Verifica colision con obstaculos
+            for (RectangleMapObject obstacle : tiledMap.getObstaclesMO()) {
+                if (obstacle.getRectangle().overlaps(tileRect)) {
+                    if (Boolean.TRUE.equals(obstacle.getProperties().get("Indestructible"))&& !obstacle.getProperties().containsKey("Door")) return;
+                    tiledMap.removeSingleCollision(centerTileX, centerTileY);
+                    tiledMap.removeSingleCollision(tileX, tileY);
+                    return;
+                }
+            }
+        }
     }
 
     public void processExplosion() {
             explosionTimer += Gdx.graphics.getDeltaTime();
-            if (explosionTimer >= 1f) {
                 float tileWidth = tiledMap.getCollisionLayer().getTileWidth();
                 float tileHeight = tiledMap.getCollisionLayer().getTileHeight();
 
@@ -156,53 +174,36 @@ public class Bomb extends Actor{
                 );
 
                 //Detecta si el jugador esta en la explosion
-                if ((horizHB.overlaps(player.getBoundingBox()) || vertHB.overlaps(player.getBoundingBox()) && (!player.hasPowerUp(PowerUpType.FIRE_MAN)) && !player.hasPowerUp(PowerUpType.QUESTION_MARK))) {
+                if ((horizHB.overlaps(player.getBoundingBox()) || vertHB.overlaps(player.getBoundingBox())
+                    && (!player.hasPowerUp(PowerUpType.FIRE_MAN)) && !player.hasPowerUp(PowerUpType.QUESTION_MARK))) {
                     Gdx.app.error("Bomb", "Player hit by bomb at: " + position.toString());
                 }
 
-                // bomb center pos!
-                int centerTileX = (int) ((position.x + width / 2) / tiledMap.getCollisionLayer().getTileWidth());
-                int centerTileY = (int) ((position.y + height / 2) / tiledMap.getCollisionLayer().getTileHeight());
-
-                // cross pattern
-                for (int i = 0; i <= EXPLOSION_RANGE; i++) {
-                    int[][] tilesToCheck = {
-                        {centerTileX, centerTileY},     // Center
-                        {centerTileX - i, centerTileY},   // Left
-                        {centerTileX + i, centerTileY},   // Right
-                        {centerTileX, centerTileY - i},   // Down
-                        {centerTileX, centerTileY + i}    // Up
-                    };
-
-                    for (int[] tilePos : tilesToCheck) {
-                        int tileX = tilePos[0];
-                        int tileY = tilePos[1];
-
-                        Rectangle tileRect = new Rectangle(
-                            tileX * tiledMap.getCollisionLayer().getTileWidth(),
-                            tileY * tiledMap.getCollisionLayer().getTileHeight(),
-                            tiledMap.getCollisionLayer().getTileWidth(),
-                            tiledMap.getCollisionLayer().getTileHeight()
-                        );
-
-                        // Verifica colision con obstaculos
-                        for (RectangleMapObject obstacle : tiledMap.getObstaclesMO()) {
-                            if (obstacle.getRectangle().overlaps(tileRect)) {
-                                tiledMap.removeSingleCollision(centerTileX, centerTileY);
-                                tiledMap.removeSingleCollision(tileX, tileY);
-                                break;
-                            }
+                //Reaccion en cadena
+                ArrayList<Bomb> bombs = actors.getBombs();
+                for(Bomb bomb : bombs) {
+                    if (bomb != this) {
+                        if (horizHB.overlaps(bomb.bombTileHitbox) || vertHB.overlaps(bomb.bombTileHitbox)){
+                            bomb.detonatorExplode();
                         }
                     }
                 }
 
+                // bomb center pos!
+                int centerTileX = (int) ((position.x + width / 2) / tiledMap.getCollisionLayer().getTileWidth());
+                int centerTileY = (int) ((position.y + height / 2) / tiledMap.getCollisionLayer().getTileHeight());// HOLA JUSTIN if(true)
+
+                // cross pattern
+                processExplosionDirection(centerTileX, centerTileY, 0, 0); // Center
+                processExplosionDirection(centerTileX, centerTileY, -1, 0); // Left
+                processExplosionDirection(centerTileX, centerTileY, 1, 0); // Right
+                processExplosionDirection(centerTileX, centerTileY, 0, -1); // Down
+                processExplosionDirection(centerTileX, centerTileY, 0, 1); // Up
+
                 if (explosionTimer >= 1.36f) { // espera a que la animacion termine
                     actors.removeBombs(this);
                 }
-
-            }
         }
-
 
     public void debugDraw(){
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);

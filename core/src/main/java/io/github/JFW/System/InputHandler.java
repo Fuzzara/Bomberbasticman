@@ -38,7 +38,7 @@ public class InputHandler{
     }
 
    public String handleMainMenuInput() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+       if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_ENTER)) {
             return "start";
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {

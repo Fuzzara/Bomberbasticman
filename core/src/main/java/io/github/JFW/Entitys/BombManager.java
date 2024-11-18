@@ -7,17 +7,18 @@ import com.badlogic.gdx.math.Vector2;
 import io.github.JFW.MapEnv.Map;
 import io.github.JFW.System.InputHandler;
 import io.github.JFW.System.SFXPlayer;
+import io.github.JFW.System.SpriteBatchHandler;
 
 public class BombManager {
+    private final SpriteBatch batch;
     private float nextBombTime = 0f;
-    private SpriteBatch batch;
     private Actors actors;
     private Map currentMap;
     private SFXPlayer sfx;
     private InputHandler inputHandler;
 
-    public BombManager(SpriteBatch batch, Actors actors, Map currentMap) {
-        this.batch = batch;
+    public BombManager(Actors actors, Map currentMap) {
+        this.batch = SpriteBatchHandler.getBatch();;
         this.actors = actors;
         this.currentMap = currentMap;
         this.sfx = new SFXPlayer();
@@ -27,14 +28,14 @@ public class BombManager {
 
     public void handleBombPlacement(Vector2 playerPosition, float deltaTime) {
         if(actors.getBombCount() > Player.getInstance().getBombLimit()){
-            Gdx.app.debug("BombManager", "Player has reached bomb limit");
+            //Gdx.app.debug("BombManager", "Player has reached bomb limit");
             return;
         }
         nextBombTime += deltaTime;
             if (inputHandler.canPlaceBomb()) {
-                if (nextBombTime >= 1f) {
+                if (nextBombTime >= 0.5f) {
                     sfx.playSFX("sound/placeBomb.mp3");
-                    nextBombTime = 0f; // Cooldown de 50ms
+                    nextBombTime = 0f;
                     placeBomb(playerPosition);
                 }
         }
@@ -52,7 +53,7 @@ public class BombManager {
         float bombX = tileX * tileWidth;
         float bombY = tileY * tileHeight;
 
-        Bomb bomb = new Bomb(batch, bombX, bombY, actors, currentMap);
-        System.out.println("Nueva bomba colocada en: " + bombX + ", " + bombY);
+        Bomb bomb = new Bomb(bombX, bombY, actors, currentMap);
+        //System.out.println("Nueva bomba colocada en: " + bombX + ", " + bombY);
     }
 }

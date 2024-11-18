@@ -15,6 +15,7 @@ import io.github.JFW.MapEnv.Map;
 import io.github.JFW.System.Animator;
 import io.github.JFW.System.InputHandler;
 import com.badlogic.gdx.maps.MapObject;
+import io.github.JFW.System.SpriteBatchHandler;
 import io.github.JFW.statePlayer;
 
 import java.util.EnumSet;
@@ -32,26 +33,15 @@ public class Player extends Actor {
     private static final float SPRITE_HEIGHT = 96;
     private static final float BOUNDING_BOX_SIZE = 34;
     private static final float BOUNDING_BOX_OFFSET = 24;
-    private static final int BOMB_LIMIT = 1;
+    private static final int BOMB_LIMIT = 5;
 
     // Stats
     private int hp;
-    private long timeUntilNextBomb;
     private int bombLimit = BOMB_LIMIT;
 
-    //PowerUPS
-    public enum PowerUpType {
-        SUN,
-        GOLDEN_BOMB,
-        DETONATOR,
-        SKATES,
-        STRIPPED_BOMB,
-        STRIPPED_WALL,
-        QUESTION_MARK,
-        FIRE_MAN
-    }
 
-    private Set<PowerUpType> activePowerUps = EnumSet.noneOf(PowerUpType.class);
+
+    private Set<statePlayer.PowerUpType> activePowerUps = EnumSet.noneOf(statePlayer.PowerUpType.class);
 
     // Position and movement
     private Vector2 position;
@@ -87,8 +77,7 @@ public class Player extends Actor {
     statePlayer state;
 
 
-    private Player(SpriteBatch batch, Actors actors, Map currentMap) { // Make constructor private
-        this.batch = batch;
+    private Player(Actors actors, Map currentMap) { // Make constructor private
         this.actors = actors;
         this.currentMap = currentMap;
         this.hp = INITIAL_HP;
@@ -96,6 +85,7 @@ public class Player extends Actor {
         this.position = new Vector2(INITIAL_POSITION);
         this.state = new statePlayer();
         this.inputHandler = new InputHandler();
+        this.batch = SpriteBatchHandler.getBatch();
 
         this.actors = actors;
 
@@ -107,7 +97,7 @@ public class Player extends Actor {
         this.bomberSprite.setSize(SPRITE_WIDTH, SPRITE_HEIGHT);
         this.bomberSprite.setPosition(position.x, position.y);
 
-        this.bombManager = new BombManager(batch, actors, currentMap);
+        this.bombManager = new BombManager(actors, currentMap);
 
         this.boundingBox = new Rectangle(position.x - BOUNDING_BOX_OFFSET, position.y - BOUNDING_BOX_OFFSET, BOUNDING_BOX_SIZE, BOUNDING_BOX_SIZE);
         this.shapeRenderer = new ShapeRenderer();
@@ -122,7 +112,7 @@ public class Player extends Actor {
         this.currentAnimator = downAnimator; //default
     }
 
-    public void applyPowerUp(PowerUpType type) {
+    public void applyPowerUp(statePlayer.PowerUpType type) {
         activePowerUps.add(type);
         switch (type) {
             case SUN: //AF
@@ -142,7 +132,7 @@ public class Player extends Actor {
             case SKATES: //AF
                 //1.5x velocidad
                     //ya esta chavales nadamas hay que poner la velocidad que es
-                speed = INITIAL_SPEED + 20;
+                speed = INITIAL_SPEED + 35;
                 break;
             case STRIPPED_BOMB:
                 //Atravesar bombas
@@ -163,7 +153,7 @@ public class Player extends Actor {
         }
     }
 
-    public void removePowerUp(PowerUpType type) {
+    public void removePowerUp(statePlayer.PowerUpType type) {
         activePowerUps.remove(type);
         switch (type) {
             case SUN:
@@ -194,13 +184,14 @@ public class Player extends Actor {
     }
 
 
-    public boolean hasPowerUp(PowerUpType type) {
+    public boolean hasPowerUp(statePlayer.PowerUpType type) {
         return activePowerUps.contains(type);
     }
 
-    public static Player getInstance(SpriteBatch batch, Actors actors, Map currentMap) {
+    public static Player getInstance(Actors actors, Map currentMap) {
         if (instance == null) {
-            instance = new Player(batch, actors, currentMap);
+
+            instance = new Player(actors, currentMap);
         }
         return instance;
     }
@@ -218,7 +209,6 @@ public class Player extends Actor {
         //shapeRenderer.setColor(1,0,0,1);
         //shapeRenderer.rect(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height);
         //shapeRenderer.end();
-
 
         batch.end();
     }
@@ -280,20 +270,20 @@ public class Player extends Actor {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
                 if (rect.overlaps(playerRect)) {
                     if (object.getProperties().containsKey("Pass-Through")) {
-                        if (this.hasPowerUp(PowerUpType.STRIPPED_WALL)) {
+                        if (this.hasPowerUp(statePlayer.PowerUpType.STRIPPED_WALL)) {
                             return false; // Allow passing through the wall
                         } else {
                             return true; // Block the player
                         }
                     }
                     if (object.getProperties().containsKey("Bomb")) {
-                        if (this.hasPowerUp(PowerUpType.STRIPPED_BOMB)) {
+                        if (this.hasPowerUp(statePlayer.PowerUpType.STRIPPED_BOMB)) {
                             return false; // Allow passing through the bomb
                         } else {
                             return true; // Block the player
                         }
                     }
-                    if (object.getProperties().containsKey("Door")) {
+                    if (object.getProperties().containsKey("KYS")) {
                         Gdx.app.log("Player", "Player reached the door");
                         return false;
                     }
@@ -326,6 +316,10 @@ public class Player extends Actor {
 
     public Rectangle getBoundingBox(){
         return boundingBox;
+    }
+
+    public float getSpeed() {
+        return speed;
     }
 
     public void update(){
