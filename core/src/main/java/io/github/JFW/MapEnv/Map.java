@@ -293,15 +293,15 @@ public class Map {
                 cell.setTile(tiledMap.getTileSets().getTile(90));
                 rectObject.getProperties().put("Door", true); //PUERTA OCULTA
                 rectObject.getProperties().put("Indestructible", false);
-
+                rectObject.getProperties().put("Pass-Through", true);
             } else if (type.equals("ActualDoor")) {
                 cell.setTile(tiledMap.getTileSets().getTile(9));
                 rectObject.getProperties().put("Door", true);
                 rectObject.getProperties().put("KYS",true);
             } else {
+                cell.setTile(tiledMap.getTileSets().getTile(5));
                 rectObject.getProperties().put("Indestructible", false);
                 rectObject.getProperties().put("Pass-Through", true);
-                cell.setTile(tiledMap.getTileSets().getTile(5));
             }
             collisionLayer.getObjects().add(rectObject);
 

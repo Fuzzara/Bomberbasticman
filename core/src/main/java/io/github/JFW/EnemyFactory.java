@@ -14,6 +14,7 @@ public class EnemyFactory { //muy poo de nuestra parte
                 speed = (2.0f / 3.0f) * PlayerSpeed;
                 Animator GloboAnimation = new Animator("enemies/Globo.png", 4, 1, 0, 3, 0.2f, Animation.PlayMode.LOOP);
                 return new Enemy(speed, x, y, 100, 1, false, map, GloboAnimation);
+
             case 2:
                 Animator CelAnimation = new Animator("enemies/Cel.png", 6, 1, 0, 5, 0.3f, Animation.PlayMode.LOOP_PINGPONG);
                 return new Enemy(PlayerSpeed, x, y, 200, 1, false, map, CelAnimation);

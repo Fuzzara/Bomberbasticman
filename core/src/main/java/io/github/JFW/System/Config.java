@@ -1,6 +1,7 @@
 package io.github.JFW.System;
 
-
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
@@ -15,6 +16,7 @@ import io.github.JFW.MapEnv.Map;
 import io.github.JFW.MapEnv.MapSystem;
 
 import java.util.Random;
+import java.util.ArrayList;
 
 public class Config {
 
@@ -23,32 +25,88 @@ public class Config {
     private Player player;
     private Actors actors;
     private final SpriteBatch batch;
+    private int currentLevel;
 
     public Config(SpriteBatch batch) {
         this.batch = batch;
-        //this.mapSystem = mapSystem;
+        this.currentLevel = 0;
+        this.mapSystem = new MapSystem();
     }
 
     public Map setuplevel(int n) {
-        mapSystem = new MapSystem();
+        currentLevel = n;
+        if (mapSystem == null) {
+            mapSystem = new MapSystem();
+        }
         currentMap = mapSystem.getMap(n);
         if (actors == null) {
             actors = new Actors();
             player = Player.getInstance(actors, currentMap);
+            player.setMap(currentMap);
             actors.setPlayer(player);
-            //setupenemies();
             setupenemies(1);
         } else {
             actors.clearActors();
+            // Reset player for new level
+            currentMap.PrepareMapCollisions();
+            player = Player.getInstance(actors, currentMap);
+            actors.setPlayer(player);
+            setupenemies(1);
         }
         currentMap.setActors(actors);
+        Gdx.app.debug("Config", "Level " + n + " setup complete");
         return currentMap;
     }
 
-    //top left (x: 96, y:630) approximately
-    //bottom right (x: 775, y:50) approximately
+    public boolean switchToNextLevel() {
+        int nextLevel = currentLevel + 1;
+        if (nextLevel < mapSystem.getMapCount()) {
+            Gdx.app.debug("Config", "Switching to level " + nextLevel);
+            // Cleanup current level
+            if (currentMap != null) {
+                currentMap.dispose();
+            }
+            // Setup next level
+            setuplevel(nextLevel);
+            return true;
+        }
+        Gdx.app.debug("Config", "No more levels available, restarting from level 0");
+        return false; // No more levels
+    }
 
-    public void setupenemies() { // OHHH THE MISERY
+    public boolean isLevelCompleted() {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.K)){
+            return true;
+        }
+        return false;
+        /*if (currentMap != null && player != null) {
+            // Check if player has reached the door and all enemies are defeated
+            for (MapObject object : currentMap.getCollisionLayer().getObjects()) {
+                if (object instanceof RectangleMapObject) {
+                    RectangleMapObject rectObject = (RectangleMapObject) object;
+                    if (rectObject.getProperties().get("Door") != null &&
+                        rectObject.getProperties().get("KYS") != null) {
+                        Rectangle doorRect = rectObject.getRectangle();
+                        Rectangle playerRect = player.getBoundingBox();
+                        // Check if player is at the door and there are no enemies left
+                        ArrayList<Enemy> enemies = actors.getEnemies();
+                        if (doorRect.overlaps(playerRect) && enemies.isEmpty()) {
+                            Gdx.app.debug("Config", "Level " + currentLevel + " completed!");
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;*/
+    }
+
+    public Map getCurrentMap() {
+        return currentMap;
+    }
+
+    public int getCurrentLevel() {
+        return currentLevel;
     }
 
     public void setupenemies(int n) {
@@ -78,6 +136,7 @@ public class Config {
                 }
             }
         }
+        Gdx.app.debug("Config", "Enemies setup complete for level " + currentLevel);
     }
 
     public boolean stuck(Rectangle enemyRect) {
@@ -95,5 +154,4 @@ public class Config {
     public void runlevel(GameScreen.State state) {
         actors.update(state);
     }
-
 }
