@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g3d.utils.MeshBuilder;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
@@ -43,9 +45,10 @@ public class Enemy extends Actor {
 
     private final stateEnemy state;
 
-    //Ai stuff trying to make the enemies backtrack
-    private boolean stuck;
-    private ArrayList<stateEnemy.State> lastDirections;
+    private ShapeRenderer shapeRenderer;
+
+    private float directionChangeTimer = 0;
+    private static final float DIRECTION_CHANGE_INTERVAL = 2.0f; // Change direction every 2 seconds
 
     //Tal vez hacer esta clase abstracta y tener una clase por enemigo ?
     public Enemy(float speed, float x, float y, int score, int ai, boolean noclip, Map currentMap, Animator animation) {
@@ -56,7 +59,10 @@ public class Enemy extends Actor {
         this.noclip = noclip;
         this.currentMap = currentMap;
         this.animation = animation;
-        this.batch = SpriteBatchHandler.getBatch();;
+        this.batch = SpriteBatchHandler.getBatch();
+
+        shapeRenderer = new ShapeRenderer();
+
         //por mientras, cambiar!
 
         this.boundingBox = new Rectangle(position.x - BOUNDING_BOX_OFFSET, position.y - BOUNDING_BOX_OFFSET, BOUNDING_BOX_SIZE, BOUNDING_BOX_SIZE);
@@ -64,8 +70,7 @@ public class Enemy extends Actor {
 
         this.state = new stateEnemy();
 
-        this.lastDirections = new ArrayList<>();
-        this.stuck = false;
+
     }
 
     private boolean isCollision(float x, float y) {
@@ -116,32 +121,29 @@ public class Enemy extends Actor {
         int randomDirection = rand.nextInt(4);
         switch (randomDirection) {
             case 0:
-                if (state.getCurrentState() != stateEnemy.State.DOWN) {
-                    state.setCurrentState(stateEnemy.State.DOWN);
-                }
+                state.setCurrentState(stateEnemy.State.DOWN);
                 break;
             case 1:
-                if (state.getCurrentState() != stateEnemy.State.UP) {
-                    state.setCurrentState(stateEnemy.State.UP);
-                }
+                state.setCurrentState(stateEnemy.State.UP);
                 break;
-
             case 2:
-                if (state.getCurrentState() != stateEnemy.State.RIGHT) {
-                    state.setCurrentState(stateEnemy.State.RIGHT);
-                }
+                state.setCurrentState(stateEnemy.State.RIGHT);
                 break;
-
             case 3:
-                if (state.getCurrentState() != stateEnemy.State.LEFT) {
-                    state.setCurrentState(stateEnemy.State.LEFT);
-                }
+                state.setCurrentState(stateEnemy.State.LEFT);
                 break;
         }
     }
 
     private void moveRandomly() {
         float deltaTime = Gdx.graphics.getDeltaTime();
+        directionChangeTimer += deltaTime;
+
+        if (directionChangeTimer >= DIRECTION_CHANGE_INTERVAL) {
+            choosingDirection();
+            directionChangeTimer = 0;
+        }
+
         if (state.getCurrentState() == stateEnemy.State.STUCK) {
             choosingDirection();
         }
@@ -278,7 +280,13 @@ public class Enemy extends Actor {
     public void draw() {
         batch.begin();
         //enemySprite.draw(batch);
-        batch.draw(animation.getFrame(), position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0,0,1,1);
+        shapeRenderer.rect(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height);
+        shapeRenderer.end();
+
+        //batch.draw(animation.getFrame(), position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
         batch.end();
     }
 
