@@ -44,6 +44,14 @@ public class Bomb extends Actor{
 
     private Map tiledMap;
 
+    //Animation!
+    private Animator explosionHorizontal;
+    private Animator explosionVertical;
+    private Animator explosionUp;
+    private Animator explosionDown;
+    private Animator explosionLeft;
+    private Animator explosionRight;
+
     //DEBUG
     private ShapeRenderer shapeRenderer = new ShapeRenderer();
     private Rectangle horizHB;
@@ -64,16 +72,14 @@ public class Bomb extends Actor{
         this.exploded = false;
         this.explosionTimer = 0f;
 
-
-
         this.tiledMap = map;
         this.currentTime = System.nanoTime();
         this.detonationTime = currentTime + 2000000000; //2 segundos
         this.actors = actors;
 
         //Animations!
-        this.idleAnimator = new Animator("bombSpriteSheet.png", 8, 1, 0, 2, 0.5f, Animation.PlayMode.LOOP_PINGPONG);
-        this.explosionAnimator = new Animator("bombSpriteSheet.png", 8, 1, 3, 7, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
+        makeAnimation();
+
         this.currentAnimator = idleAnimator;
 
         bombTileHitbox = new Rectangle(
@@ -94,6 +100,18 @@ public class Bomb extends Actor{
         }
     }
 
+    public void makeAnimation(){
+        this.idleAnimator = new Animator("bombSpriteSheet.png", 8, 1, 0, 2, 0.5f, Animation.PlayMode.LOOP_PINGPONG);
+        this.explosionAnimator = new Animator("bombSpriteSheet.png", 8, 1, 3, 7, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
+
+        this.explosionUp = new Animator("bombExplosion.png", 30, 1, 0, 4, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
+        this.explosionLeft = new Animator("bombExplosion.png", 30, 1, 5, 9, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
+        this.explosionDown = new Animator("bombExplosion.png", 30, 1, 10, 14, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
+        this.explosionRight = new Animator("bombExplosion.png", 30, 1, 15, 19, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
+        this.explosionHorizontal = new Animator("bombExplosion.png", 30, 1, 20, 24, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
+        this.explosionVertical = new Animator("bombExplosion.png", 30, 1, 25, 29, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
+    }
+
     public void detonatorExplode(){
         exploded = true;
     }
@@ -102,7 +120,7 @@ public class Bomb extends Actor{
         batch.begin();
         batch.draw(currentAnimator.getFrame(), position.x+24, position.y+24, width, height);
         if (exploded) {
-            debugDraw();
+            //debugDraw();
         }
         batch.end();
     }

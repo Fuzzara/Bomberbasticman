@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import io.github.JFW.MapEnv.Map;
+import io.github.JFW.System.Animator;
 import io.github.JFW.System.SpriteBatchHandler;
 import io.github.JFW.stateEnemy;
 
@@ -31,9 +32,9 @@ public class Enemy extends Actor {
     private final float speed;
 
     //Sprites
-    private final Sprite enemySprite;
-    private final Texture enemyTexture;
     private final SpriteBatch batch;
+    private Animator animation;
+
 
     //Colission stuff
     private Map currentMap;
@@ -47,19 +48,17 @@ public class Enemy extends Actor {
     private ArrayList<stateEnemy.State> lastDirections;
 
     //Tal vez hacer esta clase abstracta y tener una clase por enemigo ?
-    public Enemy(float speed, float x, float y, int score, int ai, boolean noclip, String texturepath, Map currentMap) {
+    public Enemy(float speed, float x, float y, int score, int ai, boolean noclip, Map currentMap, Animator animation) {
         this.speed = speed;
         this.position = new Vector2(x, y);
         this.score = score;
         this.ai = ai;
         this.noclip = noclip;
         this.currentMap = currentMap;
+        this.animation = animation;
         this.batch = SpriteBatchHandler.getBatch();;
         //por mientras, cambiar!
-        this.enemyTexture = new Texture(texturepath);
-        this.enemySprite = new Sprite(enemyTexture);
-        this.enemySprite.setSize(SPRITE_WIDTH, SPRITE_HEIGHT);
-        this.enemySprite.setPosition(position.x, position.y);
+
         this.boundingBox = new Rectangle(position.x - BOUNDING_BOX_OFFSET, position.y - BOUNDING_BOX_OFFSET, BOUNDING_BOX_SIZE, BOUNDING_BOX_SIZE);
         player = Player.getInstance();
 
@@ -278,8 +277,8 @@ public class Enemy extends Actor {
 
     public void draw() {
         batch.begin();
-        enemySprite.setPosition(position.x, position.y);
-        enemySprite.draw(batch);
+        //enemySprite.draw(batch);
+        batch.draw(animation.getFrame(), position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
         batch.end();
     }
 

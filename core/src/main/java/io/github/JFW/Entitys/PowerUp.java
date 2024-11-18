@@ -2,11 +2,13 @@ package io.github.JFW.Entitys;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import io.github.JFW.System.Animator;
 import io.github.JFW.System.SFXPlayer;
 import io.github.JFW.System.SpriteBatchHandler;
 import io.github.JFW.statePlayer;
@@ -30,7 +32,7 @@ public class PowerUp {
     //Texture sprite
     private Texture texture;
     private Sprite sprite;
-    private final SpriteBatch batch;
+    private Animator animator;
 
     //State
     private statePlayer.PowerUpType powerUpType;
@@ -41,46 +43,48 @@ public class PowerUp {
         this.position = new Vector2(x,y);
         this.type = type;
         this.actors = actors;
-        this.batch = SpriteBatchHandler.getBatch();;
-        switch (type){ //Sprite
-            case 0:
-                texture = new Texture("cupones/Sol.png");
-                break;
-            case 1:
-                texture = new Texture("cupones/BombaDorada.png");
-                break;
-            case 2:
-                texture = new Texture("cupones/Detonador.png");
-                break;
-            case 3:
-                texture = new Texture("cupones/Patin.png");
-                break;
-            case 4:
-                texture = new Texture("cupones/BombaRayada.png");
-                break;
-            case 5:
-                texture = new Texture("cupones/MuroRayado.png");
-                break;
-            case 6:
-                texture = new Texture("cupones/Pregunta.png");
-                break;
-            case 7:
-                texture = new Texture("cupones/HombreEnLlamas.png");
-                break;
-            default:
-                texture = new Texture("cupones/Error.png");
-                break;
-        }
-        sprite = new Sprite(texture);
-        sprite.setSize(48, 48);
-        sprite.setPosition(position.x+12, position.y+24);
 
         boundingBox = new Rectangle(x,y,width,height);
+        switch (type){ //Sprite
+            case 0:
+                makeAnimator("cupones/Sol.png");
+                break;
+            case 1:
+                makeAnimator("cupones/BombaDorada.png");
+                break;
+            case 2:
+                makeAnimator("cupones/Detonador.png");
+                break;
+            case 3:
+                makeAnimator("cupones/Patin.png");
+                break;
+            case 4:
+                makeAnimator("cupones/BombaRayada.png");
+                break;
+            case 5:
+                makeAnimator("cupones/MuroRayado.png");
+                break;
+            case 6:
+                makeAnimator("cupones/Pregunta.png");
+                break;
+            case 7:
+                makeAnimator("cupones/HombreEnLlamas.png");
+                break;
+            default:
+                makeAnimator("cupones/Error.png");
+                break;
+        }
+
+
     }
+    public void makeAnimator (String path) { //al tener todas las animaciones igual era mejor una funcion que copiar el mismo codigo :p
+        animator = new Animator(path, 2, 1, 0, 1, 0.1f, Animation.PlayMode.LOOP);
+    }
+
 
     public void update(){
         SpriteBatchHandler.getBatch().begin();
-        sprite.draw(SpriteBatchHandler.getBatch());
+        SpriteBatchHandler.getBatch().draw(animator.getFrame(), position.x+12, position.y+24, 48, 48);
         SpriteBatchHandler.getBatch().end();
     }
 
