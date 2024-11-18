@@ -64,7 +64,7 @@ public class GameScreen extends ApplicationAdapter {
 
         sr = new ShapeRenderer();
 
-        scoreboard = new Scoreboard();
+        scoreboard = Scoreboard.getInstance();
 
         stage = new Stage(new ExtendViewport(864, 783)); //usar img de ref
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
@@ -83,7 +83,7 @@ public class GameScreen extends ApplicationAdapter {
         mapRenderer = new OrthogonalTiledMapRenderer(currentMap.getTiledMap(),3f);
 
         //Musica! (WIP, CAMBIAR)
-        music.playMusic("sound/lvlmusic/lvl2.mp3");
+        music.playMusic("sound/lvlmusic/AAAA.mp3");
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
     }
@@ -119,8 +119,8 @@ public class GameScreen extends ApplicationAdapter {
         camera.update();
         mapRenderer.setView(camera);
         mapRenderer.render();
-        batch.setProjectionMatrix(camera.combined);
         batch.begin();
+        batch.setProjectionMatrix(camera.combined);
         batch.draw(uiBackground, 24, 696, 864, 111);
         batch.end();
 

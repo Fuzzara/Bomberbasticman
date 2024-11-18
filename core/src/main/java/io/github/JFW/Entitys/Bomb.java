@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.graphics.Color;
 
+import io.github.JFW.Scoreboard;
 import io.github.JFW.statePlayer.PowerUpType;
 import io.github.JFW.MapEnv.Map;
 import io.github.JFW.System.Animator;
@@ -65,6 +66,7 @@ public class Bomb extends Actor{
     private boolean placedCollision = false;
 
     private Player player;
+    private Scoreboard scoreboard;
 
     public Bomb(float x ,float y, Actors actors, Map map){
         this.batch = SpriteBatchHandler.getBatch();;
@@ -76,6 +78,7 @@ public class Bomb extends Actor{
         this.currentTime = System.nanoTime();
         this.detonationTime = currentTime + 2000000000; //2 segundos
         this.actors = actors;
+        this.scoreboard = Scoreboard.getInstance();
 
         //Animations!
         makeAnimation();
@@ -195,6 +198,8 @@ public class Bomb extends Actor{
                 if ((horizHB.overlaps(player.getBoundingBox()) || vertHB.overlaps(player.getBoundingBox())
                     && (!player.hasPowerUp(PowerUpType.FIRE_MAN)) && !player.hasPowerUp(PowerUpType.QUESTION_MARK))) {
                     Gdx.app.error("Bomb", "Player hit by bomb at: " + position.toString());
+                    scoreboard.removeLife(); //linea que mata todo
+
                 }
 
                 //Reaccion en cadena
