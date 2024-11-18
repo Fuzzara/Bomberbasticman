@@ -43,6 +43,9 @@ public class GameScreen extends ApplicationAdapter {
     private MusicPlayer music = new MusicPlayer();
     private SFXPlayer sfx = new SFXPlayer();
 
+    //Scoreboard
+    private Scoreboard scoreboard;
+
     //CUADRITO DEBUG
     //private Rectangle rect = new Rectangle(186,45,2,2);
 
@@ -61,6 +64,7 @@ public class GameScreen extends ApplicationAdapter {
 
         sr = new ShapeRenderer();
 
+        scoreboard = new Scoreboard();
 
         stage = new Stage(new ExtendViewport(864, 783)); //usar img de ref
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
@@ -91,6 +95,7 @@ public class GameScreen extends ApplicationAdapter {
 
     @Override
     public void render() {
+
         switch (state) {
             case running:
                 draw();
@@ -105,6 +110,8 @@ public class GameScreen extends ApplicationAdapter {
         inputExtra();
         draw();
         levelconfig.runlevel(state); //test
+        scoreboard.update(Gdx.graphics.getDeltaTime());
+        scoreboard.render();
     }
     private void draw() {
         ScreenUtils.clear(0f, 0f, 0f, 1f);

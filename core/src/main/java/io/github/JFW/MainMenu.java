@@ -18,7 +18,8 @@ public class MainMenu extends ApplicationAdapter {
     private InputHandler inputHandler = new InputHandler();
     private SpriteBatch batch;
     float delta;
-    private float y = -1000;
+    private float y = -800;
+    private float speed = 500;
 
     public MainMenu(){
         this.batch = SpriteBatchHandler.getBatch(); //Singleton oh yeahh
@@ -38,20 +39,13 @@ public class MainMenu extends ApplicationAdapter {
         batch.end();
     }
     public void logoAnimation(SpriteBatch batch) {
-        boolean isPlaying = false;
-        if (!isPlaying){
-            isPlaying = true;
-            delta += Gdx.graphics.getDeltaTime();
-            if (delta > 1.5f) {
-                for (int i = 0; i < 100; i++) {
-                    y += 0.1f;
-                    System.out.println(i);
-                    batch.draw(logo, 0, y, 864, 783);
-                break;
-                }
-            }
+        if (y < 0) {
+            y += speed * Gdx.graphics.getDeltaTime();
+            if (y > 0) y = 0;
         }
+        batch.draw(logo, 0, y, 864, 783);
     }
+
     public String handleInput() {
         return inputHandler.handleMainMenuInput();
     }

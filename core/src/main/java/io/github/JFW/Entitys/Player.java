@@ -190,7 +190,6 @@ public class Player extends Actor {
 
     public static Player getInstance(Actors actors, Map currentMap) {
         if (instance == null) {
-
             instance = new Player(actors, currentMap);
         }
         return instance;
@@ -320,6 +319,12 @@ public class Player extends Actor {
 
     public float getSpeed() {
         return speed;
+    }
+    public int getHP(){
+        return hp;
+    }
+    public void setHP(int hp){
+        this.hp = hp;
     }
 
     public void update(){

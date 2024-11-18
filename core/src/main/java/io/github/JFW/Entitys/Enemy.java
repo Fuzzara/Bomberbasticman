@@ -13,6 +13,7 @@ import io.github.JFW.MapEnv.Map;
 import io.github.JFW.System.SpriteBatchHandler;
 import io.github.JFW.stateEnemy;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Enemy extends Actor {
@@ -41,6 +42,10 @@ public class Enemy extends Actor {
 
     private final stateEnemy state;
 
+    //Ai stuff trying to make the enemies backtrack
+    private boolean stuck;
+    private ArrayList<stateEnemy.State> lastDirections;
+
     //Tal vez hacer esta clase abstracta y tener una clase por enemigo ?
     public Enemy(float speed, float x, float y, int score, int ai, boolean noclip, String texturepath, Map currentMap) {
         this.speed = speed;
@@ -59,6 +64,9 @@ public class Enemy extends Actor {
         player = Player.getInstance();
 
         this.state = new stateEnemy();
+
+        this.lastDirections = new ArrayList<>();
+        this.stuck = false;
     }
 
     private boolean isCollision(float x, float y) {
@@ -167,6 +175,106 @@ public class Enemy extends Actor {
         }
     }
 
+    //enemy ai
+    //quite mis intentos para arreglarlo que se veia feo >:(
+    //while(false) {seguir al mae} -> if(true) {false}
+    //(╥﹏╥)
+    private void chasing(){
+        float deltaTime = Gdx.graphics.getDeltaTime();
+        Vector2 PlayerPosition = player.getPosition();
+        float x = PlayerPosition.x - position.x;
+        float y = PlayerPosition.y - position.y;
+        stateEnemy.State nextDirection = closestDirectiontoPlayer(x,y,PlayerPosition);
+        boolean valid = ValidDirection(nextDirection,deltaTime,state.getCurrentState());
+        if (!valid){
+            nextDirection = OtherDirections(nextDirection,deltaTime);
+        }
+        if (nextDirection != stateEnemy.State.STUCK){movetoNextDirection(nextDirection,deltaTime);}
+    }
+
+    private stateEnemy.State closestDirectiontoPlayer(float x, float y, Vector2 PlayerPosition){
+        if (Math.abs(x) > Math.abs(y)){ // si la distancia es mas grande horizontalmente
+            if (PlayerPosition.x < position.x ){
+                return stateEnemy.State.LEFT;
+            }
+            else{
+                return stateEnemy.State.RIGHT;
+            }
+        }
+        else{
+            if (PlayerPosition.y < position.y){
+                return stateEnemy.State.DOWN;
+            }
+            else{
+                return stateEnemy.State.UP;
+            }
+        }
+    }
+
+    private boolean ValidDirection(stateEnemy.State nextDirection, float deltaTime, stateEnemy.State lastDirection){
+        switch(nextDirection){
+            case LEFT:
+                return !isCollision(position.x + -speed * deltaTime, position.y);
+            case RIGHT:
+                return !isCollision(position.x + speed * deltaTime, position.y);
+            case DOWN:
+                return !isCollision(position.x, position.y + -speed * deltaTime);
+            case UP:
+                return !isCollision(position.x, position.y + speed * deltaTime);
+        }
+        return false;
+    }
+
+    private stateEnemy.State OtherDirections(stateEnemy.State nextDirection, float deltaTime){
+        ArrayList<stateEnemy.State> Directions = new ArrayList<stateEnemy.State>();
+        switch(nextDirection){
+            case LEFT:
+                Directions.add(stateEnemy.State.DOWN);
+                Directions.add(stateEnemy.State.UP);
+                break;
+            case RIGHT:
+                Directions.add(stateEnemy.State.DOWN);
+                Directions.add(stateEnemy.State.UP);
+                break;
+            case DOWN:
+                Directions.add(stateEnemy.State.LEFT);
+                Directions.add(stateEnemy.State.RIGHT);
+                break;
+            case UP:
+                Directions.add(stateEnemy.State.LEFT);
+                Directions.add(stateEnemy.State.RIGHT);
+                break;
+        }
+        for (stateEnemy.State direction: Directions){
+            if (ValidDirection(direction,deltaTime,state.getCurrentState())){
+                return direction;
+            }
+        }
+        return stateEnemy.State.STUCK;
+    }
+
+    private void movetoNextDirection(stateEnemy.State nextDirection, float deltaTime){
+        switch(nextDirection){
+            case LEFT:
+                move(-speed * deltaTime, 0);
+                state.setCurrentState(stateEnemy.State.LEFT);
+                break;
+            case RIGHT:
+                move(speed * deltaTime, 0);
+                state.setCurrentState(stateEnemy.State.RIGHT);
+                break;
+            case DOWN:
+                move(0, -speed * deltaTime);
+                state.setCurrentState(stateEnemy.State.DOWN);
+                break;
+            case UP:
+                move(0, speed * deltaTime);
+                state.setCurrentState(stateEnemy.State.UP);
+                break;
+        }
+    }
+
+
 
     public void draw() {
         batch.begin();
@@ -176,7 +284,8 @@ public class Enemy extends Actor {
     }
 
     public void update() {
-        moveRandomly();
+        chasing();
+        //moveRandomly();
         updateBoundingBox();
         draw();
     }
