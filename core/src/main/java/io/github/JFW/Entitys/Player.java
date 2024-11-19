@@ -280,7 +280,7 @@ public class Player extends Actor {
     }
 
     private boolean isCollision(float x, float y) {
-        Rectangle playerRect = new Rectangle(x, y, boundingBox.width, boundingBox.height);
+        Rectangle playerRect = new Rectangle(x , y , BOUNDING_BOX_SIZE, BOUNDING_BOX_SIZE);
         for (MapObject object : currentMap.getCollisionLayer().getObjects()) {
             if (object instanceof RectangleMapObject) {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();

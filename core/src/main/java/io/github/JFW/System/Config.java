@@ -29,7 +29,7 @@ public class Config {
 
     public Config(SpriteBatch batch) {
         this.batch = batch;
-        this.currentLevel = 0;
+        this.currentLevel = 1;
         this.mapSystem = new MapSystem();
     }
 
@@ -39,21 +39,19 @@ public class Config {
             mapSystem = new MapSystem();
         }
 
-        // Get the new map (this will handle disposal of the old map)
         currentMap = mapSystem.getMap(n);
 
         if (actors == null) {
             actors = new Actors();
             player = Player.getInstance(actors, currentMap);
             actors.setPlayer(player);
-            setupenemies(1);
+            setupenemies(currentLevel);
         } else {
             actors.clearActors();
-            // Update player's map reference and reset for new level
             player = Player.getInstance(actors, currentMap);
-            player.setMap(currentMap); // Explicitly update player's map reference
+            player.setMap(currentMap); //porsiacaso
             actors.setPlayer(player);
-            setupenemies(1);
+            setupenemies(currentLevel);
         }
         currentMap.setActors(actors);
         Gdx.app.debug("Config", "Level " + n + " setup complete");
@@ -70,7 +68,6 @@ public class Config {
             if (player != null) {
                 player.setMap(currentMap); // Ensure player has the correct map reference
             }
-
             return true;
         }
         Gdx.app.debug("Config", "No more levels available, restarting from level 0");
@@ -112,8 +109,75 @@ public class Config {
         return currentLevel;
     }
 
-    public void setupenemies(int n) {
-        for (int i = 0; i < n; i++) {
+    private int[] getEnemyTypesForLevel(int level) {
+        Random rand = new Random();
+        ArrayList<Integer> enemyTypes = new ArrayList<>();
+
+        int baseEnemies = 1 + level;
+        if(baseEnemies>10) baseEnemies=10;
+
+        // Nivel 1
+        if (level <= 1) {
+            enemyTypes.add(0);
+            enemyTypes.add(0);
+        }
+        // Nivel 2
+        else if (level <= 2) {
+            for (int i = 0; i < baseEnemies; i++) {
+                enemyTypes.add(rand.nextInt(1));
+            }
+            enemyTypes.add(1);
+        }
+        // Nivel 3 - 5
+        else if (level <= 5) {
+            for (int i = 0; i < baseEnemies; i++) {
+                enemyTypes.add(rand.nextInt(2));
+            }
+            enemyTypes.add(2);
+        }
+        // Nivel 6-7
+        else if (level <= 7) {
+            for (int i = 0; i < baseEnemies; i++) {
+                enemyTypes.add(rand.nextInt(3));
+            }
+            enemyTypes.add(3);
+        }
+        // Nivel 8-10
+        else if (level <= 10) {
+            for (int i = 0; i < baseEnemies; i++) {
+                enemyTypes.add(rand.nextInt(4));
+            }
+            enemyTypes.add(4);
+        }
+        // Nivel 11-13
+        else if (level <= 13) {
+            for (int i = 0; i < baseEnemies; i++) {
+                enemyTypes.add(rand.nextInt(5));
+            }
+            enemyTypes.add(5);
+        }
+        // Nivel 14
+        else if (level >= 14) {
+            baseEnemies = level;
+            for (int i = 0; i < baseEnemies; i++) {
+                enemyTypes.add(rand.nextInt(6));
+            }
+            enemyTypes.add(6);
+        }
+
+        // Convert ArrayList to array
+        int[] result = new int[enemyTypes.size()];
+        for (int i = 0; i < enemyTypes.size(); i++) {
+            result[i] = enemyTypes.get(i);
+        }
+
+        return result;
+    }
+
+    public void setupenemies(int level) {
+        int[] enemyTypes = getEnemyTypesForLevel(level);
+
+        for (int enemyType : enemyTypes) {
             boolean StuckinEnvironment = true;
             Random rand = new Random();
             while (StuckinEnvironment) {
@@ -122,24 +186,14 @@ public class Config {
                 Rectangle rect = new Rectangle(x, y, 34, 34);
                 StuckinEnvironment = stuck(rect);
                 if (!StuckinEnvironment) {
-                    Enemy test = EnemyFactory.createEnemy(1, x, y, currentMap, player.getSpeed());
-                    //Enemy test2 = EnemyFactory.createEnemy(6, x, y, currentMap, player.getSpeed());
-                    //Enemy test3 = EnemyFactory.createEnemy(5, x, y, currentMap, player.getSpeed());
-                    //Enemy test4 = EnemyFactory.createEnemy(4, x, y, currentMap, player.getSpeed());
-                    //Enemy test5 = EnemyFactory.createEnemy(3, x, y, currentMap, player.getSpeed());
-                    //Enemy test6 = EnemyFactory.createEnemy(2, x, y, currentMap, player.getSpeed());
-                    //Enemy test7 = EnemyFactory.createEnemy(1, x, y, currentMap, player.getSpeed());
-                   actors.updateEnemies(test);
-                    //actors.updateEnemies(test2);
-                    //actors.updateEnemies(test3);
-                    //actors.updateEnemies(test4);
-                    //actors.updateEnemies(test5);
-                    //actors.updateEnemies(test6);
-                    //actors.updateEnemies(test7);
+                    Enemy enemy = EnemyFactory.createEnemy(enemyType, x, y, currentMap, player.getSpeed());
+                    if (enemy != null) {
+                        actors.updateEnemies(enemy);
+                    }
                 }
             }
         }
-        Gdx.app.debug("Config", "Enemies setup complete for level " + currentLevel);
+        Gdx.app.debug("Config", "Enemies setup complete for level " + currentLevel + " with " + enemyTypes.length + " enemies");
     }
 
     public boolean stuck(Rectangle enemyRect) {

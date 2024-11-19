@@ -57,7 +57,7 @@ public class GameScreen extends ApplicationAdapter {
     }
     private State state;
     private float transitionTimer;
-    private static final float TRANSITION_DURATION = 4f; // 1 second transition
+    private static final float TRANSITION_DURATION = 0f; // 1 second transition
 
     //Constructor bonito
     public GameScreen(int level, int score) {
@@ -148,7 +148,7 @@ public class GameScreen extends ApplicationAdapter {
             } else {
                 // No more levels, game complete!
                 Gdx.app.log("GameScreen", "Game Complete! Restarting from level 0");
-                currentMap = levelconfig.setuplevel(0);
+                currentMap = levelconfig.setuplevel(1);
                 mapRenderer.setMap(currentMap.getTiledMap());
                 updateMusic(0);
                 state = State.running;
@@ -171,7 +171,7 @@ public class GameScreen extends ApplicationAdapter {
     private void inputExtra() {
         if (inputHandler.debugReload()) {
             currentMap.dispose();
-            currentMap = levelconfig.setuplevel(0);
+            currentMap = levelconfig.setuplevel(1);
             mapRenderer.setMap(currentMap.getTiledMap());
             Gdx.app.log("Debug", "Reloaded");
         }

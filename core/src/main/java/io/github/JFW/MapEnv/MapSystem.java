@@ -24,7 +24,8 @@ public class MapSystem {
         //TODO: RANDOM FOR THE POWERUPS PLAYER ALREADY HAS
         int x = 0;
         //Primera skin 1
-        maps.add(new Map("maps/lvl1.tmx", 0)); //aqui indica que powerup va a aparecer por nivel
+        maps.add(new Map("maps/lvl1.tmx", 0)); //aqui indica que powerup va a aparecer por nivel //este no cuenta
+        maps.add(new Map("maps/lvl1.tmx", 0));
         maps.add(new Map("maps/lvl1.tmx", 1));
         maps.add(new Map("maps/lvl1.tmx", 2));
         maps.add(new Map("maps/lvl1.tmx", 3));
@@ -59,6 +60,7 @@ public class MapSystem {
         //Nivel bonus
         maps.add(new Map("maps/lvl6.tmx", 1));
         //TODO: alguna manera para que siga infinitamente o algo asi xd
+
     }
 
     public Map getMap(int index) {
@@ -66,7 +68,6 @@ public class MapSystem {
         if (currentMap != null) {
             currentMap.dispose();
         }
-
         // Get and store the new current map
         currentMap = maps.get(index);
 

@@ -49,7 +49,7 @@ public class Main extends ApplicationAdapter {
         }
     }
     private void startGame() {
-        gameScreen = new GameScreen(0, 0); // level 0, score 0
+        gameScreen = new GameScreen(1, 0); // level 0, score 0
         state = State.game;
     }
 
