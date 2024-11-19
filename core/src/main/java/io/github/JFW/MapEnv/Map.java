@@ -12,6 +12,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import io.github.JFW.Entitys.Actors;
 import io.github.JFW.Entitys.PowerUp;
+import io.github.JFW.GlobalAccess;
 
 import java.util.Random;
 
@@ -21,11 +22,11 @@ public class Map {
     private TiledMapTileLayer obstacleLayer;
     private boolean BONUS = false;
 
-    private final int LEVEL_POWERUP;
+    private int LEVEL_POWERUP;
 
     Actors actors;
 
-    private int DESTROYABLE_WALL = 50;
+    private int DESTROYABLE_WALL = 2;
 
     public Map(String mapPath, int powerUP) {
         tiledMap = new TmxMapLoader().load(mapPath);
@@ -215,6 +216,7 @@ public class Map {
                     Gdx.app.debug("MAP", "Spawned PowerUP at: " + x + ", " + y);
                     int worldX = x * collisionLayer.getTileWidth()-12;
                     int worldY = y * collisionLayer.getTileHeight()-24;
+                    if(LEVEL_POWERUP == 100) LEVEL_POWERUP = GlobalAccess.getInstance().getConfig().randomPowerUp();
                     actors.addPowerUp(new PowerUp(worldX, worldY, actors, LEVEL_POWERUP));
                 }
                 if (rectToRemove.getProperties().containsKey("Door")) {
@@ -254,7 +256,7 @@ public class Map {
                 rectObject.getProperties().put("Pass-Through", true);
             } else if (type.equals("ActualDoor")) {
                 cell.setTile(tiledMap.getTileSets().getTile(9));
-                rectObject.getProperties().put("Door", true);
+                rectObject.getProperties().put("Door", false);
                 rectObject.getProperties().put("KYS",true);
             } else {
                 cell.setTile(tiledMap.getTileSets().getTile(8));

@@ -2,16 +2,15 @@ package io.github.JFW.System;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
-import io.github.JFW.EnemyFactory;
+import io.github.JFW.*;
 import io.github.JFW.Entitys.Actors;
 import io.github.JFW.Entitys.Enemy;
 import io.github.JFW.Entitys.Player;
-import io.github.JFW.GameScreen;
-import io.github.JFW.Main;
 import io.github.JFW.MapEnv.Map;
 import io.github.JFW.MapEnv.MapSystem;
 
@@ -29,15 +28,30 @@ public class Config {
     private float bonusLevelTimer = 30f; // 30 seconds for bonus levels
     private float enemyRespawnTimer = 5f; // 5 seconds between enemy respawns
     private boolean isBonusLevel = false;
+    private boolean soundPlayed = false;
+    private SFXPlayer sfx = new SFXPlayer();
+    GlobalAccess globalaccess;
 
     public Config(SpriteBatch batch) {
         this.batch = batch;
         this.currentLevel = 1;
         this.mapSystem = new MapSystem();
+        globalaccess = GlobalAccess.getInstance();
+        globalaccess.setConfig(this);
+    }
+
+    public int randomPowerUp(){
+        Random rand = new Random();
+        int x = rand.nextInt(7);
+        while (Player.getInstance().hasPowerUp(statePlayer.PowerUpType.values()[x])){
+            x = rand.nextInt(7);
+        }
+        return x;
     }
 
     public Map setuplevel(int n) {
         currentLevel = n;
+        soundPlayed = false;
         if (mapSystem == null) {
             mapSystem = new MapSystem();
         }
@@ -54,6 +68,7 @@ public class Config {
 
         if (actors == null) {
             actors = new Actors();
+            globalaccess.setActors(actors);
             player = Player.getInstance(actors, currentMap);
             actors.setPlayer(player);
             setupenemies(currentLevel);
@@ -85,10 +100,23 @@ public class Config {
         return false;
     }
 
+    public void clearSound() {
+        if (currentMap != null && player != null) {
+            ArrayList<Enemy> enemies = actors.getEnemies();
+            if (enemies.isEmpty() && !soundPlayed) {
+                sfx.playSFX("sound/clear.mp3");
+                soundPlayed = true;
+                Gdx.app.debug("Config", "All enemies defeated! Sound played.");
+            }
+        }
+    }
+
     public boolean isLevelCompleted() {
         if(Gdx.input.isKeyJustPressed(Input.Keys.K)){
             return true;
         }
+
+        clearSound();
 
         // For bonus levels, check if time is up
         if (isBonusLevel && bonusLevelTimer <= 0) {
@@ -252,6 +280,10 @@ public class Config {
         }
 
         actors.update(state);
+    }
+
+    public Actors getActors() {
+        return actors;
     }
 
     public void dispose() {

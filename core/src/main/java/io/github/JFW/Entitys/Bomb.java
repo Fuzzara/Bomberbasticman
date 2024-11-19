@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.graphics.Color;
 
+import io.github.JFW.GlobalAccess;
 import io.github.JFW.Scoreboard;
 import io.github.JFW.statePlayer.PowerUpType;
 import io.github.JFW.MapEnv.Map;
@@ -22,6 +23,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Bomb extends Actor{
+
+    private boolean enemiesSetup;
+    private boolean tileDestroyed;
+    private float tileDestroyedTimer;
+    private boolean isDoor;
+    private boolean destroyedThisFrame;
 
     private final SpriteBatch batch;
     private int EXPLOSION_RANGE = 1;
@@ -68,11 +75,17 @@ public class Bomb extends Actor{
     private Player player;
     private Scoreboard scoreboard;
 
+    private boolean doorToggle = false;
+
     public Bomb(float x ,float y, Actors actors, Map map){
         this.batch = SpriteBatchHandler.getBatch();
         this.position = new Vector2(x-24,y-24); //YA TIENE OFFSET
         this.exploded = false;
         this.explosionTimer = 0f;
+        this.tileDestroyed = false;
+        this.tileDestroyedTimer = 0f;
+        this.isDoor = false;
+        this.destroyedThisFrame = false;
 
         this.tiledMap = map;
         this.currentTime = System.nanoTime();
@@ -148,6 +161,7 @@ public class Bomb extends Actor{
         if (exploded) {
             processExplosion();
         }
+
     }
 
     private void processExplosionDirection(int centerTileX, int centerTileY, int deltaX, int deltaY) {
@@ -166,8 +180,22 @@ public class Bomb extends Actor{
             for (RectangleMapObject obstacle : tiledMap.getObstaclesMO()) {
                 if (obstacle.getRectangle().overlaps(tileRect)) {
                     if (Boolean.TRUE.equals(obstacle.getProperties().get("Indestructible"))&& !obstacle.getProperties().containsKey("Door")) return;
+
+                    // Mark tile as destroyed and start timer
+                    tileDestroyed = true;
+                    tileDestroyedTimer = 0f;
+                    destroyedThisFrame = true;
+
+                    // Remove collision immediately
                     tiledMap.removeSingleCollision(centerTileX, centerTileY);
                     tiledMap.removeSingleCollision(tileX, tileY);
+
+                    // Check if it's a door
+                    if (Boolean.FALSE.equals(obstacle.getProperties().get("Door")) && !doorToggle && !isDoor) {
+                        GlobalAccess ga = GlobalAccess.getInstance();
+                        ga.getConfig().setupenemies(ga.getConfig().getCurrentLevel());
+                        doorToggle = true;
+                    }
                     return;
                 }
             }
@@ -178,6 +206,9 @@ public class Bomb extends Actor{
         explosionTimer += Gdx.graphics.getDeltaTime();
         float tileWidth = tiledMap.getCollisionLayer().getTileWidth();
         float tileHeight = tiledMap.getCollisionLayer().getTileHeight();
+
+        // Reset destroyedThisFrame at start of frame
+        destroyedThisFrame = false;
 
         // bomb center position
         int centerTileX = (int) ((position.x + width / 2) / tileWidth);
@@ -221,6 +252,25 @@ public class Bomb extends Actor{
             }
         }
 
+        ArrayList<PowerUp> powerups = actors.getPowerUps();
+        Iterator<PowerUp> powerupIterator = powerups.iterator();
+        while (powerupIterator.hasNext()) {
+            PowerUp powerUP = powerupIterator.next();
+            Rectangle powerUPColl = powerUP.getBoundingBox();
+            if (horizHB.overlaps(powerUPColl) || vertHB.overlaps(powerUPColl)) {
+                if(!powerUP.getInvincibility()){
+                    powerupIterator.remove(); // Remove enemy if hit by explosion
+                }
+            }
+        }
+
+        // Process explosion in each direction first
+        processExplosionDirection(centerTileX, centerTileY, 0, 0); // Center
+        processExplosionDirection(centerTileX, centerTileY, -1, 0); // Left
+        processExplosionDirection(centerTileX, centerTileY, 1, 0);  // Right
+        processExplosionDirection(centerTileX, centerTileY, 0, -1); // Down
+        processExplosionDirection(centerTileX, centerTileY, 0, 1);  // Up
+
         // Chain reaction with other bombs
         ArrayList<Bomb> bombs = actors.getBombs();
         for (Bomb bomb : bombs) {
@@ -230,13 +280,6 @@ public class Bomb extends Actor{
                 }
             }
         }
-
-        // Process explosion in each direction
-        processExplosionDirection(centerTileX, centerTileY, 0, 0); // Center
-        processExplosionDirection(centerTileX, centerTileY, -1, 0); // Left
-        processExplosionDirection(centerTileX, centerTileY, 1, 0);  // Right
-        processExplosionDirection(centerTileX, centerTileY, 0, -1); // Down
-        processExplosionDirection(centerTileX, centerTileY, 0, 1);  // Up
 
         if (explosionTimer >= 1.36f) { // Wait for animation to finish
             actors.removeBombs(this);
@@ -257,6 +300,9 @@ public class Bomb extends Actor{
 
             // Check for obstacles
             for (RectangleMapObject obstacle : tiledMap.getObstaclesMO()) {
+                if (Boolean.TRUE.equals(obstacle.getProperties().get("Door"))){
+                    isDoor = true;
+                }
                 if (obstacle.getRectangle().overlaps(tileRect)) {
                     // If it's indestructible (and not a door), stop before it
                     if (Boolean.TRUE.equals(obstacle.getProperties().get("Indestructible"))

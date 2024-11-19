@@ -1,6 +1,10 @@
 package io.github.JFW.MapEnv;
 
 import com.badlogic.gdx.utils.Array;
+import io.github.JFW.Entitys.Player;
+import io.github.JFW.statePlayer;
+
+import java.util.Random;
 
 public class MapSystem {
     private Array<Map> maps;
@@ -22,9 +26,9 @@ public class MapSystem {
     }
     private void loadMaps() {
         //TODO: RANDOM FOR THE POWERUPS PLAYER ALREADY HAS
-        int x = 0;
+
         //Primera skin 1
-        maps.add(new Map("maps/lvl1.tmx", 0)); //aqui indica que powerup va a aparecer por nivel //este no cuenta
+        maps.add(new Map("maps/lvl1.tmx", 0)); //este no cuenta porque la mierda es indice 1
         maps.add(new Map("maps/lvl1.tmx", 0));
         maps.add(new Map("maps/lvl1.tmx", 1));
         maps.add(new Map("maps/lvl1.tmx", 2));
@@ -32,36 +36,37 @@ public class MapSystem {
         //Nivel bonus
         maps.add(new Map("maps/lvl6.tmx", 1));
         //Segunda skin 6
-        maps.add(new Map("maps/lvl2.tmx", x));
-        maps.add(new Map("maps/lvl2.tmx", x));
-        maps.add(new Map("maps/lvl2.tmx", x));
-        maps.add(new Map("maps/lvl2.tmx", x));
+        maps.add(new Map("maps/lvl2.tmx", 100));
+        maps.add(new Map("maps/lvl2.tmx", 100));
+        maps.add(new Map("maps/lvl2.tmx", 100));
+        maps.add(new Map("maps/lvl2.tmx", 100));
         //Nivel bonus
         maps.add(new Map("maps/lvl6.tmx", 1));
         //Tercera skin 11
         maps.add(new Map("maps/lvl3.tmx", 4));
-        maps.add(new Map("maps/lvl3.tmx", x));
-        maps.add(new Map("maps/lvl3.tmx", x));
+        maps.add(new Map("maps/lvl3.tmx", 100));
+        maps.add(new Map("maps/lvl3.tmx", 100));
         maps.add(new Map("maps/lvl3.tmx", 5));
         //Nivel bonus
         maps.add(new Map("maps/lvl6.tmx", 1));
         //Cuarta skin 15
-        maps.add(new Map("maps/lvl4.tmx", x));
-        maps.add(new Map("maps/lvl4.tmx", x));
-        maps.add(new Map("maps/lvl4.tmx", x));
-        maps.add(new Map("maps/lvl4.tmx", x));
+        maps.add(new Map("maps/lvl4.tmx", 100));
+        maps.add(new Map("maps/lvl4.tmx", 100));
+        maps.add(new Map("maps/lvl4.tmx", 100));
+        maps.add(new Map("maps/lvl4.tmx", 100));
         //Nivel bonus
         maps.add(new Map("maps/lvl6.tmx", 1));
         //Quinta skin 21
-        maps.add(new Map("maps/lvl5.tmx", x));
-        maps.add(new Map("maps/lvl5.tmx", x));
+        maps.add(new Map("maps/lvl5.tmx", 100));
+        maps.add(new Map("maps/lvl5.tmx", 100));
         maps.add(new Map("maps/lvl5.tmx", 5));
-        maps.add(new Map("maps/lvl5.tmx", x));
+        maps.add(new Map("maps/lvl5.tmx", 100));
         //Nivel bonus
         maps.add(new Map("maps/lvl6.tmx", 1));
         //TODO: alguna manera para que siga infinitamente o algo asi xd
 
     }
+
 
     public Map getMap(int index) {
         // Dispose of the current map if it exists

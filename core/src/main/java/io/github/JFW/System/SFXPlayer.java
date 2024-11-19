@@ -18,7 +18,7 @@ public class SFXPlayer {
             sound = Gdx.audio.newSound(Gdx.files.internal(path));
             sounds.put(path, sound);
         }
-        sound.play(0.3f);
+        sound.play(0.6f);
     }
 
     public void dispose() {

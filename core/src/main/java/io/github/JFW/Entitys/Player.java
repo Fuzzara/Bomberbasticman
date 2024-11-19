@@ -29,7 +29,7 @@ public class Player extends Actor {
 
     // Constants
     private static final int INITIAL_HP = 3;
-    private static final float INITIAL_SPEED = 120f;//70f;
+    private static final float INITIAL_SPEED = 300f;//70f;
     private static final Vector2 INITIAL_POSITION = new Vector2(96, 630);
     private static final float SPRITE_WIDTH = 48;
     private static final float SPRITE_HEIGHT = 96;
@@ -40,8 +40,6 @@ public class Player extends Actor {
     // Stats
     private int hp;
     private int bombLimit = BOMB_LIMIT;
-
-
 
     private Set<statePlayer.PowerUpType> activePowerUps = EnumSet.noneOf(statePlayer.PowerUpType.class);
 
@@ -81,7 +79,6 @@ public class Player extends Actor {
 
     //States
     statePlayer state;
-
 
     private Player(Actors actors, Map currentMap) { // Make constructor private
         this.actors = actors;
@@ -196,7 +193,6 @@ public class Player extends Actor {
                 break;
         }
     }
-
 
     public boolean hasPowerUp(statePlayer.PowerUpType type) {
         return activePowerUps.contains(type);
@@ -390,5 +386,4 @@ public class Player extends Actor {
     public int getBombLimit(){
         return bombLimit;
     }
-
 }

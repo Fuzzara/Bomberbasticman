@@ -39,10 +39,17 @@ public class PowerUp {
     //DEBUG
     private ShapeRenderer sr;
 
+    // Add these fields to the PowerUp class
+    private boolean invincibility;
+    private float invincibilityTimer;
+
     public PowerUp(float x, float y,Actors actors, int type){
         this.position = new Vector2(x,y);
         this.type = type;
         this.actors = actors;
+
+        this.invincibility = true; // Start with invincibility on
+        this.invincibilityTimer = 0f; // Initialize the timer
 
         boundingBox = new Rectangle(x,y,width,height);
         switch (type){ //Sprite
@@ -82,10 +89,19 @@ public class PowerUp {
     }
 
 
-    public void update(){
+    // Update the timer in the update method
+    public void update() {
         SpriteBatchHandler.getBatch().begin();
-        SpriteBatchHandler.getBatch().draw(animator.getFrame(), position.x+12, position.y+24, 48, 48);
+        SpriteBatchHandler.getBatch().draw(animator.getFrame(), position.x + 12, position.y + 24, 48, 48);
         SpriteBatchHandler.getBatch().end();
+
+        // Update the invincibility timer
+        if (invincibility) {
+            invincibilityTimer += Gdx.graphics.getDeltaTime();
+            if (invincibilityTimer >= 3.0f) {
+                invincibility = false; // Turn off invincibility after 3 seconds
+            }
+        }
     }
 
     public void draw(){
@@ -107,8 +123,16 @@ public class PowerUp {
         return false;
     }
 
+    public Rectangle getBoundingBox(){
+        return boundingBox;
+    }
+
     public void dispose(){
         sr.dispose();
+    }
+
+    public boolean getInvincibility() {
+        return invincibility;
     }
 
     //Talvez en Bomb hacer que el powerUP explote;

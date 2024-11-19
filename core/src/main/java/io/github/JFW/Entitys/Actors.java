@@ -70,6 +70,11 @@ public class Actors extends Actor {
         Bombs.clear();
         BombsTBR.clear();
         enemies.clear();
+        powerUps.clear();
+    }
+
+    public ArrayList<PowerUp> getPowerUps(){
+        return powerUps;
     }
 
     public void setPlayer(Player player){
