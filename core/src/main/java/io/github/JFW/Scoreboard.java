@@ -3,6 +3,7 @@ package io.github.JFW;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import io.github.JFW.Entitys.Actors;
 import io.github.JFW.Entitys.Player;
 import io.github.JFW.System.SFXPlayer;
 import io.github.JFW.System.SpriteBatchHandler;
@@ -19,6 +20,7 @@ public class Scoreboard {
     private Player player;
     private BitmapFont font;
     private SpriteBatch batch;
+    private Actors actors;
 
     private Scoreboard(){
         this.score = 0; //999999999 max
@@ -68,6 +70,7 @@ public class Scoreboard {
             if (!player.getInvincible()) {
                 player.die(Gdx.graphics.getDeltaTime());
                 this.lives = player.getHP();
+
                 return;
             }
         } else {
@@ -77,6 +80,7 @@ public class Scoreboard {
             this.lives = 3;
             this.score = 0;
             this.timeLeft = 200;
+            Main.getInstance().gameOver();
 
             //temporal tho
         }

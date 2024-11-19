@@ -45,6 +45,12 @@ public class InputHandler{
         }
         return null;
     }
+    public boolean handleGameOverInput() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_ENTER)) {
+            return true;
+        }
+        return false;
+    }
 
     public boolean handlePauseInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_ENTER)) {

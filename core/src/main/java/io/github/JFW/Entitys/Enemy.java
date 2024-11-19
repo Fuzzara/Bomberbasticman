@@ -29,9 +29,9 @@ public class Enemy extends Actor {
     //Enemy atributes
     private final boolean noclip; // Atraviesa muros ig
     private final int ai;
-    private final int score;
     private final Vector2 position;
     private final float speed;
+    private final int score;
 
     //Sprites
     private final SpriteBatch batch;
@@ -185,6 +185,10 @@ public class Enemy extends Actor {
             nextDirection = OtherDirections(nextDirection,deltaTime);
         }
         if (nextDirection != stateEnemy.State.STUCK){movetoNextDirection(nextDirection,deltaTime);}
+    }
+
+    int getScore(){
+        return score;
     }
 
     private stateEnemy.State closestDirectiontoPlayer(float x, float y, Vector2 PlayerPosition){

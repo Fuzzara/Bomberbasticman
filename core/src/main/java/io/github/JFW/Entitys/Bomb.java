@@ -213,10 +213,14 @@ public class Bomb extends Actor{
         // Check for enemy collisions with explosion
         ArrayList<Enemy> enemies = actors.getEnemies();
         Iterator<Enemy> enemyIterator = enemies.iterator();
+        int multiplier = 1;
         while (enemyIterator.hasNext()) {
             Enemy enemy = enemyIterator.next();
             Rectangle enemyBounds = enemy.getBoundingBox();
             if (horizHB.overlaps(enemyBounds) || vertHB.overlaps(enemyBounds)) {
+                int score = (enemy.getScore()*multiplier);
+                scoreboard.addScore(score); //implementar multiplier
+                multiplier++;
                 enemyIterator.remove(); // Remove enemy if hit by explosion
             }
         }

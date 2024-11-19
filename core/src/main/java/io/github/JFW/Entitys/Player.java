@@ -135,18 +135,16 @@ public class Player extends Actor {
                 break;
             case GOLDEN_BOMB: //AF
                 //+1 Bomba
-                    //TODO:Nose donde dice cuantas bombas puede poner xxddddd
-                    //TODO: casi implementado pero el sistema de bombas funciona raro entonces a veces funciona y aveces no xdddxdxdxdddxdxdxdxdxdxdx
                 bombLimit = BOMB_LIMIT + 1;
                 break;
             case DETONATOR:
                 //Spacebar para detonar
-                    //guindese (funciona pero con un poco de delay?)
+                    // (funciona pero con un poco de delay?)
                 break;
             case SKATES: //AF
                 //1.5x velocidad
                     //ya esta chavales nadamas hay que poner la velocidad que es
-                speed = INITIAL_SPEED + 60;
+                speed = INITIAL_SPEED + INITIAL_SPEED * 1.5f;
                 break;
             case STRIPPED_BOMB:
                 //Atravesar bombas
