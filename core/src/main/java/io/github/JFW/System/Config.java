@@ -38,7 +38,10 @@ public class Config {
         if (mapSystem == null) {
             mapSystem = new MapSystem();
         }
+        
+        // Get the new map (this will handle disposal of the old map)
         currentMap = mapSystem.getMap(n);
+        
         if (actors == null) {
             actors = new Actors();
             player = Player.getInstance(actors, currentMap);
@@ -46,9 +49,9 @@ public class Config {
             setupenemies(1);
         } else {
             actors.clearActors();
-            // Reset player for new level
-            currentMap.PrepareMapCollisions();
+            // Update player's map reference and reset for new level
             player = Player.getInstance(actors, currentMap);
+            player.setMap(currentMap); // Explicitly update player's map reference
             actors.setPlayer(player);
             setupenemies(1);
         }
@@ -61,16 +64,17 @@ public class Config {
         int nextLevel = currentLevel + 1;
         if (nextLevel < mapSystem.getMapCount()) {
             Gdx.app.debug("Config", "Switching to level " + nextLevel);
-            // Cleanup current level
-            if (currentMap != null) {
-                currentMap.dispose();
+            
+            // Setup next level and ensure player's map reference is updated
+            currentMap = setuplevel(nextLevel);
+            if (player != null) {
+                player.setMap(currentMap); // Ensure player has the correct map reference
             }
-            // Setup next level
-            setuplevel(nextLevel);
+            
             return true;
         }
         Gdx.app.debug("Config", "No more levels available, restarting from level 0");
-        return false; // No more levels
+        return false;
     }
 
     public boolean isLevelCompleted() {
@@ -152,5 +156,11 @@ public class Config {
 
     public void runlevel(GameScreen.State state) {
         actors.update(state);
+    }
+
+    public void dispose() {
+        if (mapSystem != null) {
+            mapSystem.dispose();
+        }
     }
 }

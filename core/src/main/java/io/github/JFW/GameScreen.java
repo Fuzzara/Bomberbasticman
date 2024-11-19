@@ -86,9 +86,10 @@ public class GameScreen extends ApplicationAdapter {
     }
 
     private void updateMusic(int level) {
-        music.stopMusic(); // Stop current music if playing
-        String musicFile = "sound/lvlmusic/lvl" + (level + 1) + ".mp3";
-        music.playMusic(musicFile);
+        music.stopMusic();
+        int musicLevel = (level / 5) + 1;
+        String musicFile = "sound/lvlmusic/lvl" + musicLevel + ".mp3";
+        music.playMusic(musicFile); //:3
     }
 
     @Override

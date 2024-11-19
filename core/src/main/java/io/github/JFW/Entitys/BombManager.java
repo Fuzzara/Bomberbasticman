@@ -26,6 +26,10 @@ public class BombManager {
 
     }
 
+    public void setMap(Map map) {
+        this.currentMap = map;
+    }
+
     public void handleBombPlacement(Vector2 playerPosition, float deltaTime) {
         if(actors.getBombCount() > Player.getInstance().getBombLimit()){
             //Gdx.app.debug("BombManager", "Player has reached bomb limit");

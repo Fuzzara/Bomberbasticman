@@ -120,6 +120,7 @@ public class Player extends Actor {
 
     public void setMap(Map map){
         this.currentMap = map;
+        this.bombManager.setMap(map);
     }
 
     public void applyPowerUp(statePlayer.PowerUpType type) {

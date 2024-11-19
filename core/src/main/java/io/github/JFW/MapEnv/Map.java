@@ -18,6 +18,7 @@ import java.util.Random;
 public class Map {
     private TiledMap tiledMap;
     private TiledMapTileLayer collisionLayer;
+    private TiledMapTileLayer obstacleLayer;
 
     private final int LEVEL_POWERUP;
 
@@ -27,25 +28,44 @@ public class Map {
 
     public Map(String mapPath, int powerUP) {
         tiledMap = new TmxMapLoader().load(mapPath);
-        TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get(0); // Assuming the first layer is the base layer
-        TiledMapTileLayer obstacleLayer = new TiledMapTileLayer(layer.getWidth(), layer.getHeight(), layer.getTileWidth(), layer.getTileHeight());
+        TiledMapTileLayer baseLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
+
+        // Initialize obstacle layer
+        obstacleLayer = new TiledMapTileLayer(baseLayer.getWidth(), baseLayer.getHeight(),
+                                            baseLayer.getTileWidth(), baseLayer.getTileHeight());
         obstacleLayer.setName("obstacles");
-        collisionLayer = obstacleLayer;
         tiledMap.getLayers().add(obstacleLayer);
-        PrepareMapCollisions();
+
+        // Initialize collision layer
+        collisionLayer = new TiledMapTileLayer(baseLayer.getWidth(), baseLayer.getHeight(),
+                                             baseLayer.getTileWidth() * 3, baseLayer.getTileHeight() * 3);
+        collisionLayer.setName("collision");
+        tiledMap.getLayers().add(collisionLayer);
+
         this.LEVEL_POWERUP = powerUP;
+        PrepareMapCollisions();
     }
 
     public void clearCollisionLayer() {
         if (collisionLayer != null) {
-            int i = collisionLayer.getObjects().getCount();
-            for(int j = i - 1; j >= 0; j--) {
-                collisionLayer.getObjects().remove(j);
-            }
-            // Also clear the obstacle tiles
-            for (int x = 0; x < collisionLayer.getWidth(); x++) {
-                for (int y = 0; y < collisionLayer.getHeight(); y++) {
-                    collisionLayer.setCell(x, y, null);
+            // Remove the collision layer from tiledMap first
+            tiledMap.getLayers().remove(collisionLayer);
+
+            // Create a new collision layer with the same dimensions
+            TiledMapTileLayer baseLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
+            collisionLayer = new TiledMapTileLayer(baseLayer.getWidth(), baseLayer.getHeight(),
+                                                 baseLayer.getTileWidth() * 3, baseLayer.getTileHeight() * 3);
+            collisionLayer.setName("collision");
+
+            // Add the fresh collision layer back to tiledMap
+            tiledMap.getLayers().add(collisionLayer);
+
+            // Also clear the obstacle layer
+            if (obstacleLayer != null) {
+                for (int x = 0; x < obstacleLayer.getWidth(); x++) {
+                    for (int y = 0; y < obstacleLayer.getHeight(); y++) {
+                        obstacleLayer.setCell(x, y, null);
+                    }
                 }
             }
         }
@@ -88,7 +108,6 @@ public class Map {
         TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
         int scaledTileWidth = layer.getTileWidth() * 3;
         int scaledTileHeight = layer.getTileHeight() * 3;
-        collisionLayer = new TiledMapTileLayer(layer.getWidth(), layer.getHeight(), scaledTileWidth, scaledTileHeight);
 
         for (int x = 0; x < layer.getWidth(); x++) {
             for (int y = 0; y < layer.getHeight(); y++) {
@@ -115,9 +134,6 @@ public class Map {
             }
         }
         placerandomwalls(6);
-
-        collisionLayer.setName("collision");
-        tiledMap.getLayers().add(collisionLayer);
     }
 
     public void placerandomwalls(int n){
@@ -136,7 +152,6 @@ public class Map {
             int x = rand.nextInt((16-2)+1)+2;
             int y = rand.nextInt((13-1)+1)+1;
 
-            TiledMapTileLayer obstacleLayer = (TiledMapTileLayer) tiledMap.getLayers().get("obstacles");
             if (obstacleLayer.getCell(x, y) == null && !(y == 13 && x == 2) && !(y == 12 && x == 2) && !(y == 13 && x == 3)) {
                 if (i == DESTROYABLE_WALL) {
                     addSingleCollision(x, y, "PowerUP");
@@ -151,11 +166,10 @@ public class Map {
     }
 
     public void removeSingleCollision(int x, int y) {
-        TiledMapTileLayer layerTile = (TiledMapTileLayer) tiledMap.getLayers().get("obstacles");
-        int scaledTileWidth = layerTile.getTileWidth() * 3;
-        int scaledTileHeight = layerTile.getTileHeight() * 3;
+        int scaledTileWidth = obstacleLayer.getTileWidth() * 3;
+        int scaledTileHeight = obstacleLayer.getTileHeight() * 3;
 
-        if (x >= 0 && x < layerTile.getWidth() && y >= 0 && y < layerTile.getHeight()) {
+        if (x >= 0 && x < obstacleLayer.getWidth() && y >= 0 && y < obstacleLayer.getHeight()) {
             RectangleMapObject rectToRemove = null;
 
             for (MapObject object : collisionLayer.getObjects()) {
@@ -175,9 +189,9 @@ public class Map {
                 collisionLayer.getObjects().remove(rectToRemove);
             }
 
-            TiledMapTileLayer.Cell cell = layerTile.getCell(x, y);
+            TiledMapTileLayer.Cell cell = obstacleLayer.getCell(x, y);
             if (cell != null) {
-                layerTile.setCell(x, y, null);
+                obstacleLayer.setCell(x, y, null);
             }
 
             if (rectToRemove != null) {
@@ -198,11 +212,10 @@ public class Map {
     }
 
     public void addSingleCollision(int x, int y, String type) {
-        TiledMapTileLayer layerTile = (TiledMapTileLayer) tiledMap.getLayers().get("obstacles");
-        int scaledTileWidth = layerTile.getTileWidth() * 3;
-        int scaledTileHeight = layerTile.getTileHeight() * 3;
+        int scaledTileWidth = obstacleLayer.getTileWidth() * 3;
+        int scaledTileHeight = obstacleLayer.getTileHeight() * 3;
 
-        if (x >= 0 && x < layerTile.getWidth() && y >= 0 && y < layerTile.getHeight()) {
+        if (x >= 0 && x < obstacleLayer.getWidth() && y >= 0 && y < obstacleLayer.getHeight()) {
             RectangleMapObject rectObject = new RectangleMapObject((x * scaledTileWidth), (y * scaledTileHeight), scaledTileWidth, scaledTileHeight);
             TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
 
@@ -228,13 +241,12 @@ public class Map {
                 rectObject.getProperties().put("Door", true);
                 rectObject.getProperties().put("KYS",true);
             } else {
-                cell.setTile(tiledMap.getTileSets().getTile(5));
+                cell.setTile(tiledMap.getTileSets().getTile(8));
                 rectObject.getProperties().put("Indestructible", false);
                 rectObject.getProperties().put("Pass-Through", true);
             }
             collisionLayer.getObjects().add(rectObject);
-
-            layerTile.setCell(x, y, cell);
+            obstacleLayer.setCell(x, y, cell);
         }
     }
 
@@ -249,7 +261,6 @@ public class Map {
     public void dispose() {
         clearCollisionLayer();
         if (tiledMap != null) {
-            tiledMap.getLayers().remove(collisionLayer);
             tiledMap.dispose();
         }
     }
