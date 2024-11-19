@@ -24,9 +24,9 @@ import java.util.ArrayList;
 public class Bomb extends Actor{
 
     private final SpriteBatch batch;
-    private int EXPLOSION_RANGE = 5;
+    private int EXPLOSION_RANGE = 1;
 
-    private final Actors actors; //anti POO, debe de haber una mejor manera
+    private final Actors actors;
 
     private final Vector2 position;
     private float width = 48;
@@ -99,7 +99,7 @@ public class Bomb extends Actor{
         player = Player.getInstance();
 
         if (player.hasPowerUp(PowerUpType.SUN)){
-            EXPLOSION_RANGE = 3;
+            EXPLOSION_RANGE++;
         }
     }
 
@@ -123,7 +123,7 @@ public class Bomb extends Actor{
         batch.begin();
         batch.draw(currentAnimator.getFrame(), position.x+24, position.y+24, width, height);
         if (exploded) {
-            //debugDraw();
+            debugDraw();
         }
         batch.end();
     }
@@ -204,17 +204,12 @@ public class Bomb extends Actor{
             tileHeight * (rangeUp + rangeDown)
         );
 
-        // Check for player collision with adjusted hitboxes
-        if ((horizHB.overlaps(player.getBoundingBox()) || vertHB.overlaps(player.getBoundingBox()))
-            && !player.hasPowerUp(PowerUpType.FIRE_MAN) && !player.hasPowerUp(PowerUpType.QUESTION_MARK)) {
-            Gdx.app.error("Bomb", "Player hit by bomb at: " + position.toString());
-        }
 
         //Detecta si el jugador esta en la explosion
         if ((horizHB.overlaps(player.getBoundingBox()) || vertHB.overlaps(player.getBoundingBox())
             && (!player.hasPowerUp(PowerUpType.FIRE_MAN)) && !player.hasPowerUp(PowerUpType.QUESTION_MARK))) {
-            Gdx.app.error("Bomb", "Player hit by bomb at: " + position.toString());
-            scoreboard.removeLife(); //linea que mata todo
+            //Gdx.app.error("Bomb", "Player hit by bomb at: " + position.toString());
+            scoreboard.removeLife();
 
         }
 

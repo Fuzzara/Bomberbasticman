@@ -35,7 +35,7 @@ public class Player extends Actor {
     private static final float SPRITE_HEIGHT = 96;
     private static final float BOUNDING_BOX_SIZE = 34;
     private static final float BOUNDING_BOX_OFFSET = 24;
-    private static final int BOMB_LIMIT = 5;
+    private static final int BOMB_LIMIT = 0;
 
     // Stats
     private int hp;
@@ -75,9 +75,9 @@ public class Player extends Actor {
     private float walkSoundTime;
     private SFXPlayer sfx;
 
-    private boolean isDead = false;
-    private boolean isInvincible = false;
-    private float invincibleTime = 0f;
+    private boolean isDead;
+    private boolean isInvincible;
+    private float invincibleTime;
 
     //States
     statePlayer state;
@@ -89,6 +89,9 @@ public class Player extends Actor {
         this.hp = INITIAL_HP;
         this.speed = INITIAL_SPEED;
         this.position = new Vector2(INITIAL_POSITION);
+        this.isDead = false;
+        this.isInvincible = false;
+        this.invincibleTime = 0f;
         this.state = new statePlayer();
         this.inputHandler = new InputHandler();
         this.batch = SpriteBatchHandler.getBatch();
@@ -112,7 +115,7 @@ public class Player extends Actor {
         this.rightAnimator = new Animator("bomberSpriteSheet.png", 28, 1, 3, 5, 0.5f, Animation.PlayMode.LOOP_PINGPONG);
         this.upAnimator = new Animator("bomberSpriteSheet.png", 28, 1, 6, 8, 0.5f, Animation.PlayMode.LOOP_PINGPONG);
         this.leftAnimator = new Animator("bomberSpriteSheet.png", 28, 1, 9, 11, 0.5f, Animation.PlayMode.LOOP_PINGPONG);
-        this.deathAnimator = new Animator("bomberSpriteSheet.png", 28, 1, 12, 18, 0.3f, Animation.PlayMode.NORMAL);
+        this.deathAnimator = new Animator("bomberSpriteSheet.png", 28, 1, 12, 18, 0.3f, Animation.PlayMode.LOOP);
         this.winAnimator = new Animator("bomberSpriteSheet.png", 28, 1, 19, 27, 0.2f, Animation.PlayMode.NORMAL);
 
         this.currentAnimator = downAnimator; //default
@@ -143,7 +146,7 @@ public class Player extends Actor {
             case SKATES: //AF
                 //1.5x velocidad
                     //ya esta chavales nadamas hay que poner la velocidad que es
-                speed = INITIAL_SPEED + 35;
+                speed = INITIAL_SPEED + 60;
                 break;
             case STRIPPED_BOMB:
                 //Atravesar bombas
@@ -168,16 +171,16 @@ public class Player extends Actor {
         activePowerUps.remove(type);
         switch (type) {
             case SUN:
-                // Remove Sun effect
+                // AF, no se quita
                 break;
             case GOLDEN_BOMB:
-                // Remove Golden Bomb effect
+                //AF, no se quita
                 break;
             case DETONATOR:
                 // Remove Detonator effect
                 break;
             case SKATES:
-                speed -= 20; // Example effect: decrease speed
+                //AF, no se quita
                 break;
             case STRIPPED_BOMB:
                 // Remove Stripped Bomb effect
@@ -212,11 +215,6 @@ public class Player extends Actor {
 
     public void draw() {
         batch.begin();
-        if (isInvincible) {
-            if ((int) (invincibleTime * 10) %2 == 0) {
-                return; //Solo dibuja la mitad del tiempo
-            }
-        }
         batch.draw(currentAnimator.getFrame(), position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
 
         //DEBUG BOUNDING BOX
@@ -250,6 +248,9 @@ public class Player extends Actor {
                 case DOWN:
                     move(0, -speed * deltaTime);
                     currentAnimator = downAnimator;
+                    break;
+                case DEAD:
+                    currentAnimator = deathAnimator;
                     break;
             }
         }
@@ -344,22 +345,23 @@ public class Player extends Actor {
     }
     public void die(float delta){
         if (isDead) {
-            invincibleTime += delta;
-        if (invincibleTime >= 3f && hp <= 0) {
+            while (invincibleTime >= 3f) {
+                invincibleTime += delta;
+            }
             respawn();
-        }
         return;
         }
+
         isDead = true;
-        currentAnimator = deathAnimator;
+        this.hp--;
         sfx.playSFX("sound/dead.mp3");
         invincibleTime = 0f;
 
     }
-    private void respawn(){
+    public void respawn(){
         isDead = false;
         position.set(INITIAL_POSITION);
-        currentAnimator = downAnimator;
+        this.currentAnimator = downAnimator;
         boundingBox.setPosition(INITIAL_POSITION.x-24, INITIAL_POSITION.y-24);
         isInvincible = true;
         invincibleTime = 0f;

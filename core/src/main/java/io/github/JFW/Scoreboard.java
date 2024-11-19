@@ -64,11 +64,11 @@ public class Scoreboard {
 
     public void removeLife(){
         player = Player.getInstance();
-        if (player.getHP() > 0) {
+        if (player.getHP() >= 0) {
             if (!player.getInvincible()) {
-                this.lives--;
-                player.setHP(player.getHP() - 1);
                 player.die(Gdx.graphics.getDeltaTime());
+                this.lives = player.getHP();
+                return;
             }
         } else {
             //GAMEOVER!!!!!!!!!!!!!
@@ -77,6 +77,7 @@ public class Scoreboard {
             this.lives = 3;
             this.score = 0;
             this.timeLeft = 200;
+
             //temporal tho
         }
 

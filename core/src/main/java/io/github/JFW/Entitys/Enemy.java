@@ -110,7 +110,7 @@ public class Enemy extends Actor {
 
 
         if (enemyRect.overlaps(player.getBoundingBox())) {
-            System.out.println("Player hit by enemy!");
+            //System.out.println("Player hit by enemy!");
         }
         return false;
     }

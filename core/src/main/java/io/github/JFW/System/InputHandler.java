@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input;
 import io.github.JFW.statePlayer;
 
 public class InputHandler{
-    private long nextBombTime = 0;
 
     public statePlayer.State handlePlayerMovement() {
         if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {

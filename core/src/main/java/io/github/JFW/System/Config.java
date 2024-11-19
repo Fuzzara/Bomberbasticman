@@ -38,10 +38,10 @@ public class Config {
         if (mapSystem == null) {
             mapSystem = new MapSystem();
         }
-        
+
         // Get the new map (this will handle disposal of the old map)
         currentMap = mapSystem.getMap(n);
-        
+
         if (actors == null) {
             actors = new Actors();
             player = Player.getInstance(actors, currentMap);
@@ -64,13 +64,13 @@ public class Config {
         int nextLevel = currentLevel + 1;
         if (nextLevel < mapSystem.getMapCount()) {
             Gdx.app.debug("Config", "Switching to level " + nextLevel);
-            
+
             // Setup next level and ensure player's map reference is updated
             currentMap = setuplevel(nextLevel);
             if (player != null) {
                 player.setMap(currentMap); // Ensure player has the correct map reference
             }
-            
+
             return true;
         }
         Gdx.app.debug("Config", "No more levels available, restarting from level 0");
@@ -122,20 +122,20 @@ public class Config {
                 Rectangle rect = new Rectangle(x, y, 34, 34);
                 StuckinEnvironment = stuck(rect);
                 if (!StuckinEnvironment) {
-                    Enemy test = EnemyFactory.createEnemy(7, x, y, currentMap, player.getSpeed());
-                    Enemy test2 = EnemyFactory.createEnemy(6, x, y, currentMap, player.getSpeed());
-                    Enemy test3 = EnemyFactory.createEnemy(5, x, y, currentMap, player.getSpeed());
-                    Enemy test4 = EnemyFactory.createEnemy(4, x, y, currentMap, player.getSpeed());
-                    Enemy test5 = EnemyFactory.createEnemy(3, x, y, currentMap, player.getSpeed());
-                    Enemy test6 = EnemyFactory.createEnemy(2, x, y, currentMap, player.getSpeed());
-                    Enemy test7 = EnemyFactory.createEnemy(1, x, y, currentMap, player.getSpeed());
-                    actors.updateEnemies(test);
-                    actors.updateEnemies(test2);
-                    actors.updateEnemies(test3);
-                    actors.updateEnemies(test4);
-                    actors.updateEnemies(test5);
-                    actors.updateEnemies(test6);
-                    actors.updateEnemies(test7);
+                    Enemy test = EnemyFactory.createEnemy(1, x, y, currentMap, player.getSpeed());
+                    //Enemy test2 = EnemyFactory.createEnemy(6, x, y, currentMap, player.getSpeed());
+                    //Enemy test3 = EnemyFactory.createEnemy(5, x, y, currentMap, player.getSpeed());
+                    //Enemy test4 = EnemyFactory.createEnemy(4, x, y, currentMap, player.getSpeed());
+                    //Enemy test5 = EnemyFactory.createEnemy(3, x, y, currentMap, player.getSpeed());
+                    //Enemy test6 = EnemyFactory.createEnemy(2, x, y, currentMap, player.getSpeed());
+                    //Enemy test7 = EnemyFactory.createEnemy(1, x, y, currentMap, player.getSpeed());
+                   actors.updateEnemies(test);
+                    //actors.updateEnemies(test2);
+                    //actors.updateEnemies(test3);
+                    //actors.updateEnemies(test4);
+                    //actors.updateEnemies(test5);
+                    //actors.updateEnemies(test6);
+                    //actors.updateEnemies(test7);
                 }
             }
         }

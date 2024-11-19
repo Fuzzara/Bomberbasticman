@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
+import io.github.JFW.Entitys.Player;
 import io.github.JFW.System.*;
 import io.github.JFW.MapEnv.*;
 
@@ -38,8 +39,11 @@ public class GameScreen extends ApplicationAdapter {
 
     private InputHandler inputHandler = new InputHandler();
 
+    private Player player;
+
     //Sound
     private MusicPlayer music = new MusicPlayer();
+    private float musicUpdateTimer = 0f;
     private SFXPlayer sfx = new SFXPlayer();
 
     //Scoreboard
@@ -53,7 +57,7 @@ public class GameScreen extends ApplicationAdapter {
     }
     private State state;
     private float transitionTimer;
-    private static final float TRANSITION_DURATION = 1.0f; // 1 second transition
+    private static final float TRANSITION_DURATION = 4f; // 1 second transition
 
     //Constructor bonito
     public GameScreen(int level, int score) {
@@ -87,9 +91,13 @@ public class GameScreen extends ApplicationAdapter {
 
     private void updateMusic(int level) {
         music.stopMusic();
-        int musicLevel = (level / 5) + 1;
-        String musicFile = "sound/lvlmusic/lvl" + musicLevel + ".mp3";
-        music.playMusic(musicFile); //:3
+        if (level > 0 && (level+ 1) % 5 == 0) {
+            music.playMusic("sound/lvlmusic/bonus.mp3");
+        } else {
+            int musicLevel = (level / 5) + 1;
+            String musicFile = "sound/lvlmusic/lvl" + musicLevel + ".mp3";
+            music.playMusic(musicFile); //:3
+        }
     }
 
     @Override
@@ -98,19 +106,20 @@ public class GameScreen extends ApplicationAdapter {
             case running:
                 checkLevelCompletion();
                 draw();
+                scoreboard.update(Gdx.graphics.getDeltaTime());
                 levelconfig.runlevel(state);
                 break;
             case paused:
                 draw();
                 break;
             case levelTransition:
-                handleLevelTransition();
                 draw();
+                handleLevelTransition();
                 break;
         }
-        inputExtra();
-        scoreboard.update(Gdx.graphics.getDeltaTime());
         scoreboard.render();
+        inputExtra();
+
     }
 
     private void checkLevelCompletion() {
@@ -119,7 +128,7 @@ public class GameScreen extends ApplicationAdapter {
             sfx.playSFX("sound/win.mp3");
             state = State.levelTransition;
             transitionTimer = TRANSITION_DURATION;
-            Gdx.app.log("GameScreen", "Level " + levelconfig.getCurrentLevel() + " completed!");
+            Gdx.app.log("GameScreen", "Level " + levelconfig.getCurrentLevel()+ " completed!");
         }
     }
 
@@ -127,10 +136,12 @@ public class GameScreen extends ApplicationAdapter {
         transitionTimer -= Gdx.graphics.getDeltaTime();
         if (transitionTimer <= 0) {
             if (levelconfig.switchToNextLevel()) {
+                player = Player.getInstance();
+                player.respawn();
                 // Successfully switched to next level
                 currentMap = levelconfig.getCurrentMap();
                 mapRenderer.setMap(currentMap.getTiledMap());
-                sfx.playSFX("sound/lvlstart.mp3");
+                //sfx.playSFX("sound/lvlstart.mp3");
                 updateMusic(levelconfig.getCurrentLevel());
                 state = State.running;
                 Gdx.app.log("GameScreen", "Starting level " + levelconfig.getCurrentLevel());

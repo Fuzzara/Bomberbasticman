@@ -29,35 +29,35 @@ public class MapSystem {
         maps.add(new Map("maps/lvl1.tmx", 2));
         maps.add(new Map("maps/lvl1.tmx", 3));
         //Nivel bonus
-            //Aqui va el nivel bonus :3
+        maps.add(new Map("maps/lvl6.tmx", 1));
         //Segunda skin 6
         maps.add(new Map("maps/lvl2.tmx", x));
         maps.add(new Map("maps/lvl2.tmx", x));
         maps.add(new Map("maps/lvl2.tmx", x));
         maps.add(new Map("maps/lvl2.tmx", x));
         //Nivel bonus
-            //Aqui va el nivel bonus :3
+        maps.add(new Map("maps/lvl6.tmx", 1));
         //Tercera skin 11
         maps.add(new Map("maps/lvl3.tmx", 4));
         maps.add(new Map("maps/lvl3.tmx", x));
         maps.add(new Map("maps/lvl3.tmx", x));
         maps.add(new Map("maps/lvl3.tmx", 5));
         //Nivel bonus
-            //Aqui va el nivel bonus :3
+        maps.add(new Map("maps/lvl6.tmx", 1));
         //Cuarta skin 15
         maps.add(new Map("maps/lvl4.tmx", x));
         maps.add(new Map("maps/lvl4.tmx", x));
         maps.add(new Map("maps/lvl4.tmx", x));
         maps.add(new Map("maps/lvl4.tmx", x));
         //Nivel bonus
-            //Aqui va el nivel bonus :3
+        maps.add(new Map("maps/lvl6.tmx", 1));
         //Quinta skin 21
         maps.add(new Map("maps/lvl5.tmx", x));
         maps.add(new Map("maps/lvl5.tmx", x));
         maps.add(new Map("maps/lvl5.tmx", 5));
         maps.add(new Map("maps/lvl5.tmx", x));
         //Nivel bonus
-            //Aqui va el nivel bonus :3
+        maps.add(new Map("maps/lvl6.tmx", 1));
         //TODO: alguna manera para que siga infinitamente o algo asi xd
     }
 
