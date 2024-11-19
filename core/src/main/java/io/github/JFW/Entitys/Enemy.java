@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import io.github.JFW.MapEnv.Map;
+import io.github.JFW.Scoreboard;
 import io.github.JFW.System.Animator;
 import io.github.JFW.System.SpriteBatchHandler;
 import io.github.JFW.stateEnemy;
@@ -45,6 +46,7 @@ public class Enemy extends Actor {
     private EnemyAlgorithm algo;
     private stateEnemy.State nextDirection;
 
+    private Scoreboard scoreboard;
 
     private final stateEnemy state;
     private ShapeRenderer shapeRenderer;
@@ -66,10 +68,11 @@ public class Enemy extends Actor {
         shapeRenderer = new ShapeRenderer();
 
         //por mientras, cambiar!
-        this.boundingBox = new Rectangle(position.x - BOUNDING_BOX_OFFSET, position.y - BOUNDING_BOX_OFFSET, BOUNDING_BOX_SIZE, BOUNDING_BOX_SIZE);
+        this.boundingBox = new Rectangle(position.x, position.y, BOUNDING_BOX_SIZE, BOUNDING_BOX_SIZE);
         player = Player.getInstance();
 
         this.state = new stateEnemy();
+        this.scoreboard = Scoreboard.getInstance();
     }
 
     // Add getBoundingBox method to expose the enemy's collision box
@@ -114,6 +117,8 @@ public class Enemy extends Actor {
 
         if (enemyRect.overlaps(player.getBoundingBox())) {
             //System.out.println("Player hit by enemy!");
+            scoreboard.removeLife();
+
         }
         return false;
     }
@@ -337,7 +342,8 @@ public class Enemy extends Actor {
     }
 
     private void updateBoundingBox() {
-        boundingBox.setPosition(position.x - BOUNDING_BOX_OFFSET, position.y - 34);
+        System.out.println(position.x + " " + position.y);
+        boundingBox.setPosition(position.x, position.y-24);
     }
 
     public void setCurrentMap(Map map) {

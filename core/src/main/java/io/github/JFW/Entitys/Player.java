@@ -12,6 +12,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.math.Rectangle;
+import io.github.JFW.GlobalAccess;
 import io.github.JFW.MapEnv.Map;
 import io.github.JFW.System.Animator;
 import io.github.JFW.System.InputHandler;
@@ -29,7 +30,7 @@ public class Player extends Actor {
 
     // Constants
     private static final int INITIAL_HP = 3;
-    private static final float INITIAL_SPEED = 300f;//70f;
+    private static final float INITIAL_SPEED = 120;
     private static final Vector2 INITIAL_POSITION = new Vector2(96, 630);
     private static final float SPRITE_WIDTH = 48;
     private static final float SPRITE_HEIGHT = 96;
@@ -112,7 +113,7 @@ public class Player extends Actor {
         this.rightAnimator = new Animator("bomberSpriteSheet.png", 29, 1, 3, 5, 0.5f, Animation.PlayMode.LOOP_PINGPONG);
         this.upAnimator = new Animator("bomberSpriteSheet.png", 29, 1, 6, 8, 0.5f, Animation.PlayMode.LOOP_PINGPONG);
         this.leftAnimator = new Animator("bomberSpriteSheet.png", 29, 1, 9, 11, 0.5f, Animation.PlayMode.LOOP_PINGPONG);
-        this.deathAnimator = new Animator("bomberSpriteSheet.png", 29, 1, 12, 18, 0.3f, Animation.PlayMode.LOOP);
+        this.deathAnimator = new Animator("bomberSpriteSheet.png", 29, 1, 12, 18, 0.1f, Animation.PlayMode.NORMAL);
         this.winAnimator = new Animator("bomberSpriteSheet.png", 29, 1, 19, 28, 0.2f, Animation.PlayMode.NORMAL);
 
         this.currentAnimator = downAnimator; //default
@@ -359,6 +360,7 @@ public class Player extends Actor {
         this.currentAnimator = winAnimator;
         state.setCurrentState(statePlayer.State.DOOR);
     }
+
     public void respawn(){
         isDead = false;
         position.set(INITIAL_POSITION);
@@ -377,15 +379,21 @@ public class Player extends Actor {
 
     public void update(){
         if (isInvincible) {
-            invincibleTime += Gdx.graphics.getDeltaTime();
-            if (invincibleTime >= 2f) {
-                isInvincible = false;
-                invincibleTime = 0f;
+            if (GlobalAccess.getInstance().isBonusLevel()) {
+                isInvincible = true;
+            } else {
+                invincibleTime += Gdx.graphics.getDeltaTime();
+                if (invincibleTime >= 2f) {
+                    isInvincible = false;
+                    invincibleTime = 0f;
+                }
             }
         }
         if (!isDead) {
             handleInput();
         }
+
+
         updateBoundingBox();
         draw();
     }

@@ -33,4 +33,6 @@ public class GlobalAccess {
     public void setConfig(Config config) {
         this.config = config;
     }
+
+    public boolean isBonusLevel() {return config.isBonusLevel();}
 }
