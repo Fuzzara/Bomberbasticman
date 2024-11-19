@@ -19,7 +19,7 @@ import io.github.JFW.System.SpriteBatchHandler;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-
+import java.util.Iterator;
 
 public class Bomb extends Actor{
 
@@ -204,13 +204,21 @@ public class Bomb extends Actor{
             tileHeight * (rangeUp + rangeDown)
         );
 
-
         //Detecta si el jugador esta en la explosion
         if ((horizHB.overlaps(player.getBoundingBox()) || vertHB.overlaps(player.getBoundingBox())
             && (!player.hasPowerUp(PowerUpType.FIRE_MAN)) && !player.hasPowerUp(PowerUpType.QUESTION_MARK))) {
-            //Gdx.app.error("Bomb", "Player hit by bomb at: " + position.toString());
             scoreboard.removeLife();
+        }
 
+        // Check for enemy collisions with explosion
+        ArrayList<Enemy> enemies = actors.getEnemies();
+        Iterator<Enemy> enemyIterator = enemies.iterator();
+        while (enemyIterator.hasNext()) {
+            Enemy enemy = enemyIterator.next();
+            Rectangle enemyBounds = enemy.getBoundingBox();
+            if (horizHB.overlaps(enemyBounds) || vertHB.overlaps(enemyBounds)) {
+                enemyIterator.remove(); // Remove enemy if hit by explosion
+            }
         }
 
         // Chain reaction with other bombs
@@ -255,7 +263,7 @@ public class Bomb extends Actor{
                         && !obstacle.getProperties().containsKey("Door")) {
                         return i - 1;
                     }
-                    // If it's destructible, include it but stop here
+                    // For destructible objects, include this tile but stop here
                     tiledMap.removeSingleCollision(tileX, tileY);
                     return i;
                 }
@@ -263,7 +271,6 @@ public class Bomb extends Actor{
         }
         return EXPLOSION_RANGE; // No obstacles in range
     }
-
 
     public void debugDraw(){
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);

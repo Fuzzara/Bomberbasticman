@@ -112,15 +112,11 @@ public class Map {
         for (int x = 0; x < layer.getWidth(); x++) {
             for (int y = 0; y < layer.getHeight(); y++) {
                 if (x == 0 || y == 0 || x == layer.getWidth() - 1 || y == layer.getHeight() - 1 || x == 1 || x == layer.getWidth() - 2) {
-                    RectangleMapObject rectObject = new RectangleMapObject(x * scaledTileWidth, y * scaledTileHeight, scaledTileWidth, scaledTileHeight);
-                    rectObject.getProperties().put("Indestructible", true);
-                    collisionLayer.getObjects().add(rectObject);
+                    basicColSetting(scaledTileWidth, scaledTileHeight, x, y);
                 } else {
                     TiledMapTileLayer.Cell cell = layer.getCell(x, y);
                     if (cell != null && isCollisionTile(cell.getTile())) {
-                        RectangleMapObject rectObject = new RectangleMapObject(x * scaledTileWidth, y * scaledTileHeight, scaledTileWidth, scaledTileHeight);
-                        rectObject.getProperties().put("Indestructible", true);
-                        collisionLayer.getObjects().add(rectObject);
+                        basicColSetting(scaledTileWidth, scaledTileHeight, x, y);
                     }
                 }
             }
@@ -134,6 +130,14 @@ public class Map {
             }
         }
         placerandomwalls(6);
+    }
+
+    private void basicColSetting(int scaledTileWidth, int scaledTileHeight, int x, int y) {
+        RectangleMapObject rectObject = new RectangleMapObject(x * scaledTileWidth, y * scaledTileHeight, scaledTileWidth, scaledTileHeight);
+        rectObject.getProperties().put("Indestructible", true);
+        collisionLayer.getObjects().add(rectObject);
+        TiledMapTileLayer.Cell cellX = new TiledMapTileLayer.Cell();
+        collisionLayer.setCell(x, y, cellX);
     }
 
     public void placerandomwalls(int n){

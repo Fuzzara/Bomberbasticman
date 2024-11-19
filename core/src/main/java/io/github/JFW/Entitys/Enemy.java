@@ -37,7 +37,6 @@ public class Enemy extends Actor {
     private final SpriteBatch batch;
     private Animator animation;
 
-
     //Colission stuff
     private Map currentMap;
     private final Rectangle boundingBox;
@@ -64,13 +63,15 @@ public class Enemy extends Actor {
         shapeRenderer = new ShapeRenderer();
 
         //por mientras, cambiar!
-
         this.boundingBox = new Rectangle(position.x - BOUNDING_BOX_OFFSET, position.y - BOUNDING_BOX_OFFSET, BOUNDING_BOX_SIZE, BOUNDING_BOX_SIZE);
         player = Player.getInstance();
 
         this.state = new stateEnemy();
+    }
 
-
+    // Add getBoundingBox method to expose the enemy's collision box
+    public Rectangle getBoundingBox() {
+        return boundingBox;
     }
 
     private boolean isCollision(float x, float y) {
@@ -108,13 +109,11 @@ public class Enemy extends Actor {
             }
         }
 
-
         if (enemyRect.overlaps(player.getBoundingBox())) {
             //System.out.println("Player hit by enemy!");
         }
         return false;
     }
-
 
     private void choosingDirection() {
         Random rand = new Random();
@@ -161,7 +160,6 @@ public class Enemy extends Actor {
                 move(0, -speed * deltaTime);
                 break;
         }
-
     }
 
     private void move(float dx, float dy) {
@@ -176,10 +174,6 @@ public class Enemy extends Actor {
         }
     }
 
-    //enemy ai
-    //quite mis intentos para arreglarlo que se veia feo >:(
-    //while(false) {seguir al mae} -> if(true) {false}
-    //(╥﹏╥)
     private void chasing(){
         float deltaTime = Gdx.graphics.getDeltaTime();
         Vector2 PlayerPosition = player.getPosition();
@@ -275,17 +269,8 @@ public class Enemy extends Actor {
         }
     }
 
-
-
     public void draw() {
         batch.begin();
-        //enemySprite.draw(batch);
-
-        /*shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(0,0,1,1);
-        shapeRenderer.rect(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height);
-        shapeRenderer.end();
-*/
         batch.draw(animation.getFrame(), position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
         batch.end();
     }
@@ -309,4 +294,3 @@ public class Enemy extends Actor {
         this.state.setCurrentState(newState);
     }
 }
-
