@@ -26,6 +26,9 @@ public class Config {
     private Actors actors;
     private final SpriteBatch batch;
     private int currentLevel;
+    private float bonusLevelTimer = 30f; // 30 seconds for bonus levels
+    private float enemyRespawnTimer = 5f; // 5 seconds between enemy respawns
+    private boolean isBonusLevel = false;
 
     public Config(SpriteBatch batch) {
         this.batch = batch;
@@ -41,6 +44,14 @@ public class Config {
 
         currentMap = mapSystem.getMap(n);
 
+        // Check if this is a bonus level
+        isBonusLevel = (n) % 5 == 0;
+        if (isBonusLevel) {
+            bonusLevelTimer = 30f; // Reset bonus level timer
+            enemyRespawnTimer = 5f; // Reset enemy respawn timer
+            Gdx.app.debug("Config", "Bonus level started! Timer: " + bonusLevelTimer);
+        }
+
         if (actors == null) {
             actors = new Actors();
             player = Player.getInstance(actors, currentMap);
@@ -49,7 +60,7 @@ public class Config {
         } else {
             actors.clearActors();
             player = Player.getInstance(actors, currentMap);
-            player.setMap(currentMap); //porsiacaso
+            player.setMap(currentMap);
             actors.setPlayer(player);
             setupenemies(currentLevel);
         }
@@ -66,7 +77,7 @@ public class Config {
             // Setup next level and ensure player's map reference is updated
             currentMap = setuplevel(nextLevel);
             if (player != null) {
-                player.setMap(currentMap); // Ensure player has the correct map reference
+                player.setMap(currentMap);
             }
             return true;
         }
@@ -78,8 +89,14 @@ public class Config {
         if(Gdx.input.isKeyJustPressed(Input.Keys.K)){
             return true;
         }
-        return false;
-        /*if (currentMap != null && player != null) {
+
+        // For bonus levels, check if time is up
+        if (isBonusLevel && bonusLevelTimer <= 0) {
+            Gdx.app.debug("Config", "Bonus level time up!");
+            return true;
+        }
+
+        if (currentMap != null && player != null) {
             // Check if player has reached the door and all enemies are defeated
             for (MapObject object : currentMap.getCollisionLayer().getObjects()) {
                 if (object instanceof RectangleMapObject) {
@@ -98,7 +115,7 @@ public class Config {
                 }
             }
         }
-        return false;*/
+        return false;
     }
 
     public Map getCurrentMap() {
@@ -107,6 +124,14 @@ public class Config {
 
     public int getCurrentLevel() {
         return currentLevel;
+    }
+
+    public boolean isBonusLevel() {
+        return isBonusLevel;
+    }
+
+    public float getBonusLevelTimer() {
+        return bonusLevelTimer;
     }
 
     private int[] getEnemyTypesForLevel(int level) {
@@ -209,6 +234,23 @@ public class Config {
     }
 
     public void runlevel(GameScreen.State state) {
+        if (state == GameScreen.State.running) {
+            float deltaTime = Gdx.graphics.getDeltaTime();
+
+            // Handle bonus level timers
+            if (isBonusLevel) {
+                bonusLevelTimer -= deltaTime;
+                enemyRespawnTimer -= deltaTime;
+
+                // Respawn enemies every 5 seconds
+                if (enemyRespawnTimer <= 0) {
+                    setupenemies(currentLevel);
+                    enemyRespawnTimer = 5f; // Reset timer
+                    Gdx.app.debug("Config", "Respawning enemies in bonus level!");
+                }
+            }
+        }
+
         actors.update(state);
     }
 

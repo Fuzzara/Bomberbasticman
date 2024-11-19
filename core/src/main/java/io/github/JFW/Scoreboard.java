@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import io.github.JFW.Entitys.Player;
 import io.github.JFW.System.SFXPlayer;
 import io.github.JFW.System.SpriteBatchHandler;
+import io.github.JFW.System.Config;
 
 import java.util.BitSet;
 
@@ -19,6 +20,7 @@ public class Scoreboard {
     private Player player;
     private BitmapFont font;
     private SpriteBatch batch;
+    private Config levelConfig;
 
     private Scoreboard(){
         this.score = 0; //999999999 max
@@ -28,6 +30,7 @@ public class Scoreboard {
         font = new BitmapFont(Gdx.files.internal("fontBomber.fnt"),Gdx.files.internal("fontBomber.png"),false);
         font.getData().setScale(1.1f);
     }
+
     public static Scoreboard getInstance(){
         if (instance == null){
             instance = new Scoreboard();
@@ -35,20 +38,36 @@ public class Scoreboard {
         return instance;
     }
 
+    public void setLevelConfig(Config config) {
+        this.levelConfig = config;
+    }
+
     public void render(){
         batch.begin();
         font.draw(batch, "" + score, 650, Gdx.graphics.getHeight() - 2);
-        font.draw(batch, "" + timeLeft, 300, Gdx.graphics.getHeight()-2);
+        
+        // If in bonus level, show bonus timer instead of regular time
+        if (levelConfig != null && levelConfig.isBonusLevel()) {
+            font.draw(batch, String.format("%.1f", levelConfig.getBonusLevelTimer()), 300, Gdx.graphics.getHeight()-2);
+        } else {
+            font.draw(batch, "" + timeLeft, 300, Gdx.graphics.getHeight()-2);
+        }
+        
         font.draw(batch, "" + lives, 113, Gdx.graphics.getHeight()-2);
         batch.end();
     }
+
     public void update(float delta){
-        timeAcc += delta;
-        if (timeAcc >= 1.0f) {
-            timeAcc -= 1.0f;
-            countDown();
+        // Only update regular timer if not in bonus level
+        if (levelConfig == null || !levelConfig.isBonusLevel()) {
+            timeAcc += delta;
+            if (timeAcc >= 1.0f) {
+                timeAcc -= 1.0f;
+                countDown();
+            }
         }
     }
+
     public void countDown(){
         if (timeLeft > 0) {
             timeLeft--;
@@ -80,7 +99,6 @@ public class Scoreboard {
 
             //temporal tho
         }
-
     }
 
     public int getScore(){
@@ -90,6 +108,7 @@ public class Scoreboard {
     public int getLives(){
         return this.lives;
     }
+
     public void setTimeLeft(int time){
         this.timeLeft = time;
     }
