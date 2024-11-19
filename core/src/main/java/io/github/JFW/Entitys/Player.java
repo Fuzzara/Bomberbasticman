@@ -108,12 +108,12 @@ public class Player extends Actor {
         this.boundingBox = new Rectangle(position.x - BOUNDING_BOX_OFFSET, position.y - BOUNDING_BOX_OFFSET, BOUNDING_BOX_SIZE, BOUNDING_BOX_SIZE);
         this.shapeRenderer = new ShapeRenderer();
 
-        this.downAnimator = new Animator("bomberSpriteSheet.png", 28, 1, 0, 2, 0.5f, Animation.PlayMode.LOOP_PINGPONG);
-        this.rightAnimator = new Animator("bomberSpriteSheet.png", 28, 1, 3, 5, 0.5f, Animation.PlayMode.LOOP_PINGPONG);
-        this.upAnimator = new Animator("bomberSpriteSheet.png", 28, 1, 6, 8, 0.5f, Animation.PlayMode.LOOP_PINGPONG);
-        this.leftAnimator = new Animator("bomberSpriteSheet.png", 28, 1, 9, 11, 0.5f, Animation.PlayMode.LOOP_PINGPONG);
-        this.deathAnimator = new Animator("bomberSpriteSheet.png", 28, 1, 12, 18, 0.3f, Animation.PlayMode.LOOP);
-        this.winAnimator = new Animator("bomberSpriteSheet.png", 28, 1, 19, 27, 0.2f, Animation.PlayMode.NORMAL);
+        this.downAnimator = new Animator("bomberSpriteSheet.png", 29, 1, 0, 2, 0.5f, Animation.PlayMode.LOOP_PINGPONG);
+        this.rightAnimator = new Animator("bomberSpriteSheet.png", 29, 1, 3, 5, 0.5f, Animation.PlayMode.LOOP_PINGPONG);
+        this.upAnimator = new Animator("bomberSpriteSheet.png", 29, 1, 6, 8, 0.5f, Animation.PlayMode.LOOP_PINGPONG);
+        this.leftAnimator = new Animator("bomberSpriteSheet.png", 29, 1, 9, 11, 0.5f, Animation.PlayMode.LOOP_PINGPONG);
+        this.deathAnimator = new Animator("bomberSpriteSheet.png", 29, 1, 12, 18, 0.3f, Animation.PlayMode.LOOP);
+        this.winAnimator = new Animator("bomberSpriteSheet.png", 29, 1, 19, 28, 0.2f, Animation.PlayMode.NORMAL);
 
         this.currentAnimator = downAnimator; //default
     }
@@ -353,6 +353,11 @@ public class Player extends Actor {
         sfx.playSFX("sound/dead.mp3");
         invincibleTime = 0f;
 
+    }
+
+    public void win(){
+        this.currentAnimator = winAnimator;
+        state.setCurrentState(statePlayer.State.DOOR);
     }
     public void respawn(){
         isDead = false;

@@ -245,12 +245,12 @@ public class Map {
                 rectObject.getProperties().put("Bomb", true);
                 rectObject.getProperties().put("Indestructible", false);
             } else if (type.equals("PowerUP")) {
-                cell.setTile(tiledMap.getTileSets().getTile(4));
+                cell.setTile(tiledMap.getTileSets().getTile(46));
                 rectObject.getProperties().put("PowerUP", true);
                 rectObject.getProperties().put("Indestructible", false);
                 rectObject.getProperties().put("Pass-Through", true);
             } else if (type.equals("Door")) {
-                cell.setTile(tiledMap.getTileSets().getTile(90));
+                cell.setTile(tiledMap.getTileSets().getTile(46));
                 rectObject.getProperties().put("Door", true);
                 rectObject.getProperties().put("Indestructible", false);
                 rectObject.getProperties().put("Pass-Through", true);

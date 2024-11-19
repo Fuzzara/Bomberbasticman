@@ -59,7 +59,7 @@ public class GameScreen extends ApplicationAdapter {
     }
     private State state;
     private float transitionTimer;
-    private static final float TRANSITION_DURATION = 0f; // 1 second transition
+    private static final float TRANSITION_DURATION = 3.7f; // transicion de nivel (3.7 segundos de espera)
 
     //Constructor bonito
     public GameScreen(int level, int score) {
@@ -120,6 +120,9 @@ public class GameScreen extends ApplicationAdapter {
                 break;
             case levelTransition:
                 draw();
+                player = Player.getInstance();
+                player.win();
+                player.draw();
                 handleLevelTransition();
                 break;
         }
@@ -139,10 +142,12 @@ public class GameScreen extends ApplicationAdapter {
 
     private void handleLevelTransition() {
         transitionTimer -= Gdx.graphics.getDeltaTime();
+
         if (transitionTimer <= 0) {
             if (levelconfig.switchToNextLevel()) {
                 player = Player.getInstance();
                 player.respawn();
+                scoreboard.setTimeLeft(200);
                 // Successfully switched to next level
                 currentMap = levelconfig.getCurrentMap();
                 mapRenderer.setMap(currentMap.getTiledMap());
@@ -202,15 +207,15 @@ public class GameScreen extends ApplicationAdapter {
 
     @Override
     public void dispose() {
-        stage.dispose();
-        skin.dispose();
-        batch.dispose();
-        uiBackground.dispose();
-        sr.dispose();
-        currentMap.dispose();
-        mapRenderer.dispose();
+       // stage.dispose();
+       // skin.dispose();
+        //batch.dispose();
+        //uiBackground.dispose();
+        //sr.dispose();
+        //currentMap.dispose();
+        //mapRenderer.dispose();
         music.dispose();
-        sfx.dispose();
-        font.dispose();
+        //sfx.dispose();
+        //font.dispose();
     }
 }

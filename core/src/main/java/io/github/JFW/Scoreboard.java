@@ -48,7 +48,7 @@ public class Scoreboard {
 
         // If in bonus level, show bonus timer instead of regular time
         if (levelConfig != null && levelConfig.isBonusLevel()) {
-            font.draw(batch, String.format("%.1f", levelConfig.getBonusLevelTimer()), 300, Gdx.graphics.getHeight()-2);
+            font.draw(batch, String.format("%.0f", levelConfig.getBonusLevelTimer()), 300, Gdx.graphics.getHeight()-2);
         } else {
             font.draw(batch, "" + timeLeft, 300, Gdx.graphics.getHeight()-2);
         }
@@ -71,7 +71,6 @@ public class Scoreboard {
     public void countDown(){
         if (timeLeft > 0) {
             timeLeft--;
-            addScore(10483);
         } else {
             timeLeft = 0;
             // spawn moneda Giratoria!!!!
@@ -107,11 +106,12 @@ public class Scoreboard {
         } else {
             //GAMEOVER!!!!!!!!!!!!!
             //RESET!
-            player.setHP(3);
+            /*player.setHP(3);
             this.lives = 3;
             this.score = 0;
-            this.timeLeft = 200;
-
+            this.timeLeft = 200;*/
+            Main.getInstance().gameOver();
+            reset();
             //temporal tho
         }
     }

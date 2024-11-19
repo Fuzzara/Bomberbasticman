@@ -56,17 +56,28 @@ public class Main extends ApplicationAdapter {
                 break;
 
             case game:
-                gameScreen.render();
+                if (Scoreboard.getInstance().getLives() < 0) {
+                    this.state = State.gameover;
+                } else {
+                gameScreen.render();}
+
                 break;
             case gameover:
                 if (gameOverScreen == null)
                 {
+                    gameScreen.dispose();
+                    gameScreen = null;
                     gameOver();
                 } else {
-                    gameScreen.dispose();
                 gameOverScreen.render();
+                boolean action2 = gameOverScreen.handleInput();
+                if (action2) {
+                    dispose();
+                    System.exit(0);
+
                 }
                 break;
+            }
         }
     }
     private void startGame() {

@@ -33,7 +33,7 @@ public class GameOverScreen extends ApplicationAdapter {
     }
     public void render() {
         batch.begin();
-        batch.draw(background, 0, 0, 864, 783);
+        batch.draw(background, 0+24, 0+24, 864, 783);
         delta += Gdx.graphics.getDeltaTime();
         logoAnimation(SpriteBatchHandler.getBatch());
         if (handleInput()) {
@@ -47,7 +47,7 @@ public class GameOverScreen extends ApplicationAdapter {
             y -= speed * Gdx.graphics.getDeltaTime();
             if (y < 0) y = 0;
         }
-        batch.draw(logo, 0, y, 864, 783);
+        batch.draw(logo, 24, y+24, 864, 783);
     }
 
     public boolean handleInput() {
