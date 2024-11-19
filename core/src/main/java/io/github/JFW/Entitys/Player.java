@@ -132,18 +132,16 @@ public class Player extends Actor {
                 break;
             case GOLDEN_BOMB: //AF
                 //+1 Bomba
-                    //TODO:Nose donde dice cuantas bombas puede poner xxddddd
-                    //TODO: casi implementado pero el sistema de bombas funciona raro entonces a veces funciona y aveces no xdddxdxdxdddxdxdxdxdxdxdx
                 bombLimit = BOMB_LIMIT + 1;
                 break;
             case DETONATOR:
                 //Spacebar para detonar
-                    //guindese (funciona pero con un poco de delay?)
+                    // (funciona pero con un poco de delay?)
                 break;
             case SKATES: //AF
                 //1.5x velocidad
                     //ya esta chavales nadamas hay que poner la velocidad que es
-                speed = INITIAL_SPEED + 60;
+                speed = INITIAL_SPEED  * 1.5f;
                 break;
             case STRIPPED_BOMB:
                 //Atravesar bombas
@@ -166,7 +164,7 @@ public class Player extends Actor {
 
     public void removePowerUp(statePlayer.PowerUpType type) {
         activePowerUps.remove(type);
-        switch (type) {
+        /*switch (type) {
             case SUN:
                 // AF, no se quita
                 break;
@@ -191,7 +189,7 @@ public class Player extends Actor {
             case FIRE_MAN:
                 // Remove Fire Man effect
                 break;
-        }
+        }*/
     }
 
     public boolean hasPowerUp(statePlayer.PowerUpType type) {
@@ -341,15 +339,17 @@ public class Player extends Actor {
     }
     public void die(float delta){
         if (isDead) {
-            while (invincibleTime >= 3f) {
+            while (invincibleTime <= 3f) {
                 invincibleTime += delta;
             }
             respawn();
-        return;
+            return;
         }
 
         isDead = true;
         this.hp--;
+        this.currentAnimator = deathAnimator;
+        removeNotAFPowerUps();
         sfx.playSFX("sound/dead.mp3");
         invincibleTime = 0f;
 
@@ -362,16 +362,25 @@ public class Player extends Actor {
         isInvincible = true;
         invincibleTime = 0f;
     }
+    public void removeNotAFPowerUps() {
+        removePowerUp(statePlayer.PowerUpType.DETONATOR);
+        removePowerUp(statePlayer.PowerUpType.STRIPPED_BOMB);
+        removePowerUp(statePlayer.PowerUpType.STRIPPED_WALL);
+        removePowerUp(statePlayer.PowerUpType.QUESTION_MARK);
+        removePowerUp(statePlayer.PowerUpType.FIRE_MAN);
+    }
 
     public void update(){
         if (isInvincible) {
             invincibleTime += Gdx.graphics.getDeltaTime();
-            if (invincibleTime >= 3f) {
+            if (invincibleTime >= 2f) {
                 isInvincible = false;
                 invincibleTime = 0f;
             }
         }
-        handleInput();
+        if (!isDead) {
+            handleInput();
+        }
         updateBoundingBox();
         draw();
     }

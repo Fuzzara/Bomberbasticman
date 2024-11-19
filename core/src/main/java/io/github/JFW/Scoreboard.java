@@ -8,8 +8,6 @@ import io.github.JFW.System.SFXPlayer;
 import io.github.JFW.System.SpriteBatchHandler;
 import io.github.JFW.System.Config;
 
-import java.util.BitSet;
-
 public class Scoreboard {
     private static Scoreboard instance; //Singleton YEAHHHHHHHHHHHHHHHHHHHHHH
 
@@ -21,6 +19,7 @@ public class Scoreboard {
     private BitmapFont font;
     private SpriteBatch batch;
     private Config levelConfig;
+    private SFXPlayer sfx;
 
     private Scoreboard(){
         this.score = 0; //999999999 max
@@ -29,6 +28,7 @@ public class Scoreboard {
         batch = SpriteBatchHandler.getBatch();
         font = new BitmapFont(Gdx.files.internal("fontBomber.fnt"),Gdx.files.internal("fontBomber.png"),false);
         font.getData().setScale(1.1f);
+        sfx = new SFXPlayer();
     }
 
     public static Scoreboard getInstance(){
@@ -45,14 +45,14 @@ public class Scoreboard {
     public void render(){
         batch.begin();
         font.draw(batch, "" + score, 650, Gdx.graphics.getHeight() - 2);
-        
+
         // If in bonus level, show bonus timer instead of regular time
         if (levelConfig != null && levelConfig.isBonusLevel()) {
             font.draw(batch, String.format("%.1f", levelConfig.getBonusLevelTimer()), 300, Gdx.graphics.getHeight()-2);
         } else {
             font.draw(batch, "" + timeLeft, 300, Gdx.graphics.getHeight()-2);
         }
-        
+
         font.draw(batch, "" + lives, 113, Gdx.graphics.getHeight()-2);
         batch.end();
     }
@@ -71,14 +71,29 @@ public class Scoreboard {
     public void countDown(){
         if (timeLeft > 0) {
             timeLeft--;
+            addScore(10483);
         } else {
             timeLeft = 0;
             // spawn moneda Giratoria!!!!
         }
     }
 
-    public void addScore(int score){
-        this.score += score;
+    public void addScore(int newScore){
+        int oldScoreFirstDigit = this.score;
+        this.score += newScore;
+        int scoreNewFirstDigit = this.score;
+        while (oldScoreFirstDigit > 9) {
+            oldScoreFirstDigit /= 10;
+        }
+        while (scoreNewFirstDigit > 9) {
+            scoreNewFirstDigit /=10;
+        }
+        if (oldScoreFirstDigit != scoreNewFirstDigit && this.score > 99999) {
+            sfx.playSFX("sound/1up.mp3");
+            this.lives++;
+            player = Player.getInstance();
+            player.setHP(player.getHP() + 1);
+        }
     }
 
     public void removeLife(){

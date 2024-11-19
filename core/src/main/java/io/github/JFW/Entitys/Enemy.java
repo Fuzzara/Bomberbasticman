@@ -29,9 +29,9 @@ public class Enemy extends Actor {
     //Enemy atributes
     private final boolean noclip; // Atraviesa muros ig
     private final int ai;
-    private final int score;
     private final Vector2 position;
     private final float speed;
+    private final int score;
 
     //Sprites
     private final SpriteBatch batch;
@@ -41,9 +41,12 @@ public class Enemy extends Actor {
     private Map currentMap;
     private final Rectangle boundingBox;
     private final Player player;
+    //Ai stuff
+    private EnemyAlgorithm algo;
+    private stateEnemy.State nextDirection;
+
 
     private final stateEnemy state;
-
     private ShapeRenderer shapeRenderer;
 
     private float directionChangeTimer = 0;
@@ -74,7 +77,7 @@ public class Enemy extends Actor {
         return boundingBox;
     }
 
-    private boolean isCollision(float x, float y) {
+    public boolean isCollision(float x, float y) {
         Rectangle enemyRect = new Rectangle(x, y, boundingBox.width, boundingBox.height);
 
         //solamente se necesita checkear esto si el enemigo puede atravesar muros
@@ -187,6 +190,10 @@ public class Enemy extends Actor {
         if (nextDirection != stateEnemy.State.STUCK){movetoNextDirection(nextDirection,deltaTime);}
     }
 
+    int getScore(){
+        return score;
+    }
+
     private stateEnemy.State closestDirectiontoPlayer(float x, float y, Vector2 PlayerPosition){
         if (Math.abs(x) > Math.abs(y)){ // si la distancia es mas grande horizontalmente
             if (PlayerPosition.x < position.x ){
@@ -268,6 +275,53 @@ public class Enemy extends Actor {
                 break;
         }
     }
+    private void movetoNextDirection(){
+        float deltaTime = Gdx.graphics.getDeltaTime();
+        switch(nextDirection){
+            case LEFT:
+                move(-speed * deltaTime, 0);
+                state.setCurrentState(stateEnemy.State.LEFT);
+                break;
+            case RIGHT:
+                move(speed * deltaTime, 0);
+                state.setCurrentState(stateEnemy.State.RIGHT);
+                break;
+            case DOWN:
+                move(0, -speed * deltaTime);
+                state.setCurrentState(stateEnemy.State.DOWN);
+                break;
+            case UP:
+                move(0, speed * deltaTime);
+                state.setCurrentState(stateEnemy.State.UP);
+                break;
+            case STUCK:
+                moveRandomly();
+        }
+    }
+
+    //la posicion del enemigo y del jugador en la matriz se vuelven menos precisas mientras se mueven
+    //si se arregla eso el algoritmo ya queda
+
+    private void algorithm(){
+        algo = new EnemyAlgorithm(this,currentMap);
+        this.nextDirection = algo.optimalDirection();
+        movetoNextDirection();
+
+    }
+
+    public int[] getCenterPositions(){
+        // enemy center position
+
+        int centerTileX = (int) ((position.x + SPRITE_WIDTH / 2) / currentMap.getCollisionLayer().getTileWidth());
+        int centerTileY = (int) ((position.y + SPRITE_WIDTH / 2) / currentMap.getCollisionLayer().getTileWidth());//cambiar esto a sprite height maybe
+
+        //player center position
+
+        Vector2 playerposition = player.getPosition();
+        int centerTileXP = (int) ((playerposition.x + SPRITE_WIDTH / 2) / currentMap.getCollisionLayer().getTileWidth());
+        int centerTileYP = (int) ((playerposition.y + SPRITE_WIDTH / 2) / currentMap.getCollisionLayer().getTileWidth());
+        return new int[]{centerTileX,centerTileY,centerTileXP,centerTileYP};
+    }
 
     public void draw() {
         batch.begin();
@@ -292,5 +346,12 @@ public class Enemy extends Actor {
 
     public void changeState(stateEnemy.State newState) {
         this.state.setCurrentState(newState);
+    }
+    public Vector2 getPosition() {
+        return position;
+    }
+
+    public float getSpeed(){
+        return speed;
     }
 }

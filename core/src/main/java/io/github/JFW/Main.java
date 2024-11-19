@@ -1,5 +1,6 @@
 package io.github.JFW;
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import io.github.JFW.System.SFXPlayer;
@@ -8,14 +9,25 @@ import io.github.JFW.System.SpriteBatchHandler;
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
     private MainMenu mainMenu;
+    private static Main instance;
     private SpriteBatch batch;
     private GameScreen gameScreen;
+    private GameOverScreen gameOverScreen;
     private SFXPlayer sfx = new SFXPlayer();
     public enum State { //states del juego
         mainMenu,
         game,
+        gameover
     }
     private State state;
+    public Main() {}
+    public static Main getInstance() {
+        if (instance == null) {
+            instance = new Main();
+        }
+        return instance;
+    }
+
 
     @Override
     public void create() {
@@ -46,11 +58,28 @@ public class Main extends ApplicationAdapter {
             case game:
                 gameScreen.render();
                 break;
+            case gameover:
+                if (gameOverScreen == null)
+                {
+                    gameOver();
+                } else {
+                    gameScreen.dispose();
+                gameOverScreen.render();
+                }
+                break;
         }
     }
     private void startGame() {
+
         gameScreen = new GameScreen(1, 0); // level 0, score 0
-        state = State.game;
+        this.state = State.game;
+    }
+    public void gameOver() {
+        gameOverScreen = new GameOverScreen();
+        this.state = State.gameover;
+    }
+    public void setState(State newState) {
+       this.state = newState;
     }
 
 

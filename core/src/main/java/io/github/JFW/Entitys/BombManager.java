@@ -37,7 +37,7 @@ public class BombManager {
         }
         nextBombTime += deltaTime;
             if (inputHandler.canPlaceBomb()) {
-                if (nextBombTime >= 0.5f) {
+                if (nextBombTime >= 0.3f) {
                     sfx.playSFX("sound/placeBomb.mp3");
                     nextBombTime = 0f;
                     placeBomb(playerPosition);
@@ -46,8 +46,8 @@ public class BombManager {
     }
 
     private void placeBomb(Vector2 playerPosition) {
-        // Calcular la posición de la bomba según la del jugador
 
+        // Calcular la posición de la bomba según la del jugador
         TiledMapTileLayer layer = (TiledMapTileLayer) currentMap.getTiledMap().getLayers().get(0);
         float tileWidth = layer.getTileWidth() * 3;
         float tileHeight = layer.getTileHeight() * 3;
@@ -57,6 +57,7 @@ public class BombManager {
         float bombX = tileX * tileWidth;
         float bombY = tileY * tileHeight;
 
+        //Creacion de la bomba!
         Bomb bomb = new Bomb(bombX, bombY, actors, currentMap);
         //System.out.println("Nueva bomba colocada en: " + bombX + ", " + bombY);
     }
