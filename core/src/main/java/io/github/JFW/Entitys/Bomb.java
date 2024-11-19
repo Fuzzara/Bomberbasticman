@@ -256,9 +256,9 @@ public class Bomb extends Actor{
             Enemy enemy = enemyIterator.next();
             Rectangle enemyBounds = enemy.getBoundingBox();
             if (horizHB.overlaps(enemyBounds) || vertHB.overlaps(enemyBounds)) {
-                int score = (enemy.getScore()*multiplier);
-                scoreboard.addScore(score); //implementar multiplier
-                multiplier++;
+                //int score = (enemy.getScore()*multiplier);
+                //scoreboard.addScore(score); //implementar multiplier
+                //multiplier++;
                 enemyIterator.remove(); // Remove enemy if hit by explosion
             }
         }
