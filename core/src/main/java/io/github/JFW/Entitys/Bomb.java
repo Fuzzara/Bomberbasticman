@@ -236,10 +236,17 @@ public class Bomb extends Actor{
         );
 
         //Detecta si el jugador esta en la explosion
-        if ((horizHB.overlaps(player.getBoundingBox()) || vertHB.overlaps(player.getBoundingBox())
-            && (!player.hasPowerUp(PowerUpType.FIRE_MAN)) && !player.hasPowerUp(PowerUpType.QUESTION_MARK))) {
-            scoreboard.removeLife();
+        if (!player.hasPowerUp(PowerUpType.QUESTION_MARK)) {
+            if (!player.hasPowerUp(PowerUpType.FIRE_MAN)) {
+                if (horizHB.overlaps(player.getBoundingBox()) || vertHB.overlaps(player.getBoundingBox())) {
+                    scoreboard.removeLife();
+                }
+            }
         }
+       /* if ((( horizHB.overlaps(player.getBoundingBox()) && (!player.hasPowerUp(PowerUpType.FIRE_MAN)) || !player.hasPowerUp(PowerUpType.QUESTION_MARK))
+            || (vertHB.overlaps(player.getBoundingBox()) && (!player.hasPowerUp(PowerUpType.FIRE_MAN)) || !player.hasPowerUp(PowerUpType.QUESTION_MARK)))) {
+            scoreboard.removeLife();
+        }*/
 
         // Check for enemy collisions with explosion
         ArrayList<Enemy> enemies = actors.getEnemies();

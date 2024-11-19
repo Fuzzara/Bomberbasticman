@@ -29,7 +29,7 @@ public class MapSystem {
 
         //Primera skin 1
         maps.add(new Map("maps/lvl1.tmx", 0)); //este no cuenta porque la mierda es indice 1
-        maps.add(new Map("maps/lvl1.tmx", 0));
+        maps.add(new Map("maps/lvl1.tmx", 7));
         maps.add(new Map("maps/lvl1.tmx", 1));
         maps.add(new Map("maps/lvl1.tmx", 2));
         maps.add(new Map("maps/lvl1.tmx", 3));

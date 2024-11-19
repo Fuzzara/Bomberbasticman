@@ -45,6 +45,7 @@ public class Enemy extends Actor {
     //Ai stuff
     private EnemyAlgorithm algo;
     private stateEnemy.State nextDirection;
+    private int[] lastXY;
 
     private Scoreboard scoreboard;
 
@@ -68,11 +69,13 @@ public class Enemy extends Actor {
         shapeRenderer = new ShapeRenderer();
 
         //por mientras, cambiar!
-        this.boundingBox = new Rectangle(position.x, position.y, BOUNDING_BOX_SIZE, BOUNDING_BOX_SIZE);
+        this.boundingBox = new Rectangle(position.x - BOUNDING_BOX_OFFSET, position.y - BOUNDING_BOX_OFFSET, BOUNDING_BOX_SIZE, BOUNDING_BOX_SIZE);
         player = Player.getInstance();
 
         this.state = new stateEnemy();
         this.scoreboard = Scoreboard.getInstance();
+
+        this.lastXY = new int[]{99,99};
     }
 
     // Add getBoundingBox method to expose the enemy's collision box
@@ -115,7 +118,7 @@ public class Enemy extends Actor {
             }
         }
 
-        if (enemyRect.overlaps(player.getBoundingBox())) {
+        if (enemyRect.overlaps(player.getBoundingBoxEnemy())) {
             //System.out.println("Player hit by enemy!");
             scoreboard.removeLife();
 
@@ -304,8 +307,13 @@ public class Enemy extends Actor {
         }
     }
 
-    //la posicion del enemigo y del jugador en la matriz se vuelven menos precisas mientras se mueven
-    //si se arregla eso el algoritmo ya queda
+    //problemas
+    //se queda pegado ya que hace sus calculos en base al centro de cada casilla
+    //pero puede spawnear donde sea
+    //por esta razon el asume que esta en el centro de la casilla cuando se mueve a una nueva casilla
+    //pero si esta en el borde de la casilla esto puede hacer que choque con muros
+    //"x" y "y" estan reversados en varios lugares idk es medio enrededado
+
 
     private void algorithm(){
         algo = new EnemyAlgorithm(this,currentMap);
@@ -335,15 +343,15 @@ public class Enemy extends Actor {
     }
 
     public void update() {
-        chasing();
-        //moveRandomly();
+        //chasing();
+        moveRandomly();
+        //algorithm;
         updateBoundingBox();
         draw();
     }
 
     private void updateBoundingBox() {
-        System.out.println(position.x + " " + position.y);
-        boundingBox.setPosition(position.x, position.y-24);
+        boundingBox.setPosition(position.x - BOUNDING_BOX_OFFSET, position.y - 34);
     }
 
     public void setCurrentMap(Map map) {
@@ -360,4 +368,16 @@ public class Enemy extends Actor {
     public float getSpeed(){
         return speed;
     }
+
+    public void setLastX(int x){
+        lastXY[0] = x;
+    }
+    public void setLastY(int y){
+        lastXY[1] = y;
+    }
+
+    public int[] getLastXY(){
+        return lastXY;
+    }
+
 }

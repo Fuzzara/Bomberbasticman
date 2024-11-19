@@ -20,7 +20,7 @@ public class Scoreboard {
     private SpriteBatch batch;
     private Config levelConfig;
     private SFXPlayer sfx;
-    private boolean timeOutProcessed; // New flag to track if timeout was processed
+    private boolean timeOutProcessed;
 
     private Scoreboard(){
         this.score = 0; //999999999 max
@@ -48,7 +48,7 @@ public class Scoreboard {
         batch.begin();
         font.draw(batch, "" + score, 650, Gdx.graphics.getHeight() - 2);
 
-        // If in bonus level, show bonus timer instead of regular time
+        // Si es un nivel bonus, mostrar el tiempo restante del bonus
         if (levelConfig != null && levelConfig.isBonusLevel()) {
             font.draw(batch, String.format("%.0f", levelConfig.getBonusLevelTimer()), 300, Gdx.graphics.getHeight()-2);
         } else {
@@ -60,8 +60,7 @@ public class Scoreboard {
     }
 
     public void update(float delta){
-        // Only update regular timer if not in bonus level
-        if (levelConfig == null || !levelConfig.isBonusLevel()) {
+        if (levelConfig == null || !levelConfig.isBonusLevel()) { //Si no es un nivel bonus
             timeAcc += delta;
             if (timeAcc >= 1.0f) {
                 timeAcc -= 1.0f;
@@ -73,13 +72,12 @@ public class Scoreboard {
     public void countDown(){
         if (timeLeft > 0) {
             timeLeft--;
-            timeOutProcessed = false; // Reset flag when time is counting down
-        } else if (!timeOutProcessed) { // Only process timeout once
+            timeOutProcessed = false;
+        } else if (!timeOutProcessed) {
             timeLeft = 0;
-            Gdx.app.error("Scoreboard", "esta pinga no esta spawneando bichos");
             GlobalAccess.getInstance().getConfig().timerOutEnemies();
-            timeLeft = 200; // Reset timer after spawning enemies
-            timeOutProcessed = true; // Set flag to prevent multiple calls
+            timeLeft = 200;
+            timeOutProcessed = true;
         }
     }
 
@@ -104,11 +102,9 @@ public class Scoreboard {
     public void removeLife(){
         player = Player.getInstance();
         if (player.getHP() >= 0) {
-
             if (!player.getInvincible()) {
                 player.die(Gdx.graphics.getDeltaTime());;
                 this.lives = player.getHP();
-                return;
             }
         } else {
             Main.getInstance().gameOver();

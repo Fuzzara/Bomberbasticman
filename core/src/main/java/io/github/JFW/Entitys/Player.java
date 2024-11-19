@@ -43,6 +43,8 @@ public class Player extends Actor {
     private int bombLimit = BOMB_LIMIT;
 
     private Set<statePlayer.PowerUpType> activePowerUps = EnumSet.noneOf(statePlayer.PowerUpType.class);
+    private boolean isFireProtectedTemp = false;
+    private float fireProtectionTime = 60f;
 
     // Position and movement
     private Vector2 position;
@@ -70,7 +72,6 @@ public class Player extends Actor {
     private Map currentMap;
 
     //Sound
-    private Sound walkSound;
     private float walkSoundTime;
     private SFXPlayer sfx;
 
@@ -154,7 +155,8 @@ public class Player extends Actor {
                 break;
             case QUESTION_MARK:
                 //Invulnerabilidad al fuego 60 segundos?
-                    //TODO:nose como manejar tiempo pero hay que ver como quitarselo. AYUDA JUSTIN PORFAVOR
+                    float delta = Gdx.graphics.getDeltaTime();
+                    isFireProtectedTemp = true;
                 break;
             case FIRE_MAN:
                 //Invulnerabilidad al fuego
@@ -165,7 +167,7 @@ public class Player extends Actor {
 
     public void removePowerUp(statePlayer.PowerUpType type) {
         activePowerUps.remove(type);
-        /*switch (type) {
+        switch (type) {
             case SUN:
                 // AF, no se quita
                 break;
@@ -185,12 +187,10 @@ public class Player extends Actor {
                 // Remove Stripped Wall effect
                 break;
             case QUESTION_MARK:
-                // Remove Question Mark effect
                 break;
             case FIRE_MAN:
-                // Remove Fire Man effect
                 break;
-        }*/
+        }
     }
 
     public boolean hasPowerUp(statePlayer.PowerUpType type) {
@@ -328,6 +328,9 @@ public class Player extends Actor {
     public Rectangle getBoundingBox(){
         return boundingBox;
     }
+    public Rectangle getBoundingBoxEnemy(){
+        return new Rectangle(boundingBox.x+12, boundingBox.y+12, 48, 48);
+    }
 
     public float getSpeed() {
         return speed;
@@ -387,6 +390,14 @@ public class Player extends Actor {
                     isInvincible = false;
                     invincibleTime = 0f;
                 }
+            }
+        }
+        if (isFireProtectedTemp) {
+            System.out.println("Fire protection time: " + fireProtectionTime);
+            fireProtectionTime -= Gdx.graphics.getDeltaTime();
+            if (fireProtectionTime <= 0) {
+                removePowerUp(statePlayer.PowerUpType.QUESTION_MARK);
+                isFireProtectedTemp = false;
             }
         }
         if (!isDead) {

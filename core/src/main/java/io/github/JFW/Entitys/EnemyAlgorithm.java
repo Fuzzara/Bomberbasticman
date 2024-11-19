@@ -75,6 +75,7 @@ public class EnemyAlgorithm {
         viewingmatrix();
     }
 
+    //game specific
     public stateEnemy.State optimalDirection(){
 
         if(pathList.isEmpty()){
@@ -84,73 +85,75 @@ public class EnemyAlgorithm {
         }
 
         if (pathList.getFirst().getCol() < startNode.getCol() && pathList.getFirst().getRow() == startNode.getRow()){
-            Gdx.app.error("Enemy","going left");
-            this.state = stateEnemy.State.LEFT;
+            Gdx.app.error("Enemy","going up");
+            this.state = stateEnemy.State.UP;
             horizontal();
+            return this.state;
+
+
 
         }
 
         else if(pathList.getFirst().getCol() > startNode.getCol() && pathList.getFirst().getRow() == startNode.getRow()){
-            Gdx.app.error("Enemy","going right");
-            this.state = stateEnemy.State.RIGHT;
+            Gdx.app.error("Enemy","going down");
+            this.state = stateEnemy.State.DOWN;
             horizontal();
+            return this.state;
+
 
         }
 
         else if (pathList.getFirst().getRow() < startNode.getRow() && pathList.getFirst().getCol() == startNode.getCol()){
-            Gdx.app.error("Enemy","going up");
-            this.state = stateEnemy.State.UP;
+            Gdx.app.error("Enemy","going left");
+            this.state = stateEnemy.State.LEFT;
             vertical();
+            return this.state;
+
 
         }
 
         else if (pathList.getFirst().getRow() > startNode.getRow() && pathList.getFirst().getCol() == startNode.getCol()){
-            Gdx.app.error("Enemy","going down");
-            this.state = stateEnemy.State.DOWN;
+            Gdx.app.error("Enemy","going right");
+            this.state = stateEnemy.State.RIGHT;
             vertical();
+            return this.state;
+
 
         }
 
         return this.state;
     }
 
+    //trying to fix
     private void horizontal(){
-        Vector2 currentposition = enemyposition;
-        Vector2 nextposition = getActualCenterPosition(pathList.getFirst().getCol(),pathList.getFirst().getRow());
         if(!ValidDirection(state)){
-            if(currentposition.y > nextposition.y){ //logica al reves
-                this.state = stateEnemy.State.UP;
-                Gdx.app.error("nvm","going up");
-            }
-            else if(currentposition.y < nextposition.y){ //logica al reves
-                this.state = stateEnemy.State.DOWN;
-                Gdx.app.error("nvm","going down");
-            }
-        }
-    }
-
-    private void vertical(){
-        Vector2 currentposition = enemyposition;
-        Vector2 nextposition = getActualCenterPosition(pathList.getFirst().getCol(),pathList.getFirst().getRow());
-        if(!ValidDirection(this.state)){
-            if(currentposition.x > nextposition.x){
+            if (enemy.getLastXY()[1] > startNode.getCol() ){ //al reves
                 this.state = stateEnemy.State.LEFT;
                 Gdx.app.error("nvm","going left");
             }
-            else if(currentposition.x < nextposition.x){
+            else if (enemy.getLastXY()[1] < startNode.getCol() ){
                 this.state = stateEnemy.State.RIGHT;
                 Gdx.app.error("nvm","going right");
+            }
+
+        }
+    }
+
+    //trying to fix
+    private void vertical(){
+        if(!ValidDirection(state)){
+            if (enemy.getLastXY()[0] > startNode.getCol() ){ //al reves
+                this.state = stateEnemy.State.UP;
+                Gdx.app.error("nvm","going up");
+            }
+            else if(enemy.getLastXY()[0] < startNode.getCol()){
+                this.state = stateEnemy.State.DOWN;
+                Gdx.app.error("nvm","going down");
+
             }
         }
     }
 
-
-
-    private Vector2 getActualCenterPosition(int centerTileX,int centerTileY){
-        float x = (centerTileX * currentMap.getCollisionLayer().getTileWidth()) - (48/2.0f);
-        float y = (centerTileY * currentMap.getCollisionLayer().getTileWidth()) - (48/2.0f);
-        return new Vector2(x,y);
-    }
 
     private boolean ValidDirection(stateEnemy.State nextDirection){
         float deltaTime = Gdx.graphics.getDeltaTime();
@@ -172,26 +175,46 @@ public class EnemyAlgorithm {
         return state;
     }
 
-    public void setNodes(){
-        //Start and Goal Nodes
+    //funcion para debugging
+    private void viewingmatrix(){
         int[] EandPposition = enemy.getCenterPositions();
         EandPposition[1] = fixingY(EandPposition[1]);
         EandPposition[3] = fixingY(EandPposition[3]);
-        setStartNode(EandPposition[0],EandPposition[1]);
-        setGoalNode(EandPposition[2],EandPposition[3]);
-
-        //Obstacles or Solid Nodes
-        setAllSolidNodes();
-        setCostNodes();
-
-        //Search for a path
-        autoSearch();
-    }
 
 
-    private int fixingY(int y){
-        int maxY = 14;
-        return maxY-y+1;
+
+        System.out.println("Player position "+EandPposition[3]+" "+EandPposition[2]);
+        System.out.println("Enemy position "+EandPposition[1]+" "+EandPposition[0] );
+        System.out.print("Last X: " + enemy.getLastXY()[0]+ " Last Y: "+ enemy.getLastXY()[1] + " \n");
+
+        int[][] array = new int[maxCol][maxRow];
+
+        for (int i=0;i<maxCol;i++){
+            for(int ii=0;ii<maxRow;ii++){
+                array[i][ii] = 0;
+            }
+        }
+
+        for (int i=0;i<maxCol;i++){
+            for(int ii=0;ii<maxRow;ii++){
+                if (isIndestructible(i,ii)){
+                    array[fixingY(ii)][i] = 1;
+                }
+                else if (isDestructible(i,ii)){
+                    array[fixingY(ii)][i] = 3;
+                }
+            }
+        }
+        array[EandPposition[1]][EandPposition[0]] = 4;
+        array[EandPposition[3]][EandPposition[2]] = 5;
+
+        for (int i=0;i<maxCol;i++){
+            for(int ii=0;ii<maxRow;ii++){
+                System.out.print(array[i][ii]+" ");
+            }
+            System.out.println("\n");
+        }
+        System.out.println("End of matrix"+"\n");
     }
 
     private boolean isDestructible(int x, int y){
@@ -229,6 +252,37 @@ public class EnemyAlgorithm {
         }
         return false;
     }
+
+    //algorithm specific
+    public void setNodes(){
+        //Start and Goal Nodes
+        int[] EandPposition = enemy.getCenterPositions();
+        EandPposition[1] = fixingY(EandPposition[1]);
+        EandPposition[3] = fixingY(EandPposition[3]);
+        if (Math.abs(enemy.getLastXY()[0] - EandPposition[1]) > 1 ){
+            enemy.setLastX(EandPposition[1]);
+        }
+        else if (Math.abs(enemy.getLastXY()[1] - EandPposition[0]) > 1){
+            enemy.setLastY(EandPposition[0]);
+        }
+        setStartNode(EandPposition[1],EandPposition[0]);
+        setGoalNode(EandPposition[3],EandPposition[2]);
+
+        //Obstacles or Solid Nodes
+        setAllSolidNodes();
+        setCostNodes();
+
+        //Search for a path
+        autoSearch();
+    }
+
+
+    private int fixingY(int y){
+        int maxY = 14;
+        return maxY-y+1;
+    }
+
+
 
     private void setStartNode(int col, int row){
         node[col][row].setAsStart();
@@ -339,7 +393,6 @@ public class EnemyAlgorithm {
                 trackThePath();
             }
 
-            limit++;
         }
     }
 
@@ -363,63 +416,5 @@ public class EnemyAlgorithm {
             current = current.getParent();
 
         }
-    }
-
-    public void resetNodes(){
-        for (int i=0;i<maxCol;i++){
-            for(int ii=0;ii<maxRow;ii++){
-                node[ii][i].open = false;
-                node[ii][i].checked = false;
-                node[ii][i].solid = false;
-                node[ii][i].start = false;
-                node[ii][i].goal = false;
-
-            }
-        }
-        openList.clear();
-        pathList.clear();
-        goalReached = false;
-        limit = 0;
-    }
-
-    private void viewingmatrix(){
-        int[] EandPposition = enemy.getCenterPositions();
-        EandPposition[1] = fixingY(EandPposition[1]);
-        EandPposition[3] = fixingY(EandPposition[3]);
-        setStartNode(EandPposition[0],EandPposition[1]);
-        setGoalNode(EandPposition[2],EandPposition[3]);
-
-
-        System.out.println("Player position "+EandPposition[2]+" "+EandPposition[3]);
-        System.out.println("Enemy position "+EandPposition[0]+" "+EandPposition[1] );
-
-        int[][] array = new int[maxCol][maxRow];
-
-        for (int i=0;i<maxCol;i++){
-            for(int ii=0;ii<maxRow;ii++){
-                array[i][ii] = 0;
-            }
-        }
-
-        for (int i=0;i<maxCol;i++){
-            for(int ii=0;ii<maxRow;ii++){
-                if (isIndestructible(i,ii)){
-                    array[fixingY(ii)][i] = 1;
-                }
-                else if (isDestructible(i,ii)){
-                    array[fixingY(ii)][i] = 3;
-                }
-            }
-        }
-        array[EandPposition[0]][EandPposition[1]] = 4;
-        array[EandPposition[2]][EandPposition[3]] = 5;
-
-        for (int i=0;i<maxCol;i++){
-            for(int ii=0;ii<maxRow;ii++){
-                System.out.print(array[i][ii]+" ");
-            }
-            System.out.println("\n");
-        }
-        System.out.println("End of matrix"+"\n");
     }
 }
