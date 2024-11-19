@@ -270,6 +270,9 @@ public class Enemy extends Actor {
     public float getSpeed(){
         return speed;
     }
+    public int getScore(){
+        return score;
+    }
 
     public void setLastX(int x){
         lastXY[0] = x;
