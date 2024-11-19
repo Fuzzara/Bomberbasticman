@@ -26,6 +26,8 @@ public class Config {
     private Actors actors;
     private final SpriteBatch batch;
     private int currentLevel;
+
+    // Bonus level!
     private float bonusLevelTimer = 30f; // 30 seconds for bonus levels
     private float enemyRespawnTimer = 5f; // 5 seconds between enemy respawns
     private boolean isBonusLevel = false;
@@ -49,7 +51,7 @@ public class Config {
         if (isBonusLevel) {
             bonusLevelTimer = 30f; // Reset bonus level timer
             enemyRespawnTimer = 5f; // Reset enemy respawn timer
-            Gdx.app.debug("Config", "Bonus level started! Timer: " + bonusLevelTimer);
+            //Gdx.app.debug("Config", "Bonus level started! Timer: " + bonusLevelTimer);
         }
 
         if (actors == null) {
@@ -65,14 +67,14 @@ public class Config {
             setupenemies(currentLevel);
         }
         currentMap.setActors(actors);
-        Gdx.app.debug("Config", "Level " + n + " setup complete");
+        //Gdx.app.debug("Config", "Level " + n + " setup complete");
         return currentMap;
     }
 
     public boolean switchToNextLevel() {
         int nextLevel = currentLevel + 1;
         if (nextLevel < mapSystem.getMapCount()) {
-            Gdx.app.debug("Config", "Switching to level " + nextLevel);
+            //Gdx.app.debug("Config", "Switching to level " + nextLevel);
 
             // Setup next level and ensure player's map reference is updated
             currentMap = setuplevel(nextLevel);
@@ -81,7 +83,7 @@ public class Config {
             }
             return true;
         }
-        Gdx.app.debug("Config", "No more levels available, restarting from level 0");
+       // Gdx.app.debug("Config", "No more levels available, restarting from level 0");
         return false;
     }
 
@@ -92,7 +94,7 @@ public class Config {
 
         // For bonus levels, check if time is up
         if (isBonusLevel && bonusLevelTimer <= 0) {
-            Gdx.app.debug("Config", "Bonus level time up!");
+            //Gdx.app.debug("Config", "Bonus level time up!");
             return true;
         }
 
@@ -108,7 +110,7 @@ public class Config {
                         // Check if player is at the door and there are no enemies left
                         ArrayList<Enemy> enemies = actors.getEnemies();
                         if (doorRect.overlaps(playerRect) && enemies.isEmpty()) {
-                            Gdx.app.debug("Config", "Level " + currentLevel + " completed!");
+                            //Gdx.app.debug("Config", "Level " + currentLevel + " completed!");
                             return true;
                         }
                     }
