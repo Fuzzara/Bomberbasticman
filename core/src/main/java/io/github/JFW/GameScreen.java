@@ -5,6 +5,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
@@ -28,6 +29,7 @@ public class GameScreen extends ApplicationAdapter {
     private Skin skin;
     private SpriteBatch batch;
     private Texture uiBackground;
+    private BitmapFont font;
 
     //Config y Mapa
     private Config levelconfig;
@@ -70,6 +72,7 @@ public class GameScreen extends ApplicationAdapter {
 
         stage = new Stage(new ExtendViewport(864, 783));
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        font = new BitmapFont(Gdx.files.internal("fontbomber.fnt"));
 
         uiBackground = new Texture(Gdx.files.internal("uibg.png"));
 
@@ -81,6 +84,9 @@ public class GameScreen extends ApplicationAdapter {
         camera.position.set((864/2)+24, (783/2)+24, 0);
 
         levelconfig = new Config(batch);
+        // Pass the Config instance to Scoreboard
+        scoreboard.setLevelConfig(levelconfig);
+
         currentMap = levelconfig.setuplevel(level);
         mapRenderer = new OrthogonalTiledMapRenderer(currentMap.getTiledMap(),3f);
 
@@ -91,7 +97,7 @@ public class GameScreen extends ApplicationAdapter {
 
     private void updateMusic(int level) {
         music.stopMusic();
-        if (level > 0 && (level+ 1) % 5 == 0) {
+        if (level > 0 && (level) % 5 == 0) {
             music.playMusic("sound/lvlmusic/bonus.mp3");
         } else {
             int musicLevel = (level / 5) + 1;
@@ -119,7 +125,6 @@ public class GameScreen extends ApplicationAdapter {
         }
         scoreboard.render();
         inputExtra();
-
     }
 
     private void checkLevelCompletion() {
@@ -206,5 +211,6 @@ public class GameScreen extends ApplicationAdapter {
         mapRenderer.dispose();
         music.dispose();
         sfx.dispose();
+        font.dispose();
     }
 }

@@ -19,6 +19,7 @@ public class Map {
     private TiledMap tiledMap;
     private TiledMapTileLayer collisionLayer;
     private TiledMapTileLayer obstacleLayer;
+    private boolean BONUS = false;
 
     private final int LEVEL_POWERUP;
 
@@ -29,6 +30,13 @@ public class Map {
     public Map(String mapPath, int powerUP) {
         tiledMap = new TmxMapLoader().load(mapPath);
         TiledMapTileLayer baseLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
+
+        // Set bonus flag for lvl6.tmx maps
+        if(mapPath.equals("maps/lvl6.tmx")){
+            DESTROYABLE_WALL = 0;
+            BONUS = true;
+            Gdx.app.debug("Map", "Bonus level loaded");
+        }
 
         // Initialize obstacle layer
         obstacleLayer = new TiledMapTileLayer(baseLayer.getWidth(), baseLayer.getHeight(),
@@ -44,6 +52,10 @@ public class Map {
 
         this.LEVEL_POWERUP = powerUP;
         PrepareMapCollisions();
+    }
+
+    public boolean isBonus() {
+        return BONUS;
     }
 
     public void clearCollisionLayer() {
@@ -227,7 +239,7 @@ public class Map {
                 cell.setTile(tiledMap.getTileSets().getTile(13));
                 rectObject.getProperties().put("Indestructible", true);
             } else if (type.equals("Bomb")) {
-                cell.setTile(tiledMap.getTileSets().getTile(100));
+                cell.setTile(tiledMap.getTileSets().getTile(200));
                 rectObject.getProperties().put("Bomb", true);
                 rectObject.getProperties().put("Indestructible", false);
             } else if (type.equals("PowerUP")) {
