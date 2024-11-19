@@ -2,7 +2,6 @@ package io.github.JFW.System;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
@@ -14,11 +13,10 @@ import io.github.JFW.Entitys.Player;
 import io.github.JFW.MapEnv.Map;
 import io.github.JFW.MapEnv.MapSystem;
 
-import java.util.Random;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Config {
-
     private Map currentMap;
     private MapSystem mapSystem;
     private Player player;
@@ -26,9 +24,8 @@ public class Config {
     private final SpriteBatch batch;
     private int currentLevel;
 
-    // Bonus level!
-    private float bonusLevelTimer = 30f; // 30 seconds for bonus levels
-    private float enemyRespawnTimer = 5f; // 5 seconds between enemy respawns
+    private float bonusLevelTimer = 30f;
+    private float enemyRespawnTimer = 5f;
     private boolean isBonusLevel = false;
     private boolean soundPlayed = false;
     private SFXPlayer sfx = new SFXPlayer();
@@ -42,10 +39,56 @@ public class Config {
         globalaccess.setConfig(this);
     }
 
-    public int randomPowerUp(){
+    public void timerOutEnemies() {
+        ArrayList<Enemy> enemies = actors.getEnemies();
+        // Store old enemy positions before clearing
+        ArrayList<Rectangle> oldPositions = new ArrayList<>();
+        for (Enemy enemy : enemies) {
+            oldPositions.add(new Rectangle(enemy.getBoundingBox()));
+        }
+
+        // Clear existing enemies
+        enemies.clear();
+
+        // Create new type 6 enemies at old positions
+        for (Rectangle pos : oldPositions) {
+            Enemy enemy = EnemyFactory.createEnemy(6, (int) pos.x + 24, (int) pos.y +24, currentMap, player.getSpeed());
+            if (enemy != null) {
+                actors.updateEnemies(enemy);
+            }
+        }
+
+        // Create additional type 6 enemies in random positions
+        int[] enemyTypes = getEnemyTypesForLevel(currentLevel);
+        for (int i = 0; i < enemyTypes.length; i++) {
+            int maxAttempts = 100; // Prevent infinite loops
+            int attempts = 0;
+            boolean StuckinEnvironment = true;
+            Random rand = new Random();
+
+            while (StuckinEnvironment && attempts < maxAttempts) {
+                attempts++;
+                int x = rand.nextInt((775 - 335) + 1) + 355;
+                int y = rand.nextInt((385 - 50) + 1) + 50;
+                Rectangle rect = new Rectangle(x, y, 34, 34);
+                StuckinEnvironment = stuck(rect);
+
+                if (!StuckinEnvironment) {
+                    Enemy enemy = EnemyFactory.createEnemy(6, x, y, currentMap, player.getSpeed());
+                    if (enemy != null) {
+                        actors.updateEnemies(enemy);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    // Rest of the class remains unchanged
+    public int randomPowerUp() {
         Random rand = new Random();
         int x = rand.nextInt(7);
-        while (Player.getInstance().hasPowerUp(statePlayer.PowerUpType.values()[x])){
+        while (Player.getInstance().hasPowerUp(statePlayer.PowerUpType.values()[x])) {
             x = rand.nextInt(7);
         }
         return x;
@@ -60,12 +103,10 @@ public class Config {
 
         currentMap = mapSystem.getMap(n);
 
-        // Check if this is a bonus level
         isBonusLevel = (n) % 5 == 0;
         if (isBonusLevel) {
-            bonusLevelTimer = 30f; // Reset bonus level timer
-            enemyRespawnTimer = 5f; // Reset enemy respawn timer
-            //Gdx.app.debug("Config", "Bonus level started! Timer: " + bonusLevelTimer);
+            bonusLevelTimer = 30f;
+            enemyRespawnTimer = 5f;
         }
 
         if (actors == null) {
@@ -82,23 +123,30 @@ public class Config {
             setupenemies(currentLevel);
         }
         currentMap.setActors(actors);
-        //Gdx.app.debug("Config", "Level " + n + " setup complete");
         return currentMap;
     }
 
     public boolean switchToNextLevel() {
         int nextLevel = currentLevel + 1;
         if (nextLevel < mapSystem.getMapCount()) {
-            //Gdx.app.debug("Config", "Switching to level " + nextLevel);
-
-            // Setup next level and ensure player's map reference is updated
             currentMap = setuplevel(nextLevel);
             if (player != null) {
                 player.setMap(currentMap);
             }
             return true;
         }
-       // Gdx.app.debug("Config", "No more levels available, restarting from level 0");
+        return false;
+    }
+
+    public boolean restartLevel() {
+        int nextLevel = currentLevel;
+        if (nextLevel < mapSystem.getMapCount()) {
+            currentMap = setuplevel(nextLevel);
+            if (player != null) {
+                player.setMap(currentMap);
+            }
+            return true;
+        }
         return false;
     }
 
@@ -108,26 +156,22 @@ public class Config {
             if (enemies.isEmpty() && !soundPlayed) {
                 sfx.playSFX("sound/clear.mp3");
                 soundPlayed = true;
-                Gdx.app.debug("Config", "All enemies defeated! Sound played.");
             }
         }
     }
 
     public boolean isLevelCompleted() {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.K)){
+        if (Gdx.input.isKeyJustPressed(Input.Keys.K)) {
             return true;
         }
 
         clearSound();
 
-        // For bonus levels, check if time is up
         if (isBonusLevel && bonusLevelTimer <= 0) {
-            //Gdx.app.debug("Config", "Bonus level time up!");
             return true;
         }
 
         if (currentMap != null && player != null) {
-            // Check if player has reached the door and all enemies are defeated
             for (MapObject object : currentMap.getCollisionLayer().getObjects()) {
                 if (object instanceof RectangleMapObject) {
                     RectangleMapObject rectObject = (RectangleMapObject) object;
@@ -135,10 +179,8 @@ public class Config {
                         rectObject.getProperties().get("KYS") != null) {
                         Rectangle doorRect = rectObject.getRectangle();
                         Rectangle playerRect = player.getBoundingBox();
-                        // Check if player is at the door and there are no enemies left
                         ArrayList<Enemy> enemies = actors.getEnemies();
                         if (doorRect.overlaps(playerRect) && enemies.isEmpty()) {
-                            //Gdx.app.debug("Config", "Level " + currentLevel + " completed!");
                             return true;
                         }
                     }
@@ -169,50 +211,37 @@ public class Config {
         ArrayList<Integer> enemyTypes = new ArrayList<>();
 
         int baseEnemies = 1 + level;
-        if(baseEnemies>10) baseEnemies=10;
+        if (baseEnemies > 10) baseEnemies = 10;
 
-        // Nivel 1
         if (level <= 1) {
             enemyTypes.add(0);
             enemyTypes.add(0);
-        }
-        // Nivel 2
-        else if (level <= 2) {
+        } else if (level <= 2) {
             for (int i = 0; i < baseEnemies; i++) {
                 enemyTypes.add(rand.nextInt(1));
             }
             enemyTypes.add(1);
-        }
-        // Nivel 3 - 5
-        else if (level <= 5) {
+        } else if (level <= 5) {
             for (int i = 0; i < baseEnemies; i++) {
                 enemyTypes.add(rand.nextInt(2));
             }
             enemyTypes.add(2);
-        }
-        // Nivel 6-7
-        else if (level <= 7) {
+        } else if (level <= 7) {
             for (int i = 0; i < baseEnemies; i++) {
                 enemyTypes.add(rand.nextInt(3));
             }
             enemyTypes.add(3);
-        }
-        // Nivel 8-10
-        else if (level <= 10) {
+        } else if (level <= 10) {
             for (int i = 0; i < baseEnemies; i++) {
                 enemyTypes.add(rand.nextInt(4));
             }
             enemyTypes.add(4);
-        }
-        // Nivel 11-13
-        else if (level <= 13) {
+        } else if (level <= 13) {
             for (int i = 0; i < baseEnemies; i++) {
                 enemyTypes.add(rand.nextInt(5));
             }
             enemyTypes.add(5);
-        }
-        // Nivel 14
-        else if (level >= 14) {
+        } else if (level >= 14) {
             baseEnemies = level;
             for (int i = 0; i < baseEnemies; i++) {
                 enemyTypes.add(rand.nextInt(6));
@@ -220,7 +249,6 @@ public class Config {
             enemyTypes.add(6);
         }
 
-        // Convert ArrayList to array
         int[] result = new int[enemyTypes.size()];
         for (int i = 0; i < enemyTypes.size(); i++) {
             result[i] = enemyTypes.get(i);
@@ -248,7 +276,6 @@ public class Config {
                 }
             }
         }
-        Gdx.app.debug("Config", "Enemies setup complete for level " + currentLevel + " with " + enemyTypes.length + " enemies");
     }
 
     public boolean stuck(Rectangle enemyRect) {
@@ -267,16 +294,13 @@ public class Config {
         if (state == GameScreen.State.running) {
             float deltaTime = Gdx.graphics.getDeltaTime();
 
-            // Handle bonus level timers
             if (isBonusLevel) {
                 bonusLevelTimer -= deltaTime;
                 enemyRespawnTimer -= deltaTime;
 
-                // Respawn enemies every 5 seconds
                 if (enemyRespawnTimer <= 0) {
                     setupenemies(currentLevel);
-                    enemyRespawnTimer = 5f; // Reset timer
-                    Gdx.app.debug("Config", "Respawning enemies in bonus level!");
+                    enemyRespawnTimer = 5f;
                 }
             }
         }

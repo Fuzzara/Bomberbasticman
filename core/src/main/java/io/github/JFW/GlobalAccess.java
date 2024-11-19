@@ -8,6 +8,7 @@ public class GlobalAccess {
     private static GlobalAccess instance;
     private Actors actors;
     private Config config;
+    private Scoreboard scoreboard;
 
     private GlobalAccess() {}
 

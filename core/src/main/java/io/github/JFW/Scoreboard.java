@@ -20,11 +20,13 @@ public class Scoreboard {
     private SpriteBatch batch;
     private Config levelConfig;
     private SFXPlayer sfx;
+    private boolean timeOutProcessed; // New flag to track if timeout was processed
 
     private Scoreboard(){
         this.score = 0; //999999999 max
         this.timeLeft = 200;
         this.lives = 3;
+        this.timeOutProcessed = false;
         batch = SpriteBatchHandler.getBatch();
         font = new BitmapFont(Gdx.files.internal("fontBomber.fnt"),Gdx.files.internal("fontBomber.png"),false);
         font.getData().setScale(1.1f);
@@ -71,9 +73,13 @@ public class Scoreboard {
     public void countDown(){
         if (timeLeft > 0) {
             timeLeft--;
-        } else {
+            timeOutProcessed = false; // Reset flag when time is counting down
+        } else if (!timeOutProcessed) { // Only process timeout once
             timeLeft = 0;
-            // spawn moneda Giratoria!!!!
+            Gdx.app.error("Scoreboard", "esta pinga no esta spawneando bichos");
+            GlobalAccess.getInstance().getConfig().timerOutEnemies();
+            timeLeft = 200; // Reset timer after spawning enemies
+            timeOutProcessed = true; // Set flag to prevent multiple calls
         }
     }
 
@@ -98,21 +104,14 @@ public class Scoreboard {
     public void removeLife(){
         player = Player.getInstance();
         if (player.getHP() >= 0) {
+
             if (!player.getInvincible()) {
-                player.die(Gdx.graphics.getDeltaTime());
+                player.die(Gdx.graphics.getDeltaTime());;
                 this.lives = player.getHP();
                 return;
             }
         } else {
-            //GAMEOVER!!!!!!!!!!!!!
-            //RESET!
-            /*player.setHP(3);
-            this.lives = 3;
-            this.score = 0;
-            this.timeLeft = 200;*/
             Main.getInstance().gameOver();
-            reset();
-            //temporal tho
         }
     }
 
@@ -126,11 +125,13 @@ public class Scoreboard {
 
     public void setTimeLeft(int time){
         this.timeLeft = time;
+        timeOutProcessed = false; // Reset the flag when setting new time
     }
 
     public void reset(){
         this.score = 0;
         this.lives = 3;
         this.timeLeft = 200;
+        this.timeOutProcessed = false;
     }
 }

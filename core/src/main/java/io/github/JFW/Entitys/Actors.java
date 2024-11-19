@@ -73,6 +73,10 @@ public class Actors extends Actor {
         powerUps.clear();
     }
 
+    public void clearEnemies(){
+        enemies.clear();
+    }
+
     public ArrayList<PowerUp> getPowerUps(){
         return powerUps;
     }
