@@ -26,7 +26,7 @@ public class Map {
 
     Actors actors;
 
-    private int DESTROYABLE_WALL = 2;
+    private int DESTROYABLE_WALL = 40;
 
     public Map(String mapPath, int powerUP) {
         tiledMap = new TmxMapLoader().load(mapPath);
@@ -158,7 +158,7 @@ public class Map {
         while (n != 0){
             int x = rand.nextInt((16-2)+1)+2;
             int y = rand.nextInt((13-1)+1)+1;
-            if ((x%2 == 0) && (y%2 != 0) && !((x==2||x==4||x==6) && y==13) && !( x==2 && (y==11||y==9) )){
+            if ((x%2 == 0) && (y%2 != 0) && !((x==2||x==4||x==6) && y==13) && !( x==2 && (y==11||y==9) )){ //to not trap the player in spawn
                 addSingleCollision(x,y, "Indestructible");
                 n -=1;
             }

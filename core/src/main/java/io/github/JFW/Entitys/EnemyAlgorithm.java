@@ -8,12 +8,12 @@ import io.github.JFW.MapEnv.*;
 import java.util.ArrayList;
 import com.badlogic.gdx.Gdx;
 
-//A* Algorithm
+//A* Algorithm (Dios mio)
 public class EnemyAlgorithm {
     private int maxCol = 18;
     private int maxRow = 18;
 
-    //Algorithm specific
+
     private Node[][] node;
     private Node startNode;
     private Node currentNode;
@@ -25,7 +25,7 @@ public class EnemyAlgorithm {
     private boolean goalReached;
     private int limit;
 
-    //Game specific
+
     private Map currentMap;
     private Enemy enemy;
     private Vector2 enemyposition;
@@ -66,25 +66,25 @@ public class EnemyAlgorithm {
 
         // Get the next node in the path
         Node nextNode = pathList.get(0);
-        
-        // Calculate direction based on current position and next node
+
+        // calcular direccion basado en la posicion actual y el siguiente nodo
         float tileWidth = currentMap.getCollisionLayer().getTileWidth();
         float tileHeight = currentMap.getCollisionLayer().getTileHeight();
-        
-        // Get current position in tile coordinates
+
+        // pos en tiles
         float currentTileX = enemyposition.x / tileWidth;
         float currentTileY = fixingY((int)(enemyposition.y / tileHeight));
-        
-        // Determine direction based on next node position
+
+        // determinar la direccion basado en la posicion actual y el siguiente nodo
         if (Math.abs(nextNode.col - currentTileY) > Math.abs(nextNode.row - currentTileX)) {
-            // Move vertically first
+            // vertical
             if (nextNode.col < currentTileY) {
                 this.state = stateEnemy.State.UP;
             } else {
                 this.state = stateEnemy.State.DOWN;
             }
         } else {
-            // Move horizontally first
+            // horizontal
             if (nextNode.row < currentTileX) {
                 this.state = stateEnemy.State.LEFT;
             } else {
@@ -92,17 +92,17 @@ public class EnemyAlgorithm {
             }
         }
 
-        // If current direction is blocked, try alternate direction
+        // si la direccion no es valida, intentar con la otra
         if (!ValidDirection(this.state)) {
             if (this.state == stateEnemy.State.UP || this.state == stateEnemy.State.DOWN) {
-                // Try horizontal movement
+                // horizontal
                 if (nextNode.row < currentTileX) {
                     this.state = stateEnemy.State.LEFT;
                 } else {
                     this.state = stateEnemy.State.RIGHT;
                 }
             } else {
-                // Try vertical movement
+                // vertical
                 if (nextNode.col < currentTileY) {
                     this.state = stateEnemy.State.UP;
                 } else {
@@ -117,10 +117,10 @@ public class EnemyAlgorithm {
     private boolean ValidDirection(stateEnemy.State nextDirection) {
         float deltaTime = Gdx.graphics.getDeltaTime();
         float speed = enemy.getSpeed() * deltaTime;
-        
-        // Add a small offset to better handle tile edges
+
+        // offset para edges
         float offset = 2f;
-        
+
         switch(nextDirection) {
             case LEFT:
                 return !enemy.isCollision(enemyposition.x - speed - offset, enemyposition.y);
@@ -235,17 +235,17 @@ public class EnemyAlgorithm {
     }
 
     private void getCost(Node node) {
-        //Get g cost
+        // g cost
         int xDistance = Math.abs(node.col - startNode.col);
         int yDistance = Math.abs(node.row - startNode.row);
         node.gCost = xDistance + yDistance;
 
-        //Get h cost
+        // h cost
         xDistance = Math.abs(node.col - goalNode.col);
         yDistance = Math.abs(node.row - goalNode.row);
         node.hCost = xDistance + yDistance;
 
-        //Get f cost
+        // f cost
         node.fCost = node.gCost + node.hCost;
     }
 
@@ -258,13 +258,13 @@ public class EnemyAlgorithm {
             checkedList.add(currentNode);
             openList.remove(currentNode);
 
-            // Check all four directions
+            // checkear las 4 direcciones
             checkNode(col, row - 1); // up
             checkNode(col, row + 1); // down
             checkNode(col - 1, row); // left
             checkNode(col + 1, row); // right
 
-            // Find the best node
+            // encontrar el mejor nodo
             int bestNodeIndex = 0;
             int bestNodefCost = 999;
 

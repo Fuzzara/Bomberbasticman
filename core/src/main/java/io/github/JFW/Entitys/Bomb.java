@@ -17,8 +17,6 @@ import io.github.JFW.MapEnv.Map;
 import io.github.JFW.System.Animator;
 import io.github.JFW.System.SFXPlayer;
 import io.github.JFW.System.SpriteBatchHandler;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -28,7 +26,6 @@ public class Bomb extends Actor{
     private boolean tileDestroyed;
     private float tileDestroyedTimer;
     private boolean isDoor;
-    private boolean destroyedThisFrame;
 
     private final SpriteBatch batch;
     private int EXPLOSION_RANGE = 1;
@@ -55,10 +52,8 @@ public class Bomb extends Actor{
     //Animation!
     private Animator explosionHorizontal;
     private Animator explosionVertical;
-    private Animator explosionUp;
-    private Animator explosionDown;
-    private Animator explosionLeft;
-    private Animator explosionRight;
+    private final ArrayList<Vector2> explosionPositions = new ArrayList<>();
+    private final ArrayList<Animator> explosionSprites = new ArrayList<>();
 
     //DEBUG
     private ShapeRenderer shapeRenderer = new ShapeRenderer();
@@ -85,7 +80,6 @@ public class Bomb extends Actor{
         this.tileDestroyed = false;
         this.tileDestroyedTimer = 0f;
         this.isDoor = false;
-        this.destroyedThisFrame = false;
 
         this.tiledMap = map;
         this.currentTime = System.nanoTime();
@@ -118,14 +112,14 @@ public class Bomb extends Actor{
 
     public void makeAnimation(){
         this.idleAnimator = new Animator("bombSpriteSheet.png", 8, 1, 0, 2, 0.5f, Animation.PlayMode.LOOP_PINGPONG);
-        this.explosionAnimator = new Animator("bombSpriteSheet.png", 8, 1, 3, 7, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
-
-        this.explosionUp = new Animator("bombExplosion.png", 30, 1, 0, 4, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
-        this.explosionLeft = new Animator("bombExplosion.png", 30, 1, 5, 9, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
-        this.explosionDown = new Animator("bombExplosion.png", 30, 1, 10, 14, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
-        this.explosionRight = new Animator("bombExplosion.png", 30, 1, 15, 19, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
-        this.explosionHorizontal = new Animator("bombExplosion.png", 30, 1, 20, 24, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
-        this.explosionVertical = new Animator("bombExplosion.png", 30, 1, 25, 29, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
+        //this.explosionAnimator = new Animator("bombSpriteSheet.png", 8, 1, 3, 7, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
+        this.explosionAnimator = new Animator("bombExplosion.png", 30, 1, 20, 24, 15f, Animation.PlayMode.LOOP_PINGPONG);
+       //this.explosionUp = new Animator("bombExplosion.png", 30, 1, 0, 4, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
+        //this.explosionLeft = new Animator("bombExplosion.png", 30, 1, 5, 9, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
+        //this.explosionDown = new Animator("bombExplosion.png", 30, 1, 10, 14, 0.15f, Animation.PlayMode.LOOP_PINGPONG); no se pudo implmentar, oh well
+        //this.explosionRight = new Animator("bombExplosion.png", 30, 1, 15, 19, 0.15f, Animation.PlayMode.LOOP_PINGPONG);
+        this.explosionHorizontal = new Animator("bombExplosion.png", 30, 1, 20, 24, 15f, Animation.PlayMode.LOOP_PINGPONG);
+        this.explosionVertical = new Animator("bombExplosion.png", 30, 1, 25, 29, 15f, Animation.PlayMode.LOOP_PINGPONG);
     }
 
     public void detonatorExplode(){
@@ -134,9 +128,16 @@ public class Bomb extends Actor{
 
     public void draw(){
         batch.begin();
-        batch.draw(currentAnimator.getFrame(), position.x+24, position.y+24, width, height);
+
         if (exploded) {
-            debugDraw();
+            //debugDraw();
+            for (int i = 0; i < explosionPositions.size(); i++) {
+                Vector2 pos = explosionPositions.get(i);
+                Animator sprite = explosionSprites.get(i);
+                batch.draw(sprite.getFrame(), pos.x, pos.y, width, height);
+            }
+        }else {
+            batch.draw(currentAnimator.getFrame(), position.x+24, position.y+24, width, height);
         }
         batch.end();
     }
@@ -164,51 +165,11 @@ public class Bomb extends Actor{
 
     }
 
-    private void processExplosionDirection(int centerTileX, int centerTileY, int deltaX, int deltaY) {
-        for (int i = 0; i <= EXPLOSION_RANGE; i++) {
-            int tileX = centerTileX + i * deltaX;
-            int tileY = centerTileY + i * deltaY;
-
-            Rectangle tileRect = new Rectangle(
-                tileX * tiledMap.getCollisionLayer().getTileWidth(),
-                tileY * tiledMap.getCollisionLayer().getTileHeight(),
-                tiledMap.getCollisionLayer().getTileWidth(),
-                tiledMap.getCollisionLayer().getTileHeight()
-            );
-
-            // Verifica colision con obstaculos
-            for (RectangleMapObject obstacle : tiledMap.getObstaclesMO()) {
-                if (obstacle.getRectangle().overlaps(tileRect)) {
-                    if (Boolean.TRUE.equals(obstacle.getProperties().get("Indestructible"))&& !obstacle.getProperties().containsKey("Door")) return;
-
-                    // Mark tile as destroyed and start timer
-                    tileDestroyed = true;
-                    tileDestroyedTimer = 0f;
-                    destroyedThisFrame = true;
-
-                    // Remove collision immediately
-                    tiledMap.removeSingleCollision(centerTileX, centerTileY);
-                    tiledMap.removeSingleCollision(tileX, tileY);
-
-                    // Check if it's a door
-                    if (Boolean.FALSE.equals(obstacle.getProperties().get("Door")) && !doorToggle && !isDoor) {
-                        GlobalAccess ga = GlobalAccess.getInstance();
-                        ga.getConfig().setupenemies(ga.getConfig().getCurrentLevel());
-                        doorToggle = true;
-                    }
-                    return;
-                }
-            }
-        }
-    }
-
     public void processExplosion() {
         explosionTimer += Gdx.graphics.getDeltaTime();
         float tileWidth = tiledMap.getCollisionLayer().getTileWidth();
         float tileHeight = tiledMap.getCollisionLayer().getTileHeight();
 
-        // Reset destroyedThisFrame at start of frame
-        destroyedThisFrame = false;
 
         // bomb center position
         int centerTileX = (int) ((position.x + width / 2) / tileWidth);
@@ -220,7 +181,14 @@ public class Bomb extends Actor{
         int rangeUp = calculateEffectiveRange(centerTileX, centerTileY, 0, 1);
         int rangeDown = calculateEffectiveRange(centerTileX, centerTileY, 0, -1);
 
-        // Adjust hitboxes based on effective ranges
+        // Process explosion in each direction first
+        processExplosionDirection(centerTileX, centerTileY, 0, 0); // Center
+        processExplosionDirection(centerTileX, centerTileY, -1, 0); // Left
+        processExplosionDirection(centerTileX, centerTileY, 1, 0);  // Right
+        processExplosionDirection(centerTileX, centerTileY, 0, -1); // Down
+        processExplosionDirection(centerTileX, centerTileY, 0, 1);  // Up
+
+        // ajusta la hitbox de la explosion
         horizHB = new Rectangle(
             position.x + width / 2 - tileWidth * rangeLeft,
             (position.y + height / 2 - tileHeight / 2) + 10,
@@ -275,12 +243,6 @@ public class Bomb extends Actor{
             }
         }
 
-        // Process explosion in each direction first
-        processExplosionDirection(centerTileX, centerTileY, 0, 0); // Center
-        processExplosionDirection(centerTileX, centerTileY, -1, 0); // Left
-        processExplosionDirection(centerTileX, centerTileY, 1, 0);  // Right
-        processExplosionDirection(centerTileX, centerTileY, 0, -1); // Down
-        processExplosionDirection(centerTileX, centerTileY, 0, 1);  // Up
 
         // Chain reaction with other bombs
         ArrayList<Bomb> bombs = actors.getBombs();
@@ -292,8 +254,53 @@ public class Bomb extends Actor{
             }
         }
 
-        if (explosionTimer >= 1.36f) { // Wait for animation to finish
+        if (explosionTimer >= 1.36f) { // wait for animation to finish
             actors.removeBombs(this);
+        }
+    }
+
+    private void processExplosionDirection(int centerTileX, int centerTileY, int deltaX, int deltaY) {
+        for (int i = 0; i <= EXPLOSION_RANGE; i++) {
+            int tileX = centerTileX + i * deltaX;
+            int tileY = centerTileY + i * deltaY;
+
+            Rectangle tileRect = new Rectangle(
+                tileX * tiledMap.getCollisionLayer().getTileWidth(),
+                tileY * tiledMap.getCollisionLayer().getTileHeight(),
+                tiledMap.getCollisionLayer().getTileWidth(),
+                tiledMap.getCollisionLayer().getTileHeight()
+            );
+
+            // Verifica colision con obstaculos
+            for (RectangleMapObject obstacle : tiledMap.getObstaclesMO()) {
+                if (obstacle.getRectangle().overlaps(tileRect)) {
+                    if (Boolean.TRUE.equals(obstacle.getProperties().get("Indestructible"))&& !obstacle.getProperties().containsKey("Door")) return;
+
+                    tileDestroyed = true;
+                    tileDestroyedTimer = 0f;
+
+                    // Remove collision immediately
+                    tiledMap.removeSingleCollision(centerTileX, centerTileY);
+                    tiledMap.removeSingleCollision(tileX, tileY);
+
+                    // Check if door
+                    if (Boolean.FALSE.equals(obstacle.getProperties().get("Door")) && !doorToggle && !isDoor) {
+                        GlobalAccess ga = GlobalAccess.getInstance();
+                        ga.getConfig().setupenemies(ga.getConfig().getCurrentLevel());
+                        doorToggle = true;
+                    }
+                    return;
+                }
+            }
+            explosionPositions.add(new Vector2(tileX * tiledMap.getCollisionLayer().getTileWidth(),
+                tileY * tiledMap.getCollisionLayer().getTileHeight()));
+            if (deltaX == 0 && deltaY == 0) { // Center (igual no se ve xd)
+                explosionSprites.add(explosionAnimator);
+            } else if (deltaX != 0) { // Horizontal
+                explosionSprites.add(explosionHorizontal);
+            } else if (deltaY != 0) { // Vertical
+                explosionSprites.add(explosionVertical);
+            }
         }
     }
 
@@ -309,18 +316,18 @@ public class Bomb extends Actor{
                 tiledMap.getCollisionLayer().getTileHeight()
             );
 
-            // Check for obstacles
+            // check obstacles
             for (RectangleMapObject obstacle : tiledMap.getObstaclesMO()) {
                 if (Boolean.TRUE.equals(obstacle.getProperties().get("Door"))){
                     isDoor = true;
                 }
                 if (obstacle.getRectangle().overlaps(tileRect)) {
-                    // If it's indestructible (and not a door), stop before it
+                    // si es indestructible, no se incluye en la explosion
                     if (Boolean.TRUE.equals(obstacle.getProperties().get("Indestructible"))
                         && !obstacle.getProperties().containsKey("Door")) {
                         return i - 1;
                     }
-                    // For destructible objects, include this tile but stop here
+                    // para destruir el obstaculo
                     tiledMap.removeSingleCollision(tileX, tileY);
                     return i;
                 }
@@ -328,6 +335,7 @@ public class Bomb extends Actor{
         }
         return EXPLOSION_RANGE; // No obstacles in range
     }
+
 
     public void debugDraw(){
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);

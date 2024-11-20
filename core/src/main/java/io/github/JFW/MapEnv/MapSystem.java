@@ -25,11 +25,10 @@ public class MapSystem {
         FIRE_MAN //7
     }
     private void loadMaps() {
-        //TODO: RANDOM FOR THE POWERUPS PLAYER ALREADY HAS
 
         //Primera skin 1
         maps.add(new Map("maps/lvl1.tmx", 0)); //este no cuenta porque la mierda es indice 1
-        maps.add(new Map("maps/lvl1.tmx", 7));
+        maps.add(new Map("maps/lvl1.tmx", 0));
         maps.add(new Map("maps/lvl1.tmx", 1));
         maps.add(new Map("maps/lvl1.tmx", 2));
         maps.add(new Map("maps/lvl1.tmx", 3));
