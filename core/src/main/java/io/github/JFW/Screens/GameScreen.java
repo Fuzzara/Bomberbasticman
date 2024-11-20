@@ -196,7 +196,7 @@ public class GameScreen extends ApplicationAdapter {
                 music.pauseMusic();
                 Gdx.app.log("State", "Pausado");
             } else if (state.getCurrentState() == stateGameScreen.State.paused) {
-                state.setCurrentState(stateGameScreen.State.paused);
+                state.setCurrentState(stateGameScreen.State.running);
                 music.resumeMusic();
                 Gdx.app.log("State", "Resumido");
             }

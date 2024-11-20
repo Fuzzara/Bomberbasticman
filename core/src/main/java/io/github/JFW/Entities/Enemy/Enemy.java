@@ -94,7 +94,7 @@ public class Enemy extends Actor {
 
     // Actualiza el estado del enemigo
     public void update() {
-        algorithm();
+        AI();
         updateBoundingBox();
         draw();
     }
@@ -113,6 +113,10 @@ public class Enemy extends Actor {
     public int getScore() {
         return score;
     }
+    // Devuelve el nivel de ai del enemigo
+    public int getAi(){
+        return ai;
+    }
 
     // Devuelve las posiciones centrales del enemigo y del jugador
     public int[] getCenterPositions() {
@@ -122,6 +126,87 @@ public class Enemy extends Actor {
         int centerTileXP = (int) ((playerPosition.x + SPRITE_WIDTH / 2) / currentMap.getCollisionLayer().getTileWidth());
         int centerTileYP = (int) ((playerPosition.y + SPRITE_WIDTH / 2) / currentMap.getCollisionLayer().getTileWidth());
         return new int[]{centerTileX, centerTileY, centerTileXP, centerTileYP};
+    }
+
+    private boolean checkIfPlayerinLOS(){
+        int[]Positions = getCenterPositions();
+        if(Positions[0] < Positions[2]){
+            int tmpx = Positions[0];
+            Positions[0] = Positions[2];
+            Positions[2] = tmpx;
+        }
+        if(Positions[1] < Positions[3]){
+            int tmpy = Positions[1];
+            Positions[1] = Positions[3];
+            Positions[3] = tmpy;
+        }
+        boolean inLOS = false;
+        //y esta al reves
+        for (int x = Positions[0];x <= Positions[2];x++){
+            for (int y = Positions[3];y <= Positions[1];y++){
+                if (!checkObstacle(x,y)){
+                    inLOS = true;
+                }
+                else{
+                    inLOS = false;
+                }
+            }
+            if (inLOS){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean checkObstacle(int x,int y){
+        Rectangle tileRect = new Rectangle(
+            x * currentMap.getCollisionLayer().getTileWidth(),
+            y * currentMap.getCollisionLayer().getTileHeight(),
+            currentMap.getCollisionLayer().getTileWidth(),
+            currentMap.getCollisionLayer().getTileHeight()
+        );
+
+        // Verifica colision con obstaculos
+        for (RectangleMapObject obstacle : currentMap.getObstaclesMO()) {
+            if (obstacle.getRectangle().overlaps(tileRect)) {
+                if (Boolean.TRUE.equals(obstacle.getProperties().get("Indestructible")))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    private void AI(){
+        if (ai == 0 ){
+            moveRandomly();
+        }
+        else if (ai == 1){
+            if(checkIfPlayerinLOS()){
+                algorithm();
+            }
+            else{moveRandomly();}
+        }
+        else if (ai == 2){
+            Random rand = new Random();
+            int x = rand.nextInt(4);
+            if (x == 3){
+                algorithm();
+            }
+            else{
+                moveRandomly();
+            }
+        }
+        else if (ai == 3){
+            if (Math.abs(player.getPosition().x - position.x) <= 528 && Math.abs(player.getPosition().y - position.y) <= 402){
+                algorithm();
+            }
+            else{
+                moveRandomly();
+            }
+        }
+        else if (ai == 4){
+            algorithm();
+        }
     }
 
     // Elige una dirección aleatoria para el enemigo
@@ -135,6 +220,8 @@ public class Enemy extends Actor {
             case 3 -> state.setCurrentState(stateEnemy.State.LEFT);
         }
     }
+
+
 
     // Mueve al enemigo de manera aleatoria
     private void moveRandomly() {

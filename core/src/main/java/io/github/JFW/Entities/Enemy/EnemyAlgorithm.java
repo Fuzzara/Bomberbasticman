@@ -219,8 +219,10 @@ public class EnemyAlgorithm {
             for (int ii = 0; ii < maxRow; ii++) {
                 if (isIndestructible(i, ii)) {
                     setSolidNode(fixingY(ii), i);
-                } else if (isDestructible(i, ii)) {
-                    setSolidNode(fixingY(ii), i);
+                } else if (enemy.getAi() != 1 && enemy.getAi() !=4) {
+                    if(isDestructible(i,ii)){
+                        setSolidNode(fixingY(ii), i);
+                    }
                 }
             }
         }
