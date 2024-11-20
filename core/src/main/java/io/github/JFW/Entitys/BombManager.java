@@ -1,13 +1,12 @@
 package io.github.JFW.Entitys;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import io.github.JFW.MapEnv.Map;
 import io.github.JFW.System.InputHandler;
-import io.github.JFW.System.SFXPlayer;
-import io.github.JFW.System.SpriteBatchHandler;
+import io.github.JFW.Audio.SFXPlayer;
+import io.github.JFW.Graphics.SpriteBatchHandler;
 
 public class BombManager {
     private final SpriteBatch batch;

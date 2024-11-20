@@ -2,7 +2,6 @@ package io.github.JFW.MapEnv;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
@@ -12,7 +11,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import io.github.JFW.Entitys.Actors;
 import io.github.JFW.Entitys.PowerUp;
-import io.github.JFW.GlobalAccess;
+import io.github.JFW.System.GlobalAccess;
 
 import java.util.Random;
 

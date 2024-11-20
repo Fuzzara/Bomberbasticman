@@ -1,4 +1,4 @@
-package io.github.JFW.System;
+package io.github.JFW.Audio;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
@@ -14,7 +14,7 @@ public class SFXPlayer {
     public void playSFX(String path) {
         Sound sound = sounds.get(path);
         if (sound == null) {
-            // Only load the sound if we haven't loaded it before
+            // only load the sound if we haven't loaded it before
             sound = Gdx.audio.newSound(Gdx.files.internal(path));
             sounds.put(path, sound);
         }

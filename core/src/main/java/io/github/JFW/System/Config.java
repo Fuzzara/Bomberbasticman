@@ -6,12 +6,15 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
-import io.github.JFW.*;
+import io.github.JFW.Audio.SFXPlayer;
 import io.github.JFW.Entitys.Actors;
 import io.github.JFW.Entitys.Enemy;
+import io.github.JFW.Entitys.EnemyFactory;
 import io.github.JFW.Entitys.Player;
 import io.github.JFW.MapEnv.Map;
 import io.github.JFW.MapEnv.MapSystem;
+import io.github.JFW.Screens.GameScreen;
+import io.github.JFW.States.statePlayer;
 
 import java.util.ArrayList;
 import java.util.Random;

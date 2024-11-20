@@ -1,10 +1,8 @@
-package io.github.JFW;
+package io.github.JFW.Entitys;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import io.github.JFW.Entitys.Enemy;
 import io.github.JFW.MapEnv.Map;
-import io.github.JFW.System.Animator;
+import io.github.JFW.Graphics.Animator;
 
 public class EnemyFactory { //muy poo de nuestra parte
     public static Enemy createEnemy(int type, float x, float y, Map map, float PlayerSpeed) {

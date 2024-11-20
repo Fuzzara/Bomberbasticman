@@ -4,15 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import io.github.JFW.System.Animator;
-import io.github.JFW.System.SFXPlayer;
-import io.github.JFW.System.SpriteBatchHandler;
-import io.github.JFW.statePlayer;
-import io.github.JFW.statePlayer.PowerUpType;
+import io.github.JFW.Graphics.Animator;
+import io.github.JFW.Audio.SFXPlayer;
+import io.github.JFW.Graphics.SpriteBatchHandler;
+import io.github.JFW.States.statePlayer;
 
 
 public class PowerUp {

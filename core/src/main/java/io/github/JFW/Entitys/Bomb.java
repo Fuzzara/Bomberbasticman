@@ -10,13 +10,13 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.graphics.Color;
 
-import io.github.JFW.GlobalAccess;
-import io.github.JFW.Scoreboard;
-import io.github.JFW.statePlayer.PowerUpType;
+import io.github.JFW.System.GlobalAccess;
+import io.github.JFW.System.Scoreboard;
+import io.github.JFW.States.statePlayer.PowerUpType;
 import io.github.JFW.MapEnv.Map;
-import io.github.JFW.System.Animator;
-import io.github.JFW.System.SFXPlayer;
-import io.github.JFW.System.SpriteBatchHandler;
+import io.github.JFW.Graphics.Animator;
+import io.github.JFW.Audio.SFXPlayer;
+import io.github.JFW.Graphics.SpriteBatchHandler;
 import java.util.ArrayList;
 import java.util.Iterator;
 

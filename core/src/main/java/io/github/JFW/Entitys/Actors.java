@@ -1,11 +1,10 @@
 package io.github.JFW.Entitys;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import io.github.JFW.GameScreen;
-import io.github.JFW.statePlayer;
+import io.github.JFW.Screens.GameScreen;
+import io.github.JFW.States.statePlayer;
 
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 

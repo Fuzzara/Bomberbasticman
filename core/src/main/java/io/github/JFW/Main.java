@@ -1,10 +1,13 @@
 package io.github.JFW;
 import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
-import io.github.JFW.System.SFXPlayer;
-import io.github.JFW.System.SpriteBatchHandler;
+import io.github.JFW.Audio.SFXPlayer;
+import io.github.JFW.Graphics.SpriteBatchHandler;
+import io.github.JFW.Screens.GameOverScreen;
+import io.github.JFW.Screens.GameScreen;
+import io.github.JFW.Screens.MainMenu;
+import io.github.JFW.System.Scoreboard;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {

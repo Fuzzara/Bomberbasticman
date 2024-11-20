@@ -1,4 +1,4 @@
-package io.github.JFW.System;
+package io.github.JFW.Audio;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
@@ -6,7 +6,7 @@ import com.badlogic.gdx.audio.Music;
 public class MusicPlayer {
     private Music music;
     private boolean isPlaying;
-    
+
     public void playMusic(String path){
         if (music != null) {
             music.dispose(); // Clean up previous music
@@ -17,28 +17,28 @@ public class MusicPlayer {
         music.play();
         isPlaying = true;
     }
-    
+
     public void stopMusic(){
         if (music != null) {
             music.stop();
             isPlaying = false;
         }
     }
-    
+
     public void pauseMusic(){
         if (music != null) {
             music.pause();
             isPlaying = false;
         }
     }
-    
+
     public void resumeMusic(){
         if (music != null) {
             music.play();
             isPlaying = true;
         }
     }
-    
+
     public boolean isPlaying(){
         return isPlaying;
     }

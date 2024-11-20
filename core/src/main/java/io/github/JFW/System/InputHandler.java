@@ -2,7 +2,7 @@ package io.github.JFW.System;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import io.github.JFW.statePlayer;
+import io.github.JFW.States.statePlayer;
 
 public class InputHandler{
 

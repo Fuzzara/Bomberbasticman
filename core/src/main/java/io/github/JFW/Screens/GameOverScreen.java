@@ -1,4 +1,4 @@
-package io.github.JFW;
+package io.github.JFW.Screens;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -6,9 +6,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import io.github.JFW.Main;
 import io.github.JFW.System.InputHandler;
-import io.github.JFW.System.MusicPlayer;
-import io.github.JFW.System.SpriteBatchHandler;
+import io.github.JFW.Audio.MusicPlayer;
+import io.github.JFW.Graphics.SpriteBatchHandler;
 
 public class GameOverScreen extends ApplicationAdapter {
     private static GameOverScreen instance;

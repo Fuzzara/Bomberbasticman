@@ -1,10 +1,6 @@
 package io.github.JFW.MapEnv;
 
 import com.badlogic.gdx.utils.Array;
-import io.github.JFW.Entitys.Player;
-import io.github.JFW.statePlayer;
-
-import java.util.Random;
 
 public class MapSystem {
     private Array<Map> maps;

@@ -1,4 +1,4 @@
-package io.github.JFW;
+package io.github.JFW.States;
 
 public class stateEnemy {
     public enum State {

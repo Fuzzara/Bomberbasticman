@@ -1,12 +1,12 @@
-package io.github.JFW;
+package io.github.JFW.System;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import io.github.JFW.Entitys.Player;
-import io.github.JFW.System.SFXPlayer;
-import io.github.JFW.System.SpriteBatchHandler;
-import io.github.JFW.System.Config;
+import io.github.JFW.Audio.SFXPlayer;
+import io.github.JFW.Graphics.SpriteBatchHandler;
+import io.github.JFW.Main;
 
 public class Scoreboard {
     private static Scoreboard instance; //Singleton YEAHHHHHHHHHHHHHHHHHHHHHH

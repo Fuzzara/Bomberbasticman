@@ -1,4 +1,4 @@
-package io.github.JFW.System;
+package io.github.JFW.Graphics;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 

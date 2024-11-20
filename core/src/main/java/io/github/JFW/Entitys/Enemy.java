@@ -1,10 +1,7 @@
 package io.github.JFW.Entitys;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g3d.utils.MeshBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
@@ -12,12 +9,11 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import io.github.JFW.MapEnv.Map;
-import io.github.JFW.Scoreboard;
-import io.github.JFW.System.Animator;
-import io.github.JFW.System.SpriteBatchHandler;
-import io.github.JFW.stateEnemy;
+import io.github.JFW.System.Scoreboard;
+import io.github.JFW.Graphics.Animator;
+import io.github.JFW.Graphics.SpriteBatchHandler;
+import io.github.JFW.States.stateEnemy;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 public class Enemy extends Actor {

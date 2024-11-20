@@ -1,7 +1,7 @@
 package io.github.JFW.Entitys;
 
 import com.badlogic.gdx.math.Vector2;
-import io.github.JFW.stateEnemy;
+import io.github.JFW.States.stateEnemy;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import io.github.JFW.MapEnv.*;

@@ -1,8 +1,6 @@
-package io.github.JFW;
+package io.github.JFW.System;
 
 import io.github.JFW.Entitys.Actors;
-import io.github.JFW.Entitys.Player;
-import io.github.JFW.System.Config;
 
 public class GlobalAccess {
     private static GlobalAccess instance;

@@ -1,4 +1,4 @@
-package io.github.JFW;
+package io.github.JFW.Screens;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
@@ -7,8 +7,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -18,7 +16,11 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
+import io.github.JFW.Audio.MusicPlayer;
+import io.github.JFW.Audio.SFXPlayer;
 import io.github.JFW.Entitys.Player;
+import io.github.JFW.Graphics.SpriteBatchHandler;
+import io.github.JFW.System.Scoreboard;
 import io.github.JFW.System.*;
 import io.github.JFW.MapEnv.*;
 
