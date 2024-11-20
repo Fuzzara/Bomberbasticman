@@ -23,18 +23,19 @@ public class GameOverScreen extends ApplicationAdapter {
     private float y = 900;
     private float speed = 350;
 
-    public GameOverScreen(){
-        this.batch = SpriteBatchHandler.getBatch(); //Singleton oh yeahh
+    public GameOverScreen() {
+        this.batch = SpriteBatchHandler.getBatch(); // Singleton oh yeahh
         background = new Texture("logobg.png");
         stage = new Stage(new ExtendViewport(864, 783));
         logo = new Texture("gameover.png");
         music.playMusic("sound/gameover.mp3");
         delta = Gdx.graphics.getDeltaTime();
-
     }
+
+    // Renderiza la pantalla de Game Over
     public void render() {
         batch.begin();
-        batch.draw(background, 0+24, 0+24, 864, 783);
+        batch.draw(background, 0 + 24, 0 + 24, 864, 783);
         delta += Gdx.graphics.getDeltaTime();
         logoAnimation(SpriteBatchHandler.getBatch());
         if (handleInput()) {
@@ -43,21 +44,25 @@ public class GameOverScreen extends ApplicationAdapter {
         }
         batch.end();
     }
+
+    // Anima el logo de Game Over
     public void logoAnimation(SpriteBatch batch) {
         if (y > 0) {
             y -= speed * Gdx.graphics.getDeltaTime();
             if (y < 0) y = 0;
         }
-        batch.draw(logo, 24, y+24, 864, 783);
+        batch.draw(logo, 24, y + 24, 864, 783);
     }
 
+    // Input en la pantalla
     public boolean handleInput() {
         return inputHandler.handleGameOverInput();
     }
+
+    // Libera los recursos de la pantalla de Game Over
     public void dispose() {
         background.dispose();
         logo.dispose();
         music.dispose();
     }
-
 }

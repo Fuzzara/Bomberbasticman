@@ -1,4 +1,5 @@
 package io.github.JFW.Graphics;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -28,13 +29,19 @@ public class Animator {
         animation = new Animation<>(frameDuration, frames);
         animation.setPlayMode(playMode);
     }
+
+    // Frame actual de la animación
     public TextureRegion getFrame() {
         time += Gdx.graphics.getDeltaTime();
         return animation.getKeyFrame(time);
     }
+
+    // Resetea la animación al frame dado
     public void reset(float frame) {
         time = frame;
     }
+
+    // Bota las cosas
     public void dispose() {
         texture.dispose();
     }

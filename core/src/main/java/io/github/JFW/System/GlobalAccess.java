@@ -1,6 +1,6 @@
 package io.github.JFW.System;
 
-import io.github.JFW.Entitys.Actors;
+import io.github.JFW.Entities.Actors;
 
 public class GlobalAccess {
     private static GlobalAccess instance;
@@ -15,10 +15,6 @@ public class GlobalAccess {
             instance = new GlobalAccess();
         }
         return instance;
-    }
-
-    public Actors getActors() {
-        return actors;
     }
 
     public void setActors(Actors actors) {

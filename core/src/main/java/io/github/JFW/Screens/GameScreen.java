@@ -18,22 +18,23 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
 import io.github.JFW.Audio.MusicPlayer;
 import io.github.JFW.Audio.SFXPlayer;
-import io.github.JFW.Entitys.Player;
+import io.github.JFW.Entities.Player.Player;
 import io.github.JFW.Graphics.SpriteBatchHandler;
 import io.github.JFW.System.Scoreboard;
 import io.github.JFW.System.*;
 import io.github.JFW.MapEnv.*;
+import io.github.JFW.States.stateGameScreen;
 
 public class GameScreen extends ApplicationAdapter {
 
-    //UI
+    // UI elements
     private Stage stage;
     private Skin skin;
     private SpriteBatch batch;
     private Texture uiBackground;
     private BitmapFont font;
 
-    //Config y Mapa
+    // Config y Map
     private Config levelconfig;
     public Array<Rectangle> obstacles;
     private ShapeRenderer sr;
@@ -45,28 +46,22 @@ public class GameScreen extends ApplicationAdapter {
 
     private Player player;
 
-    //Sound
+    // Sonido
     private MusicPlayer music = new MusicPlayer();
     private float musicUpdateTimer = 0f;
     private SFXPlayer sfx = new SFXPlayer();
 
-    //Scoreboard
+    // Scoreboard
     private Scoreboard scoreboard;
 
-    //states del juego
-    public enum State {
-        running,
-        paused,
-        levelTransition
-    }
-    private State state;
+    // Game states
+    private stateGameScreen state;
     private float transitionTimer;
-    private static final float TRANSITION_DURATION = 3.7f; // transicion de nivel (3.7 segundos de espera)
+    private static final float TRANSITION_DURATION = 3.7f; // Level transition duration (3.7 seconds)
 
-    //Constructor bonito
     public GameScreen(int level, int score) {
         this.batch = SpriteBatchHandler.getBatch();
-        state = State.running;
+        this.state = new stateGameScreen();
 
         sr = new ShapeRenderer();
 
@@ -80,7 +75,7 @@ public class GameScreen extends ApplicationAdapter {
 
         Gdx.input.setInputProcessor(stage);
 
-        //Configuración de la cámara y el mapa
+        // Configuración de la cámara y el mapa
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 864, 783);
         camera.position.set((864/2)+24, (783/2)+24, 0);
@@ -92,11 +87,12 @@ public class GameScreen extends ApplicationAdapter {
         currentMap = levelconfig.setuplevel(level);
         mapRenderer = new OrthogonalTiledMapRenderer(currentMap.getTiledMap(),3f);
 
-        //Musica!
+        // Musica!
         updateMusic(level);
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
     }
 
+    // Actualiza la música según el nivel
     private void updateMusic(int level) {
         music.stopMusic();
         if (level > 0 && (level) % 5 == 0) {
@@ -108,9 +104,10 @@ public class GameScreen extends ApplicationAdapter {
         }
     }
 
+    //render xd
     @Override
     public void render() {
-        switch (state) {
+        switch (state.getCurrentState()) {
             case running:
                 checkLevelCompletion();
                 draw();
@@ -132,16 +129,18 @@ public class GameScreen extends ApplicationAdapter {
         inputExtra();
     }
 
+    // Verifica si el nivel está completado
     private void checkLevelCompletion() {
         if (levelconfig.isLevelCompleted()) {
             music.stopMusic();
             sfx.playSFX("sound/win.mp3");
-            state = State.levelTransition;
+            state.setCurrentState(stateGameScreen.State.levelTransition);
             transitionTimer = TRANSITION_DURATION;
             Gdx.app.log("GameScreen", "Level " + levelconfig.getCurrentLevel()+ " completed!");
         }
     }
 
+    // Maneja la transición entre niveles
     private void handleLevelTransition() {
         transitionTimer -= Gdx.graphics.getDeltaTime();
 
@@ -155,7 +154,7 @@ public class GameScreen extends ApplicationAdapter {
                 mapRenderer.setMap(currentMap.getTiledMap());
                 //sfx.playSFX("sound/lvlstart.mp3");
                 updateMusic(levelconfig.getCurrentLevel());
-                state = State.running;
+                state.setCurrentState(stateGameScreen.State.running);
                 Gdx.app.log("GameScreen", "Starting level " + levelconfig.getCurrentLevel());
             } else {
                 // No more levels, game complete!
@@ -163,11 +162,12 @@ public class GameScreen extends ApplicationAdapter {
                 currentMap = levelconfig.setuplevel(1);
                 mapRenderer.setMap(currentMap.getTiledMap());
                 updateMusic(0);
-                state = State.running;
+                state.setCurrentState(stateGameScreen.State.running);
             }
         }
     }
 
+    // Dibuja la pantalla del juego
     private void draw() {
         ScreenUtils.clear(0f, 0f, 0f, 1f);
 
@@ -180,6 +180,7 @@ public class GameScreen extends ApplicationAdapter {
         batch.end();
     }
 
+    // Maneja entradas adicionales
     private void inputExtra() {
         if (inputHandler.debugReload()) {
             currentMap.dispose();
@@ -188,14 +189,14 @@ public class GameScreen extends ApplicationAdapter {
             Gdx.app.log("Debug", "Reloaded");
         }
         if (inputHandler.handlePauseInput()) {
-            if (state == State.running) {
+            if (state.getCurrentState() == stateGameScreen.State.running) {
                 music.pauseMusic();
                 sfx.playSFX("sound/pause.mp3");
-                state = State.paused;
+                state.setCurrentState(stateGameScreen.State.paused);
                 music.pauseMusic();
                 Gdx.app.log("State", "Pausado");
-            } else if (state == State.paused) {
-                state = State.running;
+            } else if (state.getCurrentState() == stateGameScreen.State.paused) {
+                state.setCurrentState(stateGameScreen.State.paused);
                 music.resumeMusic();
                 Gdx.app.log("State", "Resumido");
             }
@@ -209,15 +210,7 @@ public class GameScreen extends ApplicationAdapter {
 
     @Override
     public void dispose() {
-       // stage.dispose();
-       // skin.dispose();
-        //batch.dispose();
-        //uiBackground.dispose();
-        //sr.dispose();
-        //currentMap.dispose();
-        //mapRenderer.dispose();
+        // Libera recursos
         music.dispose();
-        //sfx.dispose();
-        //font.dispose();
     }
 }

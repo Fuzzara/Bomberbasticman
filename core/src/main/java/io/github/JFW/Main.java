@@ -1,4 +1,5 @@
 package io.github.JFW;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -17,13 +18,18 @@ public class Main extends ApplicationAdapter {
     private GameScreen gameScreen;
     private GameOverScreen gameOverScreen;
     private SFXPlayer sfx = new SFXPlayer();
-    public enum State { //states del juego
+
+    // Estados del juego
+    public enum State {
         mainMenu,
         game,
         gameover
     }
     private State state;
+
     public Main() {}
+
+    // Singleton para obtener la instancia de Main
     public static Main getInstance() {
         if (instance == null) {
             instance = new Main();
@@ -31,14 +37,15 @@ public class Main extends ApplicationAdapter {
         return instance;
     }
 
-
+    // Inicializa el juego
     @Override
     public void create() {
-       this.batch = SpriteBatchHandler.getBatch();
-       mainMenu = new MainMenu();
-       state = State.mainMenu;
+        this.batch = SpriteBatchHandler.getBatch();
+        mainMenu = new MainMenu();
+        state = State.mainMenu;
     }
 
+    // Renderiza el juego según el estado actual
     @Override
     public void render() {
         ScreenUtils.clear(0, 0, 0, 1);
@@ -46,7 +53,7 @@ public class Main extends ApplicationAdapter {
             case mainMenu:
                 mainMenu.render();
                 String action = mainMenu.handleInput();
-                if (action!=null) {
+                if (action != null) {
                     if (action.equals("start")) {
                         sfx.playSFX("sound/selectMenu.mp3");
                         mainMenu.dispose();
@@ -62,80 +69,49 @@ public class Main extends ApplicationAdapter {
                 if (Scoreboard.getInstance().getLives() < 0) {
                     this.state = State.gameover;
                 } else {
-                gameScreen.render();}
-
+                    gameScreen.render();
+                }
                 break;
+
             case gameover:
-                if (gameOverScreen == null)
-                {
+                if (gameOverScreen == null) {
                     gameScreen.dispose();
                     gameScreen = null;
                     gameOver();
                 } else {
-                gameOverScreen.render();
-                boolean action2 = gameOverScreen.handleInput();
-                if (action2) {
-                    dispose();
-                    System.exit(0);
-
+                    gameOverScreen.render();
+                    boolean action2 = gameOverScreen.handleInput();
+                    if (action2) {
+                        dispose();
+                        System.exit(0);
+                    }
                 }
                 break;
-            }
         }
     }
-    private void startGame() {
 
-        gameScreen = new GameScreen(1, 0); // level 0, score 0
+    // Inicia el juego
+    private void startGame() {
+        gameScreen = new GameScreen(1, 0); // level 1, score 0
         this.state = State.game;
     }
+
+    // Maneja el estado de Game Over
     public void gameOver() {
         gameOverScreen = new GameOverScreen();
         this.state = State.gameover;
     }
+
+    // Cambia el estado del juego
     public void setState(State newState) {
-       this.state = newState;
+        this.state = newState;
     }
 
-
-    /*private void input(){ //debug!
-        if (Gdx.input.isKeyPressed(Input.Keys.J)) {
-            rect.x -= .5;
-            Gdx.app.log("COORDS CUADRITO", "X: " + rect.x + " Y: " + rect.y);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.K)) {
-            rect.y -= .5;
-            Gdx.app.log("COORDS CUADRITO", "X: " + rect.x + " Y: " + rect.y);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.L)) {
-            rect.x += .5;
-            Gdx.app.log("COORDS CUADRITO", "X: " + rect.x + " Y: " + rect.y);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.I)) {
-            rect.y += .5;
-            Gdx.app.log("COORDS CUADRITO", "X: " + rect.x + " Y: " + rect.y);
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            if (state == State.running) {
-                music.pauseMusic();
-                sfx.playSFX("sound/pause.mp3");
-                state = State.paused;
-                music.pauseMusic();
-                Gdx.app.log("State", "Pausado");
-            } else {
-                state = State.running;
-                music.resumeMusic();
-                Gdx.app.log("State", "Running");
-            }
-        }
-
-    }*/
-
-
+    // Libera recursos
     @Override
     public void dispose() {
         batch.dispose();
         if (mainMenu != null) mainMenu.dispose();
         if (gameScreen != null) gameScreen.dispose();
     }
-
 }

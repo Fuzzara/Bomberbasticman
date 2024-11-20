@@ -1,4 +1,4 @@
-package io.github.JFW.Entitys;
+package io.github.JFW.Entities.Enemy;
 
 public class Node {
     Node parent;

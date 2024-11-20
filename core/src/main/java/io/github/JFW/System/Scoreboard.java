@@ -3,13 +3,13 @@ package io.github.JFW.System;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import io.github.JFW.Entitys.Player;
+import io.github.JFW.Entities.Player.Player;
 import io.github.JFW.Audio.SFXPlayer;
 import io.github.JFW.Graphics.SpriteBatchHandler;
 import io.github.JFW.Main;
 
 public class Scoreboard {
-    private static Scoreboard instance; //Singleton YEAHHHHHHHHHHHHHHHHHHHHHH
+    private static Scoreboard instance; // Singleton YEAHHHHHHHHHHHHHHHHHHHHHH
 
     private int score;
     private int lives;
@@ -22,45 +22,49 @@ public class Scoreboard {
     private SFXPlayer sfx;
     private boolean timeOutProcessed;
 
-    private Scoreboard(){
-        this.score = 0; //999999999 max
+    private Scoreboard() {
+        this.score = 0; // 999999999 max
         this.timeLeft = 200;
         this.lives = 3;
         this.timeOutProcessed = false;
         batch = SpriteBatchHandler.getBatch();
-        font = new BitmapFont(Gdx.files.internal("fontBomber.fnt"),Gdx.files.internal("fontBomber.png"),false);
+        font = new BitmapFont(Gdx.files.internal("fontBomber.fnt"), Gdx.files.internal("fontBomber.png"), false);
         font.getData().setScale(1.1f);
         sfx = new SFXPlayer();
     }
 
-    public static Scoreboard getInstance(){
-        if (instance == null){
+    // Obtiene la instancia del singleton
+    public static Scoreboard getInstance() {
+        if (instance == null) {
             instance = new Scoreboard();
         }
         return instance;
     }
 
+    // Configura el nivel
     public void setLevelConfig(Config config) {
         this.levelConfig = config;
     }
 
-    public void render(){
+    // Renderiza el scoreboard
+    public void render() {
         batch.begin();
         font.draw(batch, "" + score, 650, Gdx.graphics.getHeight() - 2);
 
         // Si es un nivel bonus, mostrar el tiempo restante del bonus
         if (levelConfig != null && levelConfig.isBonusLevel()) {
-            font.draw(batch, String.format("%.0f", levelConfig.getBonusLevelTimer()), 300, Gdx.graphics.getHeight()-2);
+            font.draw(batch, String.format("%.0f", levelConfig.getBonusLevelTimer()), 300, Gdx.graphics.getHeight() - 2);
         } else {
-            font.draw(batch, "" + timeLeft, 300, Gdx.graphics.getHeight()-2);
+            font.draw(batch, "" + timeLeft, 300, Gdx.graphics.getHeight() - 2);
         }
 
-        font.draw(batch, "" + lives, 113, Gdx.graphics.getHeight()-2);
+        font.draw(batch, "" + lives, 113, Gdx.graphics.getHeight() - 2);
         batch.end();
     }
 
-    public void update(float delta){
-        if (levelConfig == null || !levelConfig.isBonusLevel()) { //Si no es un nivel bonus
+    // Actualiza el scoreboard
+    public void update(float delta) {
+        if (levelConfig == null || !levelConfig.isBonusLevel()) { // Si no es un nivel bonus
             timeAcc += delta;
             if (timeAcc >= 1.0f) {
                 timeAcc -= 1.0f;
@@ -69,7 +73,8 @@ public class Scoreboard {
         }
     }
 
-    public void countDown(){
+    // Cuenta regresiva del tiempo
+    public void countDown() {
         if (timeLeft > 0) {
             timeLeft--;
             timeOutProcessed = false;
@@ -81,7 +86,8 @@ public class Scoreboard {
         }
     }
 
-    public void addScore(int newScore){
+    // Añade puntos al score
+    public void addScore(int newScore) {
         int oldScoreFirstDigit = this.score;
         this.score += newScore;
         int scoreNewFirstDigit = this.score;
@@ -89,7 +95,7 @@ public class Scoreboard {
             oldScoreFirstDigit /= 10;
         }
         while (scoreNewFirstDigit > 9) {
-            scoreNewFirstDigit /=10;
+            scoreNewFirstDigit /= 10;
         }
         if (oldScoreFirstDigit != scoreNewFirstDigit && this.score > 99999) {
             sfx.playSFX("sound/1up.mp3");
@@ -99,11 +105,12 @@ public class Scoreboard {
         }
     }
 
-    public void removeLife(){
+    // Quita una vida
+    public void removeLife() {
         player = Player.getInstance();
         if (player.getHP() >= 0) {
             if (!player.getInvincible()) {
-                player.die(Gdx.graphics.getDeltaTime());;
+                player.die(Gdx.graphics.getDeltaTime());
                 this.lives = player.getHP();
             }
         } else {
@@ -111,20 +118,24 @@ public class Scoreboard {
         }
     }
 
-    public int getScore(){
+    // Obtiene el score actual
+    public int getScore() {
         return this.score;
     }
 
-    public int getLives(){
+    // Obtiene las vidas restantes
+    public int getLives() {
         return this.lives;
     }
 
-    public void setTimeLeft(int time){
+    // Configura el tiempo restante
+    public void setTimeLeft(int time) {
         this.timeLeft = time;
         timeOutProcessed = false; // Reset the flag when setting new time
     }
 
-    public void reset(){
+    // Resetea el scoreboard
+    public void reset() {
         this.score = 0;
         this.lives = 3;
         this.timeLeft = 200;

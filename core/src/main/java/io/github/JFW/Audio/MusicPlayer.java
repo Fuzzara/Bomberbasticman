@@ -9,7 +9,7 @@ public class MusicPlayer {
 
     public void playMusic(String path){
         if (music != null) {
-            music.dispose(); // Clean up previous music
+            music.dispose();
         }
         music = Gdx.audio.newMusic(Gdx.files.internal(path));
         music.setLooping(true);

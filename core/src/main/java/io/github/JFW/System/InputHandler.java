@@ -6,6 +6,7 @@ import io.github.JFW.States.statePlayer;
 
 public class InputHandler{
 
+    // Maneja el input del jugador
     public statePlayer.State handlePlayerMovement() {
         if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             return statePlayer.State.LEFT;
@@ -22,6 +23,8 @@ public class InputHandler{
 
         return null;
     }
+
+    // Verifica si el apreto el boton de bomba
     public boolean canPlaceBomb(){
         if (Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_RIGHT)) {
                 return true;
@@ -29,6 +32,7 @@ public class InputHandler{
         return false;
     }
 
+    // Verifica si el jugador apreto el boton de detonar
     public boolean usedDetonator(){
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             return true;
@@ -36,8 +40,9 @@ public class InputHandler{
         return false;
     }
 
-   public String handleMainMenuInput() {
-       if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_ENTER)) {
+    // Maneja el input del menu principal
+    public String handleMainMenuInput() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_ENTER)) {
             return "start";
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
@@ -45,6 +50,8 @@ public class InputHandler{
         }
         return null;
     }
+
+    // Maneja el input de la pnatalla gameover
     public boolean handleGameOverInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_ENTER)) {
             return true;
@@ -52,12 +59,15 @@ public class InputHandler{
         return false;
     }
 
+    // Para pausar y despausar
     public boolean handlePauseInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_ENTER)) {
             return true;
         }
         return false;
     }
+
+    // Recargar el juego (esto no se usa esta bug)
     public boolean debugReload() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             return true;

@@ -1,4 +1,4 @@
-package io.github.JFW.Entitys;
+package io.github.JFW.Entities.Enemy;
 
 import com.badlogic.gdx.math.Vector2;
 import io.github.JFW.States.stateEnemy;
@@ -8,11 +8,10 @@ import io.github.JFW.MapEnv.*;
 import java.util.ArrayList;
 import com.badlogic.gdx.Gdx;
 
-//A* Algorithm (Dios mio)
+// A* Algorithm (Dios mio)
 public class EnemyAlgorithm {
     private int maxCol = 18;
     private int maxRow = 18;
-
 
     private Node[][] node;
     private Node startNode;
@@ -25,12 +24,12 @@ public class EnemyAlgorithm {
     private boolean goalReached;
     private int limit;
 
-
     private Map currentMap;
     private Enemy enemy;
     private Vector2 enemyposition;
     private stateEnemy.State state;
 
+    // Constructor que inicializa el algoritmo
     public EnemyAlgorithm(Enemy enemy, Map currentMap) {
         super();
         int col = 0;
@@ -39,7 +38,7 @@ public class EnemyAlgorithm {
         this.node = new Node[maxCol][maxRow];
         this.goalReached = false;
 
-        //initializing array
+        // Inicializando array
         while (col < maxCol && row < maxRow) {
             node[col][row] = new Node(col, row);
             row++;
@@ -49,9 +48,9 @@ public class EnemyAlgorithm {
             }
         }
 
-        this.openList = new ArrayList<Node>();
-        this.checkedList = new ArrayList<Node>();
-        this.pathList = new ArrayList<Node>();
+        this.openList = new ArrayList<>();
+        this.checkedList = new ArrayList<>();
+        this.pathList = new ArrayList<>();
         this.enemy = enemy;
         this.enemyposition = enemy.getPosition();
         this.currentMap = currentMap;
@@ -59,32 +58,33 @@ public class EnemyAlgorithm {
         setNodes();
     }
 
+    // Devuelve la dirección óptima para el enemigo
     public stateEnemy.State optimalDirection() {
         if (pathList.isEmpty()) {
             return stateEnemy.State.STUCK;
         }
 
-        // Get the next node in the path
+        // Obtener el siguiente nodo en el camino
         Node nextNode = pathList.get(0);
 
-        // calcular direccion basado en la posicion actual y el siguiente nodo
+        // Calcular dirección basado en la posición actual y el siguiente nodo
         float tileWidth = currentMap.getCollisionLayer().getTileWidth();
         float tileHeight = currentMap.getCollisionLayer().getTileHeight();
 
-        // pos en tiles
+        // Pos en tiles
         float currentTileX = enemyposition.x / tileWidth;
         float currentTileY = fixingY((int)(enemyposition.y / tileHeight));
 
-        // determinar la direccion basado en la posicion actual y el siguiente nodo
+        // Determinar la dirección basado en la posición actual y el siguiente nodo
         if (Math.abs(nextNode.col - currentTileY) > Math.abs(nextNode.row - currentTileX)) {
-            // vertical
+            // Vertical
             if (nextNode.col < currentTileY) {
                 this.state = stateEnemy.State.UP;
             } else {
                 this.state = stateEnemy.State.DOWN;
             }
         } else {
-            // horizontal
+            // Horizontal
             if (nextNode.row < currentTileX) {
                 this.state = stateEnemy.State.LEFT;
             } else {
@@ -92,17 +92,17 @@ public class EnemyAlgorithm {
             }
         }
 
-        // si la direccion no es valida, intentar con la otra
+        // Si la dirección no es válida, intentar con la otra
         if (!ValidDirection(this.state)) {
             if (this.state == stateEnemy.State.UP || this.state == stateEnemy.State.DOWN) {
-                // horizontal
+                // Horizontal
                 if (nextNode.row < currentTileX) {
                     this.state = stateEnemy.State.LEFT;
                 } else {
                     this.state = stateEnemy.State.RIGHT;
                 }
             } else {
-                // vertical
+                // Vertical
                 if (nextNode.col < currentTileY) {
                     this.state = stateEnemy.State.UP;
                 } else {
@@ -114,11 +114,12 @@ public class EnemyAlgorithm {
         return this.state;
     }
 
+    // Verifica si la dirección es válida
     private boolean ValidDirection(stateEnemy.State nextDirection) {
         float deltaTime = Gdx.graphics.getDeltaTime();
         float speed = enemy.getSpeed() * deltaTime;
 
-        // offset para edges
+        // Offset para edges
         float offset = 2f;
 
         switch(nextDirection) {
@@ -135,10 +136,12 @@ public class EnemyAlgorithm {
         }
     }
 
+    // Devuelve el estado actual
     public stateEnemy.State getState() {
         return state;
     }
 
+    // Verifica si el tile es destructible
     private boolean isDestructible(int x, int y) {
         Rectangle tileRect = new Rectangle(
             x * currentMap.getCollisionLayer().getTileWidth(),
@@ -158,6 +161,7 @@ public class EnemyAlgorithm {
         return false;
     }
 
+    // Verifica si el tile es indestructible
     private boolean isIndestructible(int x, int y) {
         Rectangle tileRect = new Rectangle(
             x * currentMap.getCollisionLayer().getTileWidth(),
@@ -177,6 +181,7 @@ public class EnemyAlgorithm {
         return false;
     }
 
+    // Configura los nodos
     private void setNodes() {
         int[] EandPposition = enemy.getCenterPositions();
         EandPposition[1] = fixingY(EandPposition[1]);
@@ -191,6 +196,7 @@ public class EnemyAlgorithm {
         autoSearch();
     }
 
+    // Corrige la coordenada Y
     private int fixingY(int y) {
         int maxY = 14;
         return maxY - y + 1;
@@ -234,6 +240,7 @@ public class EnemyAlgorithm {
         }
     }
 
+    // Calcula el costo de un nodo
     private void getCost(Node node) {
         // g cost
         int xDistance = Math.abs(node.col - startNode.col);
@@ -249,6 +256,7 @@ public class EnemyAlgorithm {
         node.fCost = node.gCost + node.hCost;
     }
 
+    // Realiza la búsqueda automática
     public void autoSearch() {
         while (!goalReached && !openList.isEmpty()) {
             int col = currentNode.col;
@@ -258,13 +266,13 @@ public class EnemyAlgorithm {
             checkedList.add(currentNode);
             openList.remove(currentNode);
 
-            // checkear las 4 direcciones
+            // Checkear las 4 direcciones
             checkNode(col, row - 1); // up
             checkNode(col, row + 1); // down
             checkNode(col - 1, row); // left
             checkNode(col + 1, row); // right
 
-            // encontrar el mejor nodo
+            // Encontrar el mejor nodo
             int bestNodeIndex = 0;
             int bestNodefCost = 999;
 

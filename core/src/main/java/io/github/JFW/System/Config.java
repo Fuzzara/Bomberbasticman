@@ -7,13 +7,14 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import io.github.JFW.Audio.SFXPlayer;
-import io.github.JFW.Entitys.Actors;
-import io.github.JFW.Entitys.Enemy;
-import io.github.JFW.Entitys.EnemyFactory;
-import io.github.JFW.Entitys.Player;
+import io.github.JFW.Entities.Actors;
+import io.github.JFW.Entities.Enemy.Enemy;
+import io.github.JFW.Entities.Enemy.EnemyFactory;
+import io.github.JFW.Entities.Player.Player;
 import io.github.JFW.MapEnv.Map;
 import io.github.JFW.MapEnv.MapSystem;
 import io.github.JFW.Screens.GameScreen;
+import io.github.JFW.States.stateGameScreen;
 import io.github.JFW.States.statePlayer;
 
 import java.util.ArrayList;
@@ -42,41 +43,45 @@ public class Config {
         globalaccess.setConfig(this);
     }
 
+    // Enemigos que se reemplazan y aparecen cuando se acaba el tiempo
     public void timerOutEnemies() {
         ArrayList<Enemy> enemies = actors.getEnemies();
-        // Store old enemy positions before clearing
         ArrayList<Rectangle> oldPositions = new ArrayList<>();
         for (Enemy enemy : enemies) {
             oldPositions.add(new Rectangle(enemy.getBoundingBox()));
         }
-
-        // Clear existing enemies
         enemies.clear();
+        respawnEnemiesAtOldPositions(oldPositions);
+        createAdditionalEnemies();
+    }
 
-        // Create new type 6 enemies at old positions
+    // Respawnea enemigos en posiciones antiguas -aux de timerOutEnemies
+    private void respawnEnemiesAtOldPositions(ArrayList<Rectangle> oldPositions) {
         for (Rectangle pos : oldPositions) {
-            Enemy enemy = EnemyFactory.createEnemy(6, (int) pos.x + 24, (int) pos.y +24, currentMap, player.getSpeed());
+            Enemy enemy = EnemyFactory.createEnemy(6, (int) pos.x + 24, (int) pos.y + 24, currentMap, player.getSpeed());
             if (enemy != null) {
                 actors.updateEnemies(enemy);
             }
         }
+    }
 
-        // Create additional type 6 enemies in random positions
+    // Crea enemigos adicionales en posiciones aleatorias -aux de timerOutEnemies
+    private void createAdditionalEnemies() {
         int[] enemyTypes = getEnemyTypesForLevel(currentLevel);
         for (int i = 0; i < enemyTypes.length; i++) {
-            int maxAttempts = 100; // Prevent infinite loops
+            int maxAttempts = 100;
             int attempts = 0;
-            boolean StuckinEnvironment = true;
+            boolean stuckInEnvironment = true;
             Random rand = new Random();
 
-            while (StuckinEnvironment && attempts < maxAttempts) {
+            while (stuckInEnvironment && attempts < maxAttempts) {
                 attempts++;
                 int x = rand.nextInt((775 - 335) + 1) + 355;
                 int y = rand.nextInt((385 - 50) + 1) + 50;
                 Rectangle rect = new Rectangle(x, y, 34, 34);
-                StuckinEnvironment = stuck(rect);
+                stuckInEnvironment = stuck(rect);
 
-                if (!StuckinEnvironment) {
+                if (!stuckInEnvironment) {
                     Enemy enemy = EnemyFactory.createEnemy(6, x, y, currentMap, player.getSpeed());
                     if (enemy != null) {
                         actors.updateEnemies(enemy);
@@ -87,7 +92,7 @@ public class Config {
         }
     }
 
-    // Rest of the class remains unchanged
+    // Genera un Powerup aleatorio
     public int randomPowerUp() {
         Random rand = new Random();
         int x = rand.nextInt(7);
@@ -97,6 +102,7 @@ public class Config {
         return x;
     }
 
+    // Configura el nivel
     public Map setuplevel(int n) {
         currentLevel = n;
         soundPlayed = false;
@@ -105,13 +111,19 @@ public class Config {
         }
 
         currentMap = mapSystem.getMap(n);
-
         isBonusLevel = (n) % 5 == 0;
         if (isBonusLevel) {
             bonusLevelTimer = 30f;
             enemyRespawnTimer = 5f;
         }
 
+        setupActors();
+        currentMap.setActors(actors);
+        return currentMap;
+    }
+
+    // Configura los actores
+    private void setupActors() {
         if (actors == null) {
             actors = new Actors();
             globalaccess.setActors(actors);
@@ -125,10 +137,9 @@ public class Config {
             actors.setPlayer(player);
             setupenemies(currentLevel);
         }
-        currentMap.setActors(actors);
-        return currentMap;
     }
 
+    // Cambia al siguiente nivel
     public boolean switchToNextLevel() {
         int nextLevel = currentLevel + 1;
         if (nextLevel < mapSystem.getMapCount()) {
@@ -141,18 +152,7 @@ public class Config {
         return false;
     }
 
-    public boolean restartLevel() {
-        int nextLevel = currentLevel;
-        if (nextLevel < mapSystem.getMapCount()) {
-            currentMap = setuplevel(nextLevel);
-            if (player != null) {
-                player.setMap(currentMap);
-            }
-            return true;
-        }
-        return false;
-    }
-
+    // Reproduce sonido de nivel completado
     public void clearSound() {
         if (currentMap != null && player != null) {
             ArrayList<Enemy> enemies = actors.getEnemies();
@@ -163,6 +163,7 @@ public class Config {
         }
     }
 
+    // Verifica si el nivel está completado
     public boolean isLevelCompleted() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.K)) {
             return true;
@@ -174,6 +175,11 @@ public class Config {
             return true;
         }
 
+        return checkPlayerAtDoor();
+    }
+
+    // Verifica si el jugador está en la puerta
+    private boolean checkPlayerAtDoor() {
         if (currentMap != null && player != null) {
             for (MapObject object : currentMap.getCollisionLayer().getObjects()) {
                 if (object instanceof RectangleMapObject) {
@@ -193,22 +199,27 @@ public class Config {
         return false;
     }
 
+    // Obtiene el mapa actual
     public Map getCurrentMap() {
         return currentMap;
     }
 
+    // Obtiene el nivel actual
     public int getCurrentLevel() {
         return currentLevel;
     }
 
+    // Verifica si es un nivel bonus
     public boolean isBonusLevel() {
         return isBonusLevel;
     }
 
+    // Obtiene el temporizador del nivel bonus
     public float getBonusLevelTimer() {
         return bonusLevelTimer;
     }
 
+    // Obtiene los tipos de enemigos para el nivel
     private int[] getEnemyTypesForLevel(int level) {
         Random rand = new Random();
         ArrayList<Integer> enemyTypes = new ArrayList<>();
@@ -260,18 +271,19 @@ public class Config {
         return result;
     }
 
+    // Configura los enemigos
     public void setupenemies(int level) {
         int[] enemyTypes = getEnemyTypesForLevel(level);
 
         for (int enemyType : enemyTypes) {
-            boolean StuckinEnvironment = true;
+            boolean stuckInEnvironment = true;
             Random rand = new Random();
-            while (StuckinEnvironment) {
+            while (stuckInEnvironment) {
                 int x = rand.nextInt((775 - 335) + 1) + 355;
                 int y = rand.nextInt((385 - 50) + 1) + 50;
                 Rectangle rect = new Rectangle(x, y, 34, 34);
-                StuckinEnvironment = stuck(rect);
-                if (!StuckinEnvironment) {
+                stuckInEnvironment = stuck(rect);
+                if (!stuckInEnvironment) {
                     Enemy enemy = EnemyFactory.createEnemy(enemyType, x, y, currentMap, player.getSpeed());
                     if (enemy != null) {
                         actors.updateEnemies(enemy);
@@ -281,6 +293,7 @@ public class Config {
         }
     }
 
+    // Verifica si el enemigo está atascado
     public boolean stuck(Rectangle enemyRect) {
         for (MapObject object : currentMap.getCollisionLayer().getObjects()) {
             if (object instanceof RectangleMapObject) {
@@ -293,8 +306,9 @@ public class Config {
         return false;
     }
 
-    public void runlevel(GameScreen.State state) {
-        if (state == GameScreen.State.running) {
+    // Corre el nivel
+    public void runlevel(stateGameScreen state) {
+        if (state.getCurrentState() == stateGameScreen.State.running) {
             float deltaTime = Gdx.graphics.getDeltaTime();
 
             if (isBonusLevel) {
@@ -311,10 +325,12 @@ public class Config {
         actors.update(state);
     }
 
+    // Obtiene los actores
     public Actors getActors() {
         return actors;
     }
 
+    // Libera recursos
     public void dispose() {
         if (mapSystem != null) {
             mapSystem.dispose();

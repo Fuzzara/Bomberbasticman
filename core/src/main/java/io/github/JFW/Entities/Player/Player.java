@@ -1,4 +1,4 @@
-package io.github.JFW.Entitys;
+package io.github.JFW.Entities.Player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -10,6 +10,8 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.math.Rectangle;
+import io.github.JFW.Entities.Actors;
+import io.github.JFW.Entities.Items.BombManager;
 import io.github.JFW.System.GlobalAccess;
 import io.github.JFW.MapEnv.Map;
 import io.github.JFW.Graphics.Animator;
@@ -26,7 +28,7 @@ public class Player extends Actor {
     private static Player instance; // Singleton instance
     private Actors actors;
 
-    // Constants
+    // Constantes
     private static final int INITIAL_HP = 3;
     private static final float INITIAL_SPEED = 120;
     private static final Vector2 INITIAL_POSITION = new Vector2(96, 630);
@@ -44,7 +46,7 @@ public class Player extends Actor {
     private boolean isFireProtectedTemp = false;
     private float fireProtectionTime = 60f;
 
-    // Position and movement
+    // Posiciones cosas
     private Vector2 position;
     private float speed;
     private InputHandler inputHandler;
@@ -52,10 +54,10 @@ public class Player extends Actor {
     private Sprite bomberSprite;
     private SpriteBatch batch;
 
-    //Bomb stuff
+    // Bomb stuff
     private BombManager bombManager;
 
-    //Animations
+    // Animaciones
     private final Animator upAnimator;
     private final Animator downAnimator;
     private final Animator leftAnimator;
@@ -64,12 +66,12 @@ public class Player extends Actor {
     private Animator deathAnimator;
     private Animator winAnimator;
 
-    // Collision and bounding box
+    // Colisiones
     private Rectangle boundingBox;
     private ShapeRenderer shapeRenderer;
     private Map currentMap;
 
-    //Sound
+    // Sonido
     private float walkSoundTime;
     private SFXPlayer sfx;
 
@@ -77,10 +79,10 @@ public class Player extends Actor {
     private boolean isInvincible;
     private float invincibleTime;
 
-    //States
+    // States
     statePlayer state;
 
-    private Player(Actors actors, Map currentMap) { // Make constructor private
+    private Player(Actors actors, Map currentMap) {
         this.actors = actors;
         this.currentMap = currentMap;
         this.hp = INITIAL_HP;
@@ -92,8 +94,6 @@ public class Player extends Actor {
         this.state = new statePlayer();
         this.inputHandler = new InputHandler();
         this.batch = SpriteBatchHandler.getBatch();
-
-        this.actors = actors;
 
         this.sfx = new SFXPlayer();
 
@@ -115,54 +115,51 @@ public class Player extends Actor {
         this.deathAnimator = new Animator("bomberSpriteSheet.png", 29, 1, 12, 18, 0.1f, Animation.PlayMode.NORMAL);
         this.winAnimator = new Animator("bomberSpriteSheet.png", 29, 1, 19, 28, 0.2f, Animation.PlayMode.NORMAL);
 
-        this.currentAnimator = downAnimator; //default
+        this.currentAnimator = downAnimator; // default
     }
 
-    public void setMap(Map map){
+    // Cambia el mapa actual
+    public void setMap(Map map) {
         this.currentMap = map;
         this.bombManager.setMap(map);
     }
 
+    // Le da un power-up al jugador
     public void applyPowerUp(statePlayer.PowerUpType type) {
         activePowerUps.add(type);
         switch (type) {
-            case SUN: //AF
-                //+2 Alcance de bomba
-                    //Bomba se encarga de esto
+            case SUN: // AF
+                // +2 Alcance de bomba
                 break;
-            case GOLDEN_BOMB: //AF
-                //+1 Bomba
+            case GOLDEN_BOMB: // AF
+                // +1 Bomba
                 bombLimit = BOMB_LIMIT + 1;
                 break;
             case DETONATOR:
-                //Spacebar para detonar
-                    // (funciona pero con un poco de delay?)
+                // Spacebar para detonar
                 break;
-            case SKATES: //AF
-                //1.5x velocidad
-                    //ya esta chavales nadamas hay que poner la velocidad que es
-                speed = INITIAL_SPEED  * 1.5f;
+            case SKATES: // AF
+                // 1.5x velocidad
+                speed = INITIAL_SPEED * 1.5f;
                 break;
             case STRIPPED_BOMB:
-                //Atravesar bombas
-                    //💀💀💀
+                // Atravesar bombas
                 break;
             case STRIPPED_WALL:
-                //Atravesar paredes
-                    //mae mae sea serio mae mae mae mae mae mae
+                // Atravesar paredes
                 break;
             case QUESTION_MARK:
-                //Invulnerabilidad al fuego 60 segundos?
-                    float delta = Gdx.graphics.getDeltaTime();
-                    isFireProtectedTemp = true;
+                // Invulnerabilidad al fuego 60 segundos
+                float delta = Gdx.graphics.getDeltaTime();
+                isFireProtectedTemp = true;
                 break;
             case FIRE_MAN:
-                //Invulnerabilidad al fuego
-                    //implementado :D
+                // Invulnerabilidad al fuego
                 break;
         }
     }
 
+    // Le quita un powerup al jugador
     public void removePowerUp(statePlayer.PowerUpType type) {
         activePowerUps.remove(type);
         switch (type) {
@@ -170,13 +167,13 @@ public class Player extends Actor {
                 // AF, no se quita
                 break;
             case GOLDEN_BOMB:
-                //AF, no se quita
+                // AF, no se quita
                 break;
             case DETONATOR:
                 // Remove Detonator effect
                 break;
             case SKATES:
-                //AF, no se quita
+                // AF, no se quita
                 break;
             case STRIPPED_BOMB:
                 // Remove Stripped Bomb effect
@@ -191,10 +188,12 @@ public class Player extends Actor {
         }
     }
 
+    // Verifica si el jugador tiene algun powerup específico
     public boolean hasPowerUp(statePlayer.PowerUpType type) {
         return activePowerUps.contains(type);
     }
 
+    // Define parametros del jugador como actors y el mapa
     public static Player getInstance(Actors actors, Map currentMap) {
         if (instance == null) {
             instance = new Player(actors, currentMap);
@@ -202,26 +201,21 @@ public class Player extends Actor {
         return instance;
     }
 
+    // Obtiene la instancia del jugador (singleton)
     public static Player getInstance() {
         return instance;
     }
 
+    // renderiza el jugador
     public void draw() {
         batch.begin();
         batch.draw(currentAnimator.getFrame(), position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
-
-        //DEBUG BOUNDING BOX
-        /*shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(1,0,0,1);
-        shapeRenderer.rect(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height);
-        shapeRenderer.end();*/
-
         batch.end();
     }
 
+    // Maneja el input del jugador
     private void handleInput() {
         float deltaTime = Gdx.graphics.getDeltaTime();
-        // -- Estados movimiento --
         statePlayer.State currentState = inputHandler.handlePlayerMovement();
         if (currentState != null) {
             state.setCurrentState(currentState);
@@ -258,11 +252,12 @@ public class Player extends Actor {
 
         bombManager.handleBombPlacement(position, Gdx.graphics.getDeltaTime());
 
-        if(inputHandler.usedDetonator()){
+        if (inputHandler.usedDetonator()) {
             actors.useDetonator();
         }
     }
 
+    // Mueve al jugador
     private void move(float dx, float dy) {
         float newX = position.x + dx;
         float newY = position.y + dy;
@@ -272,8 +267,9 @@ public class Player extends Actor {
         }
     }
 
+    // Verifica si hay colisión en la nueva posición
     private boolean isCollision(float x, float y) {
-        Rectangle playerRect = new Rectangle(x , y , BOUNDING_BOX_SIZE, BOUNDING_BOX_SIZE);
+        Rectangle playerRect = new Rectangle(x, y, BOUNDING_BOX_SIZE, BOUNDING_BOX_SIZE);
         for (MapObject object : currentMap.getCollisionLayer().getObjects()) {
             if (object instanceof RectangleMapObject) {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
@@ -303,43 +299,52 @@ public class Player extends Actor {
         return false; // No collision detected
     }
 
-    private void playSound(){
+    // Footsteps epicos
+    private void playSound() {
         walkSoundTime += Gdx.graphics.getDeltaTime();
-        if (walkSoundTime >= 0.5f){
+        if (walkSoundTime >= 0.5f) {
             sfx.playSFX("sound/Walking-1.mp3");
             walkSoundTime = 0f;
         }
     }
 
+    // Ontas
     public Vector2 getPosition() {
         return position;
     }
 
-    private void updateBoundingBox(){
-        boundingBox.setPosition(position.x-24, position.y-24);
+    // Actualiza la caja de colisión del jugador
+    private void updateBoundingBox() {
+        boundingBox.setPosition(position.x - 24, position.y - 24);
     }
 
-    public boolean collidesWith(Rectangle r){
-        return boundingBox.overlaps(r);
-    }
-
-    public Rectangle getBoundingBox(){
+    // Obtiene boundingbox del jugador
+    public Rectangle getBoundingBox() {
         return boundingBox;
     }
-    public Rectangle getBoundingBoxEnemy(){
-        return new Rectangle(boundingBox.x+12, boundingBox.y+12, 48, 48);
+
+    // Obtiene la boundingbox del jugador para enemigos
+    public Rectangle getBoundingBoxEnemy() {
+        return new Rectangle(boundingBox.x + 12, boundingBox.y + 12, 48, 48);
     }
 
+    // Obtiene la velocidad del jugador
     public float getSpeed() {
         return speed;
     }
-    public int getHP(){
+
+    // hp?
+    public int getHP() {
         return hp;
     }
-    public void setHP(int hp){
+
+    // hp -> this.hp ;)
+    public void setHP(int hp) {
         this.hp = hp;
     }
-    public void die(float delta){
+
+    // NOOOO PORQUE SE MUERE BRO
+    public void die(float delta) {
         if (isDead) {
             while (invincibleTime <= 3f) {
                 invincibleTime += delta;
@@ -354,22 +359,25 @@ public class Player extends Actor {
         removeNotAFPowerUps();
         sfx.playSFX("sound/dead.mp3");
         invincibleTime = 0f;
-
     }
 
-    public void win(){
+    // WUU WIN GANOOO LETS GOO
+    public void win() {
         this.currentAnimator = winAnimator;
         state.setCurrentState(statePlayer.State.DOOR);
     }
 
-    public void respawn(){
+    // Respawnea al jugador
+    public void respawn() {
         isDead = false;
         position.set(INITIAL_POSITION);
         this.currentAnimator = downAnimator;
-        boundingBox.setPosition(INITIAL_POSITION.x-24, INITIAL_POSITION.y-24);
+        boundingBox.setPosition(INITIAL_POSITION.x - 24, INITIAL_POSITION.y - 24);
         isInvincible = true;
         invincibleTime = 0f;
     }
+
+    // Elimina los powerups que no son AF
     public void removeNotAFPowerUps() {
         removePowerUp(statePlayer.PowerUpType.DETONATOR);
         removePowerUp(statePlayer.PowerUpType.STRIPPED_BOMB);
@@ -378,7 +386,8 @@ public class Player extends Actor {
         removePowerUp(statePlayer.PowerUpType.FIRE_MAN);
     }
 
-    public void update(){
+    // Actualiza el estado del jugador
+    public void update() {
         if (isInvincible) {
             if (GlobalAccess.getInstance().isBonusLevel()) {
                 isInvincible = true;
@@ -402,19 +411,22 @@ public class Player extends Actor {
             handleInput();
         }
 
-
         updateBoundingBox();
         draw();
     }
-    public boolean getInvincible(){
+
+    // Invencible?
+    public boolean getInvincible() {
         return isInvincible;
     }
 
-    public void setCurrentMap(Map map) { //porque esto esta aca?
+    // Le da el mapa actual del jugador
+    public void setCurrentMap(Map map) {
         this.currentMap = map;
     }
 
-    public int getBombLimit(){
+    // Obtiene el límite de bombas del jugador
+    public int getBombLimit() {
         return bombLimit;
     }
 }

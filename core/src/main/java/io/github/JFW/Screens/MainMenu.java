@@ -21,23 +21,25 @@ public class MainMenu extends ApplicationAdapter {
     private float y = -800;
     private float speed = 500;
 
-    public MainMenu(){
-        this.batch = SpriteBatchHandler.getBatch(); //Singleton oh yeahh
+    public MainMenu() {
+        this.batch = SpriteBatchHandler.getBatch(); // Singleton oh yeahh
         background = new Texture("logobg.png");
         stage = new Stage(new ExtendViewport(864, 783));
         logo = new Texture("logo.png");
         music.playMusic("sound/title.mp3");
         delta = Gdx.graphics.getDeltaTime();
-
     }
+
+    // Renderiza el menú principal
     public void render() {
         batch.begin();
         batch.draw(background, 0, 0, 864, 783);
         delta += Gdx.graphics.getDeltaTime();
         logoAnimation(SpriteBatchHandler.getBatch());
-
         batch.end();
     }
+
+    // Anima el logo del menú principal
     public void logoAnimation(SpriteBatch batch) {
         if (y < 0) {
             y += speed * Gdx.graphics.getDeltaTime();
@@ -46,13 +48,15 @@ public class MainMenu extends ApplicationAdapter {
         batch.draw(logo, 0, y, 864, 783);
     }
 
+    // Input del usuario en el menú principal
     public String handleInput() {
         return inputHandler.handleMainMenuInput();
     }
+
+    // Libera los recursos del menú principal
     public void dispose() {
         background.dispose();
         logo.dispose();
         music.dispose();
     }
-
 }

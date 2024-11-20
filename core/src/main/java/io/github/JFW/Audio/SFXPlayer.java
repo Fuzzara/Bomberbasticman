@@ -14,7 +14,6 @@ public class SFXPlayer {
     public void playSFX(String path) {
         Sound sound = sounds.get(path);
         if (sound == null) {
-            // only load the sound if we haven't loaded it before
             sound = Gdx.audio.newSound(Gdx.files.internal(path));
             sounds.put(path, sound);
         }
